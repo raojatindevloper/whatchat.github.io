@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>What-Chat | Home</title>
+  <style>
+    :root {
+      --primary: #7c3aed;
+      --primary-light: #a78bfa;
+      --white: #ffffff;
+      --gray: #f3f4f6;
+      --dark: #1f2937;
+    }
+    
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+    
+    body {
+      background-color: var(--gray);
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+    
+    header {
+      background-color: var(--white);
+      padding: 1rem;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+    
+    .search-container {
+      display: flex;
+      align-items: center;
+      background-color: var(--gray);
+      border-radius: 8px;
+      padding: 0.5rem 1rem;
+    }
+    
+    .search-container input {
+      flex: 1;
+      border: none;
+      background: transparent;
+      padding: 0.5rem;
+      outline: none;
+    }
+    
+    .search-container svg {
+      color: #6b7280;
+    }
+    
+    .user-list {
+      padding: 1rem;
+      flex: 1;
+    }
+    
+    .user-card {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      padding: 1rem;
+      background-color: var(--white);
+      border-radius: 8px;
+      margin-bottom: 1rem;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+    
+    .user-avatar {
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      background-color: #ddd;
+      overflow: hidden;
+    }
+    
+    .user-avatar img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    
+    .user-info {
+      flex: 1;
+    }
+    
+    .user-name {
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 0.25rem;
+    }
+    
+    .verified-badge {
+      color: var(--primary);
+      font-size: 0.875rem;
+    }
+    
+    .username {
+      color: #6b7280;
+      font-size: 0.875rem;
+    }
+    
+    .message-btn {
+      background-color: var(--primary);
+      color: var(--white);
+      border: none;
+      border-radius: 4px;
+      padding: 0.5rem 1rem;
+      font-size: 0.875rem;
+      cursor: pointer;
+    }
+    
+    .no-users {
+      text-align: center;
+      margin-top: 2rem;
+      color: #6b7280;
+    }
+    
+    .footer {
+      margin-top: auto;
+      padding: 1rem;
+      text-align: center;
+    }
+    
+    .footer a {
+      color: var(--primary);
+      text-decoration: none;
+      font-weight: 600;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="search-container">
+      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+        <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z"/>
+      </svg>
+      <input type="text" id="searchInput" placeholder="Search by username like @piyush">
+    </div>
+  </header>
+  
+  <div class="user-list" id="userList">
+    <div class="no-users">Loading users...</div>
+  </div>
+  
+  <div class="footer">
+    <a href="#" id="ownerLink">An App By Rao Jatin</a>
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', async () => {
+      const userList = document.getElementById('userList');
+      const searchInput = document.getElementById('searchInput');
+      const ownerLink = document.getElementById('ownerLink');
+      
+      let currentUser = null;
+      let allUsers = [];
+      
+      // Check authentication
+      auth.onAuthStateChanged(async (user) => {
+        if (!user) {
+          window.location.href = 'index.html';
+        } else {
+          currentUser = user;
+          loadUsers();
+        }
+      });
+      
+      // Load all users (except current user)
+      async function loadUsers(searchTerm = '') {
+        try {
+          userList.innerHTML = '<div class="no-users">Loading users...</div>';
+          
+          let q = collection(db, 'users');
+          const querySnapshot = await getDocs(q);
+          
+          allUsers = [];
+          querySnapshot.forEach((doc) => {
+            if (doc.id !== currentUser.uid) {
+              allUsers.push(doc.data());
+            }
+          });
+          
+          displayUsers(allUsers, searchTerm);
+        } catch (error) {
+          console.error('Error loading users:', error);
+          userList.innerHTML = '<div class="no-users">Error loading users. Please try again.</div>';
+        }
+      }
+      
+      // Display users with optional search filtering
+      function displayUsers(users, searchTerm = '') {
+        if (users.length === 0) {
+          userList.innerHTML = '<div class="no-users">No users found</div>';
+          return;
+        }
+        
+        let filteredUsers = users;
+        if (searchTerm) {
+          const term = searchTerm.toLowerCase();
+          filteredUsers = users.filter(user => 
+            user.username.toLowerCase().includes(term) || 
+            user.name.toLowerCase().includes(term)
+          );
+        }
+        
+        userList.innerHTML = '';
+        
+        filteredUsers.forEach(user => {
+          const userCard = document.createElement('div');
+          userCard.className = 'user-card';
+          
+          userCard.innerHTML = `
+            <div class="user-avatar">
+              ${user.photoURL ? 
+                `<img src="${user.photoURL}" alt="${user.name}">` : 
+                `<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;background-color:#a78bfa;color:white;">${user.name.charAt(0)}</div>`
+              }
+            </div>
+            <div class="user-info">
+              <div class="user-name">
+                ${user.name}
+                ${user.username === 'raojatin' ? '<span class="verified-badge">✓</span>' : ''}
+              </div>
+              <div class="username">@${user.username}</div>
+            </div>
+            <button class="message-btn" data-userid="${user.uid}">Message</button>
+          `;
+          
+          userList.appendChild(userCard);
+        });
+        
+        // Add event listeners to message buttons
+        document.querySelectorAll('.message-btn').forEach(btn => {
+          btn.addEventListener('click', () => {
+            const userId = btn.getAttribute('data-userid');
+            window.location.href = `chat.html?userId=${userId}`;
+          });
+        });
+      }
+      
+      // Search functionality
+      searchInput.addEventListener('input', (e) => {
+        const term = e.target.value.replace('@', '');
+        displayUsers(allUsers, term);
+      });
+      
+      // Owner link
+      ownerLink.addEventListener('click', (e) => {
+        e.preventDefault();
+        window.location.href = 'chat.html?userId=raojatin';
+      });
+    });
+  </script>
+</body>
+</html>

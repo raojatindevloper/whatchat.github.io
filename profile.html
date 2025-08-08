@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>What-Chat | Complete Profile</title>
+  <style>
+    :root {
+      --primary: #7c3aed;
+      --primary-light: #a78bfa;
+      --white: #ffffff;
+      --gray: #f3f4f6;
+      --dark: #1f2937;
+    }
+    
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+    
+    body {
+      background-color: var(--gray);
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+    
+    .container {
+      max-width: 400px;
+      margin: auto;
+      padding: 2rem;
+    }
+    
+    h1 {
+      color: var(--primary);
+      margin-bottom: 2rem;
+      text-align: center;
+    }
+    
+    .profile-form {
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+    
+    .profile-pic-upload {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 1rem;
+    }
+    
+    .profile-pic {
+      width: 120px;
+      height: 120px;
+      border-radius: 50%;
+      background-color: #ddd;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      position: relative;
+      cursor: pointer;
+    }
+    
+    .profile-pic img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    
+    .profile-pic .initials {
+      font-size: 2.5rem;
+      color: var(--dark);
+    }
+    
+    .profile-pic input {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      opacity: 0;
+      cursor: pointer;
+    }
+    
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+    
+    .form-group label {
+      font-weight: 600;
+      color: var(--dark);
+    }
+    
+    .form-group input {
+      padding: 0.75rem;
+      border-radius: 8px;
+      border: 1px solid #d1d5db;
+    }
+    
+    .save-btn {
+      padding: 0.75rem;
+      border-radius: 8px;
+      border: none;
+      background-color: var(--primary);
+      color: var(--white);
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      margin-top: 1rem;
+    }
+    
+    .error {
+      color: #ef4444;
+      font-size: 0.875rem;
+      margin-top: 0.25rem;
+    }
+    
+    .footer {
+      margin-top: auto;
+      padding: 1rem;
+      text-align: center;
+    }
+    
+    .footer a {
+      color: var(--primary);
+      text-decoration: none;
+      font-weight: 600;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Complete Your Profile</h1>
+    
+    <form class="profile-form" id="profileForm">
+      <div class="profile-pic-upload">
+        <div class="profile-pic" id="profilePicContainer">
+          <div class="initials">?</div>
+          <input type="file" id="profilePic" accept="image/*">
+        </div>
+        <span>Click to upload profile picture</span>
+      </div>
+      
+      <div class="form-group">
+        <label for="fullName">Full Name</label>
+        <input type="text" id="fullName" required>
+      </div>
+      
+      <div class="form-group">
+        <label for="username">Username</label>
+        <input type="text" id="username" required>
+        <div class="error" id="usernameError"></div>
+      </div>
+      
+      <button type="submit" class="save-btn" id="saveProfile">Save & Continue</button>
+    </form>
+  </div>
+  
+  <div class="footer">
+    <a href="#" id="ownerLink">An App By Rao Jatin</a>
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', async () => {
+      const profileForm = document.getElementById('profileForm');
+      const profilePicInput = document.getElementById('profilePic');
+      const profilePicContainer = document.getElementById('profilePicContainer');
+      const fullNameInput = document.getElementById('fullName');
+      const usernameInput = document.getElementById('username');
+      const usernameError = document.getElementById('usernameError');
+      const saveBtn = document.getElementById('saveProfile');
+      const ownerLink = document.getElementById('ownerLink');
+      
+      let profilePicUrl = '';
+      let profilePicFile = null;
+      
+      // Check if user is logged in
+      auth.onAuthStateChanged(async (user) => {
+        if (!user) {
+          window.location.href = 'index.html';
+        } else {
+          // Pre-fill email if available
+          if (user.email) {
+            fullNameInput.value = user.displayName || '';
+          }
+        }
+      });
+      
+      // Handle profile picture upload
+      profilePicInput.addEventListener('change', (e) => {
+        const file = e.target.files[0];
+        if (file) {
+          profilePicFile = file;
+          const reader = new FileReader();
+          reader.onload = (event) => {
+            const img = document.createElement('img');
+            img.src = event.target.result;
+            profilePicContainer.innerHTML = '';
+            profilePicContainer.appendChild(img);
+          };
+          reader.readAsDataURL(file);
+        }
+      });
+      
+      // Check username uniqueness
+      usernameInput.addEventListener('blur', async () => {
+        const username = usernameInput.value.trim().toLowerCase();
+        if (username) {
+          const q = query(collection(db, 'users'), where('username', '==', username));
+          const querySnapshot = await getDocs(q);
+          
+          if (!querySnapshot.empty) {
+            usernameError.textContent = 'Username is already taken';
+            saveBtn.disabled = true;
+          } else {
+            usernameError.textContent = '';
+            saveBtn.disabled = false;
+          }
+        }
+      });
+      
+      // Handle form submission
+      profileForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        saveBtn.disabled = true;
+        saveBtn.textContent = 'Saving...';
+        
+        const user = auth.currentUser;
+        if (!user) {
+          window.location.href = 'index.html';
+          return;
+        }
+        
+        const fullName = fullNameInput.value.trim();
+        const username = usernameInput.value.trim().toLowerCase();
+        
+        try {
+          // Upload profile picture if selected
+          if (profilePicFile) {
+            const storageRef = ref(storage, `profile-pics/${user.uid}`);
+            const snapshot = await uploadBytes(storageRef, profilePicFile);
+            profilePicUrl = await getDownloadURL(snapshot.ref);
+          }
+          
+          // Save user profile
+          await setDoc(doc(db, 'users', user.uid), {
+            uid: user.uid,
+            name: fullName,
+            username: username,
+            photoURL: profilePicUrl || '',
+            email: user.email || '',
+            createdAt: new Date()
+          });
+          
+          window.location.href = 'home.html';
+        } catch (error) {
+          console.error('Error saving profile:', error);
+          alert('Error saving profile. Please try again.');
+          saveBtn.disabled = false;
+          saveBtn.textContent = 'Save & Continue';
+        }
+      });
+      
+      // Owner link
+      ownerLink.addEventListener('click', (e) => {
+        e.preventDefault();
+        if (auth.currentUser) {
+          window.location.href = 'chat.html?userId=raojatin';
+        } else {
+          alert('Please complete your profile first.');
+        }
+      });
+    });
+  </script>
+</body>
+</html>

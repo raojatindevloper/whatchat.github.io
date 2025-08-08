@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>What-Chat | Chat</title>
+  <style>
+    :root {
+      --primary: #7c3aed;
+      --primary-light: #a78bfa;
+      --white: #ffffff;
+      --gray: #f3f4f6;
+      --dark: #1f2937;
+    }
+    
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+    
+    body {
+      background-color: var(--gray);
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+    }
+    
+    .chat-header {
+      background-color: var(--white);
+      padding: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+    
+    .back-btn {
+      background: none;
+      border: none;
+      cursor: pointer;
+    }
+    
+    .user-avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background-color: #ddd;
+      overflow: hidden;
+    }
+    
+    .user-avatar img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    
+    .user-info {
+      flex: 1;
+    }
+    
+    .user-name {
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 0.25rem;
+    }
+    
+    .verified-badge {
+      color: var(--primary);
+      font-size: 0.75rem;
+    }
+    
+    .username {
+      color: #6b7280;
+      font-size: 0.75rem;
+    }
+    
+    .chat-messages {
+      flex: 1;
+      padding: 1rem;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+    
+    .message {
+      max-width: 70%;
+      padding: 0.75rem 1rem;
+      border-radius: 1rem;
+      font-size: 0.875rem;
+    }
+    
+    .sent {
+      align-self: flex-end;
+      background-color: var(--primary);
+      color: var(--white);
+      border-bottom-right-radius: 0.25rem;
+    }
+    
+    .received {
+      align-self: flex-start;
+      background-color: var(--white);
+      color: var(--dark);
+      border-bottom-left-radius: 0.25rem;
+    }
+    
+    .message-time {
+      font-size: 0.625rem;
+      color: rgba(255,255,255,0.7);
+      margin-top: 0.25rem;
+      text-align: right;
+    }
+    
+    .received .message-time {
+      color: #6b7280;
+    }
+    
+    .chat-input {
+      display: flex;
+      padding: 1rem;
+      background-color: var(--white);
+      position: sticky;
+      bottom: 0;
+    }
+    
+    .chat-input input {
+      flex: 1;
+      padding: 0.75rem 1rem;
+      border-radius: 2rem;
+      border: 1px solid #d1d5db;
+      outline: none;
+    }
+    
+    .send-btn {
+      background-color: var(--primary);
+      color: var(--white);
+      border: none;
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      margin-left: 0.5rem;
+      cursor: pointer;
+    }
+    
+    .no-messages {
+      text-align: center;
+      margin-top: 2rem;
+      color: #6b7280;
+    }
+  </style>
+</head>
+<body>
+  <div class="chat-header">
+    <button class="back-btn" id="backBtn">
+      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+        <path fill-rule="evenodd" d="M15 8a.5.5 0 0 0-.5-.5H2.707l3.147-3.146a.5.5 0 1 0-.708-.708l-4 4a.5.5 0 0 0 0 .708l4 4a.5.5 0 0 0 .708-.708L2.707 8.5H14.5A.5.5 0 0 0 15 8z"/>
+      </svg>
+    </button>
+    
+    <div class="user-avatar" id="chatPartnerAvatar">
+      <div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;background-color:#a78bfa;color:white;">?</div>
+    </div>
+    
+    <div class="user-info">
+      <div class="user-name" id="chatPartnerName">
+        Loading...
+        <span class="verified-badge" id="verifiedBadge" style="display:none;">✓</span>
+      </div>
+      <div class="username" id="chatPartnerUsername">@username</div>
+    </div>
+  </div>
+  
+  <div class="chat-messages" id="chatMessages">
+    <div class="no-messages">Loading messages...</div>
+  </div>
+  
+  <div class="chat-input">
+    <input type="text" id="messageInput" placeholder="Type a message...">
+    <button class="send-btn" id="sendBtn">
+      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+        <path d="M15.854.146a.5.5 0 0 1 .11.54l-5.819 14.547a.5.5 0 0 1-.934.008L7.02 9.966 1.64 6.324a.5.5 0 0 1 .06-.94l13-5a.5.5 0 0 1 .537.082z"/>
+      </svg>
+    </button>
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', async () => {
+      const backBtn = document.getElementById('backBtn');
+      const chatPartnerAvatar = document.getElementById('chatPartnerAvatar');
+      const chatPartnerName = document.getElementById('chatPartnerName');
+      const chatPartnerUsername = document.getElementById('chatPartnerUsername');
+      const verifiedBadge = document.getElementById('verifiedBadge');
+      const chatMessages = document.getElementById('chatMessages');
+      const messageInput = document.getElementById('messageInput');
+      const sendBtn = document.getElementById('sendBtn');
+      
+      let currentUser = null;
+      let chatPartnerId = null;
+      let chatPartner = null;
+      let chatId = null;
+      let unsubscribeMessages = null;
+      
+      // Get chat partner ID from URL
+      const urlParams = new URLSearchParams(window.location.search);
+      chatPartnerId = urlParams.get('userId');
+      
+      if (!chatPartnerId) {
+        window.location.href = 'home.html';
+        return;
+      }
+      
+      // Check authentication
+      auth.onAuthStateChanged(async (user) => {
+        if (!user) {
+          window.location.href = 'index.html';
+        } else {
+          currentUser = user;
+          await loadChatPartner();
+          setupChat();
+        }
+      });
+      
+      // Load chat partner info
+      async function loadChatPartner() {
+        try {
+          const partnerDoc = await getDoc(doc(db, 'users', chatPartnerId));
+          
+          if (partnerDoc.exists()) {
+            chatPartner = partnerDoc.data();
+            
+            // Display partner info
+            chatPartnerName.textContent = chatPartner.name;
+            chatPartnerUsername.textContent = `@${chatPartner.username}`;
+            
+            if (chatPartner.username === 'raojatin') {
+              verifiedBadge.style.display = 'inline';
+            }
+            
+            // Set avatar
+            if (chatPartner.photoURL) {
+              chatPartnerAvatar.innerHTML = `<img src="${chatPartner.photoURL}" alt="${chatPartner.name}">`;
+            } else {
+              chatPartnerAvatar.innerHTML = `<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;background-color:#a78bfa;color:white;">${chatPartner.name.charAt(0)}</div>`;
+            }
+          } else {
+            alert('User not found');
+            window.location.href = 'home.html';
+          }
+        } catch (error) {
+          console.error('Error loading chat partner:', error);
+          alert('Error loading chat. Please try again.');
+          window.location.href = 'home.html';
+        }
+      }
+      
+      // Setup chat with real-time updates
+      function setupChat() {
+        // Generate chat ID (sorted user IDs joined with underscore)
+        const userIds = [currentUser.uid, chatPartnerId].sort();
+        chatId = userIds.join('_');
+        
+        // Clear existing messages
+        chatMessages.innerHTML = '<div class="no-messages">Loading messages...</div>';
+        
+        // Subscribe to real-time updates
+        unsubscribeMessages = onSnapshot(
+          collection(db, 'chats', chatId, 'messages'),
+          (querySnapshot) => {
+            chatMessages.innerHTML = '';
+            
+            if (querySnapshot.empty) {
+              chatMessages.innerHTML = '<div class="no-messages">No messages yet. Say hello!</div>';
+              return;
+            }
+            
+            querySnapshot.forEach((doc) => {
+              const message = doc.data();
+              addMessageToChat(message);
+            });
+            
+            // Scroll to bottom
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+          },
+          (error) => {
+            console.error('Error listening to messages:', error);
+          }
+        );
+      }
+      
+      // Add message to chat UI
+      function addMessageToChat(message) {
+        const messageDiv = document.createElement('div');
+        messageDiv.className = `message ${message.senderId === currentUser.uid ? 'sent' : 'received'}`;
+        
+        const time = message.timestamp?.toDate() || new Date();
+        const timeStr = time.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        
+        messageDiv.innerHTML = `
+          <div>${message.text}</div>
+          <div class="message-time">${timeStr}</div>
+        `;
+        
+        chatMessages.appendChild(messageDiv);
+      }
+      
+      // Send message
+      async function sendMessage() {
+        const text = messageInput.value.trim();
+        if (!text) return;
+        
+        try {
+          // Add message to Firestore
+          await addDoc(collection(db, 'chats', chatId, 'messages'), {
+            senderId: currentUser.uid,
+            receiverId: chatPartnerId,
+            text: text,
+            timestamp: new Date()
+          });
+          
+          // Clear input
+          messageInput.value = '';
+        } catch (error) {
+          console.error('Error sending message:', error);
+          alert('Error sending message. Please try again.');
+        }
+      }
+      
+      // Event listeners
+      backBtn.addEventListener('click', () => {
+        window.location.href = 'home.html';
+      });
+      
+      sendBtn.addEventListener('click', sendMessage);
+      
+      messageInput.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+          sendMessage();
+        }
+      });
+      
+      // Clean up on page unload
+      window.addEventListener('beforeunload', () => {
+        if (unsubscribeMessages) {
+          unsubscribeMessages();
+        }
+      });
+    });
+  </script>
+</body>
+</html>
