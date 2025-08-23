@@ -25,6 +25,7 @@
     .last{color:var(--muted);font-size:13px}
     .right{text-align:right;margin-left:auto}
     .dot{width:10px;height:10px;border-radius:50%;display:inline-block;margin-left:6px}
+    .section-title{padding:12px 16px;font-weight:600;color:var(--muted);font-size:14px;border-bottom:1px solid #1f2c33}
   </style>
 </head>
 <body>
@@ -43,6 +44,10 @@
     <a href="#" id="closeMenu">Close Menu</a>
   </div>
 
+  <div class="section-title">Recent Chats</div>
+  <div class="list" id="recentChatsList"></div>
+  
+  <div class="section-title">All Chats</div>
   <div class="list" id="chatList"></div>
 
   <div class="fab" id="fab">+</div>
@@ -66,6 +71,7 @@
     const db = getFirestore(app);
 
     const chatList = document.getElementById('chatList');
+    const recentChatsList = document.getElementById('recentChatsList');
     const menu = document.getElementById('menu');
     const menuBtn = document.getElementById('menuBtn');
     const searchSheet = document.getElementById('searchSheet');
@@ -90,6 +96,46 @@
         if(!snap.empty){ myUsername = snap.docs[0].id; localStorage.setItem('rx_username', myUsername); localStorage.setItem('rx_name', snap.docs[0].data().name||''); }
       }
       if(!myUsername){ location.href='profile.html'; return; }
+
+      // Load recent chats
+      const recentChatsRef = collection(db, 'Users', myUsername, 'recentChats');
+      onSnapshot(recentChatsRef, (snapshot) => {
+        recentChatsList.innerHTML = '';
+        snapshot.forEach(docSnap => {
+          const chatData = docSnap.data();
+          const li = document.createElement('div'); 
+          li.className = 'chatCard';
+          
+          const avatar = document.createElement('div'); 
+          avatar.className = 'avatar';
+          
+          const left = document.createElement('div');
+          left.innerHTML = `<div class="name">${chatData.username}</div><div class="last">${chatData.lastMessage || ''}</div>`;
+          
+          const right = document.createElement('div'); 
+          right.className = 'right';
+          right.innerHTML = `<div class="last">${new Date(chatData.timestamp?.toDate?.() || chatData.timestamp || Date.now()).toLocaleTimeString()}</div>`;
+          
+          li.appendChild(avatar);
+          li.appendChild(left);
+          li.appendChild(right);
+          
+          li.addEventListener('click', () => { 
+            location.href = `chat.html?with=${encodeURIComponent(chatData.username)}`; 
+          });
+          
+          recentChatsList.appendChild(li);
+          
+          // Fetch user profile for avatar
+          (async () => {
+            const p = await getDoc(doc(db, 'Users', chatData.username));
+            if(p.exists()) {
+              const d = p.data(); 
+              avatar.style.backgroundImage = `url('${d.avatar}')`;
+            }
+          })();
+        });
+      });
 
       // presence heartbeat
       setInterval(async()=>{

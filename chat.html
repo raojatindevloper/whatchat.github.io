@@ -185,6 +185,25 @@
       const now = serverTimestamp();
       await addDoc(collection(db,'Chats', chatId, 'messages'), { sender: myUsername, text, time: now });
       await updateDoc(chatRef, { lastMessage: text, lastMessageTime: new Date().toISOString() });
+      
+      // Update recent chats for both users
+      const recentChatData = {
+        username: other,
+        lastMessage: text,
+        timestamp: new Date().toISOString()
+      };
+      
+      // Update sender's recent chats
+      await setDoc(doc(db, 'Users', myUsername, 'recentChats', other), recentChatData);
+      
+      // Update receiver's recent chats
+      const receiverRecentChatData = {
+        username: myUsername,
+        lastMessage: text,
+        timestamp: new Date().toISOString()
+      };
+      await setDoc(doc(db, 'Users', other, 'recentChats', myUsername), receiverRecentChatData);
+      
       input.value='';
     }
 
