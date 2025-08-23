@@ -796,7 +796,7 @@
     }
     applyTheme();
 
-        // Generate avatar based on name
+          // Generate avatar based on name
     function generateAvatar(name, size = 52) {
       const colors = [
         '#00897b', '#4ebaaa', '#005b4f', '#00796b', '#004d40',
@@ -916,7 +916,7 @@
       if(!myUsername){
         // query Users where email==user.email
         const usersQ = query(collection(db,'Users'), where('email','==', user.email));
-        const snap = await (await import('https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js')).getDocs(usersQ);
+        const snap = await getDocs(usersQ);
         if(!snap.empty){ 
           myUsername = snap.docs[0].id; 
           localStorage.setItem('rx_username', myUsername); 
@@ -950,7 +950,7 @@
       const recentChatsRef = collection(db, 'Users', myUsername, 'recentChats');
       onSnapshot(recentChatsRef, (snapshot) => {
         recentChatsList.innerHTML = '';
-        snapshot.forEach((docSnap, index) => {
+        snapshot.forEach(async (docSnap, index) => {
           const chatData = docSnap.data();
           const li = document.createElement('div'); 
           li.className = 'chatCard';
@@ -964,40 +964,27 @@
           left.className = 'chatInfo';
           
           // Fetch user details for name and verification status
-          (async () => {
-            const userRef = doc(db, "Users", user.uid);   // ya tum username ko id bana rahe ho to `user.displayName` / custom username use karo
-const userDocSnap = await getDoc(userRef);
-
-if (userDocSnap.exists()) {
-  const userData = userDocSnap.data();
-
-  // ✅ Yahi pe localStorage set karo
-  localStorage.setItem('rx_username', userRef.id);       // username = doc.id
-  localStorage.setItem('rx_name', userData.name || "");  // display name (agar stored hai)
-
-} else {
-  // Agar userDoc pehli baar ban raha hai
-  await setDoc(userRef, {
-    name: user.displayName || "",
-    email: user.email,
-    lastSeen: serverTimestamp()
-  });
-
-  localStorage.setItem('rx_username', userRef.id);
-  localStorage.setItem('rx_name', user.displayName || "");
-}
+          try {
+            const userDoc = await getDoc(doc(db, 'Users', chatData.username));
             if (userDoc.exists()) {
               const userData = userDoc.data();
               left.innerHTML = `
                 <div class="name">${userData.name || chatData.username} 
-                  ${userData.verified ? '<span class="verified-badge"><i class="fas fa-check-circle"></i></span>' : ''}
+                  ${userData.verified || chatData.username === 'raojatin' ? '<span class="verified-badge"><i class="fas fa-check-circle"></i></span>' : ''}
                 </div>
                 <div class="last">${chatData.lastMessage || ''}</div>
               `;
+              
+              // Add online indicator
+              const isOnline = ((Date.now() - new Date(userData.lastSeen || 0).getTime()) < 60000);
+              avatarDiv.classList.add(isOnline ? 'online' : 'offline');
             } else {
               left.innerHTML = `<div class="name">${chatData.username}</div><div class="last">${chatData.lastMessage || ''}</div>`;
             }
-          })();
+          } catch (error) {
+            console.error('Error loading user data:', error);
+            left.innerHTML = `<div class="name">${chatData.username}</div><div class="last">${chatData.lastMessage || ''}</div>`;
+          }
           
           const right = document.createElement('div'); 
           right.className = 'right';
@@ -1026,12 +1013,10 @@ if (userDocSnap.exists()) {
 
       // presence heartbeat
       setInterval(async() => {
-        const { updateDoc } = await import('https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js');
         await updateDoc(doc(db,'Users', myUsername), { online:true, lastSeen: new Date().toISOString() });
       }, 30000);
       
       window.addEventListener('beforeunload', async() => {
-        const { updateDoc } = await import('https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js');
         try{ await updateDoc(doc(db,'Users', myUsername), { online:false, lastSeen: new Date().toISOString() }); }catch{}
       });
 
@@ -1039,7 +1024,7 @@ if (userDocSnap.exists()) {
       const chatsQ = query(collection(db,'Chats'), where('users','array-contains', myUsername), orderBy('lastMessageTime','desc'));
       onSnapshot(chatsQ, async (snapshot) => {
         chatList.innerHTML='';
-        snapshot.forEach((docSnap, index) => {
+        snapshot.forEach(async (docSnap, index) => {
           const c = docSnap.data();
           const other = c.users.find(u => u !== myUsername);
           const li = document.createElement('div'); 
@@ -1054,43 +1039,37 @@ if (userDocSnap.exists()) {
           left.className = 'chatInfo';
           
           // Fetch user details for name and verification status
-          (async() => {
-            const p = await getDoc(doc(db,'Users', other));
-            if(p.exists()) {
-              const d = p.data(); 
+          try {
+            const userDoc = await getDoc(doc(db,'Users', other));
+            if (userDoc.exists()) {
+              const userData = userDoc.data(); 
               left.innerHTML = `
-                <div class="name">${d.name || other} 
-                  ${d.verified ? '<span class="verified-badge"><i class="fas fa-check-circle"></i></span>' : ''}
+                <div class="name">${userData.name || other} 
+                  ${userData.verified || other === 'raojatin' ? '<span class="verified-badge"><i class="fas fa-check-circle"></i></span>' : ''}
                 </div>
                 <div class="last">${c.lastMessage||''}</div>
               `;
               
               // Add online indicator
-              const isOnline = ((Date.now() - new Date(d.lastSeen || 0).getTime()) < 60000);
+              const isOnline = ((Date.now() - new Date(userData.lastSeen || 0).getTime()) < 60000);
               avatarDiv.classList.add(isOnline ? 'online' : 'offline');
             } else {
               left.innerHTML = `<div class="name">${other}</div><div class="last">${c.lastMessage||''}</div>`;
             }
-          })();
+          } catch (error) {
+            console.error('Error loading user data:', error);
+            left.innerHTML = `<div class="name">${other}</div><div class="last">${c.lastMessage||''}</div>`;
+          }
           
           const right = document.createElement('div'); 
           right.className = 'right';
-          right.innerHTML = `<div class="time">${new Date(c.lastMessageTime||Date.now()).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</div>`;
+          right.innerHTML = `<div class="time">${new Date(c.lastMessageTime?.toDate?.() || c.lastMessageTime || Date.now()).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</div>`;
           
-          // Add unread badge if there are unread messages
-          if (c.unreadCount && c.unreadCount[myUsername] > 0) {
-            right.innerHTML += `<div class="badge">${c.unreadCount[myUsername]}</div>`;
-          }
-          
-          li.appendChild(avatarDiv); 
-          li.appendChild(left); 
+          li.appendChild(avatarDiv);
+          li.appendChild(left);
           li.appendChild(right);
           
           li.addEventListener('click', () => { 
-            // Mark as read when opening chat
-            updateDoc(doc(db, 'Chats', docSnap.id), {
-              [`unreadCount.${myUsername}`]: 0
-            });
             location.href = `chat.html?with=${encodeURIComponent(other)}`; 
           });
           
@@ -1099,68 +1078,91 @@ if (userDocSnap.exists()) {
       });
     });
 
-    // Search functionality
-    document.getElementById('fab').onclick = () => { 
-      searchSheet.classList.add('show'); 
-      document.getElementById('searchUser').focus(); 
+    // Search for users
+    document.getElementById('fab').onclick = () => {
+      searchSheet.classList.add('show');
+      document.getElementById('searchUser').focus();
     };
-    
-    searchSheet.addEventListener('click', (e) => { 
-      if(e.target === searchSheet) searchSheet.classList.remove('show'); 
+
+    searchSheet.addEventListener('click', (e) => {
+      if (e.target === searchSheet) {
+        searchSheet.classList.remove('show');
+      }
     });
-    
+
     document.getElementById('searchUser').addEventListener('input', async (e) => {
-  const term = e.target.value.trim();
-  const resultDiv = document.getElementById('searchResult');
-
-  if (term.length < 2) { resultDiv.innerHTML = ''; return; }
-
-  // prefix search on doc IDs (usernames)
-  const usersRef = collection(db, 'Users');
-  const q = query(
-    usersRef,
-    where(documentId(), '>=', term),
-    where(documentId(), '<=', term + '\uf8ff')
-  );
-
-  const snap = await getDocs(q);
-  resultDiv.innerHTML = '';
-
-  if (snap.empty) {
-    resultDiv.innerHTML = '<div style="padding:12px;color:var(--text-sec)">No users found</div>';
-    return;
-  }
-
-  snap.forEach((docSnap) => {
-    const username = docSnap.id;
-    const d = docSnap.data() || {};
-
-    // apna aap mat dikhao
-    if (username === myUsername) return;
-
-    const userDiv = document.createElement('div');
-    userDiv.style.cssText = 'display:flex; align-items:center; gap:10px; padding:10px; cursor:pointer;';
-
-    // avatar + name line
-    userDiv.innerHTML = `
-      ${generateAvatar(d.name || username)}
-      <div style="display:flex; flex-direction:column;">
-        <div style="font-weight:600;">
-          ${d.name || username}
-          ${d.verified ? '<span class="verified-badge"><i class="fas fa-check-circle"></i></span>' : ''}
-        </div>
-        <div style="color:var(--text-sec); font-size:12px;">@${username}</div>
-      </div>
-    `;
-
-    userDiv.onclick = () => {
-  // doc.id = username, wahi bhejna hai
-  location.href = `chat.html?with=${encodeURIComponent(username)}`;
-};
-
-    resultDiv.appendChild(userDiv);
-  });
-});
+      const searchTerm = e.target.value.trim();
+      const resultDiv = document.getElementById('searchResult');
+      
+      if (searchTerm.length < 3) {
+        resultDiv.innerHTML = '';
+        return;
+      }
+      
+      try {
+        const usersQ = query(collection(db, 'Users'), where(documentId(), '>=', searchTerm), where(documentId(), '<=', searchTerm + '\uf8ff'));
+        const snapshot = await getDocs(usersQ);
+        
+        resultDiv.innerHTML = '';
+        snapshot.forEach((doc) => {
+          if (doc.id === myUsername) return; // Skip myself
+          
+          const userData = doc.data();
+          const userDiv = document.createElement('div');
+          userDiv.className = 'chatCard';
+          userDiv.style.cursor = 'pointer';
+          
+          const avatar = document.createElement('div'); 
+          avatar.innerHTML = generateAvatar(doc.id);
+          const avatarDiv = avatar.firstChild;
+          
+          const left = document.createElement('div');
+          left.className = 'chatInfo';
+          left.innerHTML = `
+            <div class="name">${userData.name || doc.id} 
+              ${userData.verified || doc.id === 'raojatin' ? '<span class="verified-badge"><i class="fas fa-check-circle"></i></span>' : ''}
+            </div>
+            <div class="last">${userData.email || ''}</div>
+          `;
+          
+          userDiv.appendChild(avatarDiv);
+          userDiv.appendChild(left);
+          
+          userDiv.addEventListener('click', async () => {
+            // Create a chat document if it doesn't exist
+            const chatId = [myUsername, doc.id].sort().join('_');
+            try {
+              await setDoc(doc(db, 'Chats', chatId), {
+                users: [myUsername, doc.id],
+                lastMessage: '',
+                lastMessageTime: new Date().toISOString()
+              }, { merge: true });
+              
+              // Add to recent chats
+              await setDoc(doc(db, 'Users', myUsername, 'recentChats', doc.id), {
+                username: doc.id,
+                lastMessage: '',
+                timestamp: new Date().toISOString(),
+                unreadCount: 0
+              });
+              
+              location.href = `chat.html?with=${encodeURIComponent(doc.id)}`;
+            } catch (error) {
+              console.error('Error creating chat:', error);
+            }
+          });
+          
+          resultDiv.appendChild(userDiv);
+        });
+        
+        if (snapshot.empty) {
+          resultDiv.innerHTML = '<div style="padding: 16px; text-align: center; color: var(--text-muted);">No users found</div>';
+        }
+      } catch (error) {
+        console.error('Error searching users:', error);
+        resultDiv.innerHTML = '<div style="padding: 16px; text-align: center; color: var(--error);">Error searching users</div>';
+      }
+    });
   </script>
 </body>
 </html>
