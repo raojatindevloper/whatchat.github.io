@@ -1,279 +1,174 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>What-Chat | Complete Profile</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Rao’s Chat X — Profile Setup</title>
   <style>
-    :root {
-      --primary: #7c3aed;
-      --primary-light: #a78bfa;
-      --white: #ffffff;
-      --gray: #f3f4f6;
-      --dark: #1f2937;
-    }
-    
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    }
-    
-    body {
-      background-color: var(--gray);
-      display: flex;
-      flex-direction: column;
-      min-height: 100vh;
-    }
-    
-    .container {
-      max-width: 400px;
-      margin: auto;
-      padding: 2rem;
-    }
-    
-    h1 {
-      color: var(--primary);
-      margin-bottom: 2rem;
-      text-align: center;
-    }
-    
-    .profile-form {
-      display: flex;
-      flex-direction: column;
-      gap: 1.5rem;
-    }
-    
-    .profile-pic-upload {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 1rem;
-    }
-    
-    .profile-pic {
-      width: 120px;
-      height: 120px;
-      border-radius: 50%;
-      background-color: #ddd;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      overflow: hidden;
-      position: relative;
-      cursor: pointer;
-    }
-    
-    .profile-pic img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-    }
-    
-    .profile-pic .initials {
-      font-size: 2.5rem;
-      color: var(--dark);
-    }
-    
-    .profile-pic input {
-      position: absolute;
-      width: 100%;
-      height: 100%;
-      opacity: 0;
-      cursor: pointer;
-    }
-    
-    .form-group {
-      display: flex;
-      flex-direction: column;
-      gap: 0.5rem;
-    }
-    
-    .form-group label {
-      font-weight: 600;
-      color: var(--dark);
-    }
-    
-    .form-group input {
-      padding: 0.75rem;
-      border-radius: 8px;
-      border: 1px solid #d1d5db;
-    }
-    
-    .save-btn {
-      padding: 0.75rem;
-      border-radius: 8px;
-      border: none;
-      background-color: var(--primary);
-      color: var(--white);
-      font-size: 1rem;
-      font-weight: 600;
-      cursor: pointer;
-      margin-top: 1rem;
-    }
-    
-    .error {
-      color: #ef4444;
-      font-size: 0.875rem;
-      margin-top: 0.25rem;
-    }
-    
-    .footer {
-      margin-top: auto;
-      padding: 1rem;
-      text-align: center;
-    }
-    
-    .footer a {
-      color: var(--primary);
-      text-decoration: none;
-      font-weight: 600;
-    }
+    :root{ --bg:#0b141a; --card:#111b21; --text:#e9edef; --muted:#8696a0; --brand:#00a884; --shadow:0 10px 25px rgba(0,0,0,.35); }
+    body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,Segoe UI,Roboto;}
+    .wrap{min-height:100dvh;display:grid;place-items:center;padding:22px}
+    .card{width:100%;max-width:680px;background:var(--card);border-radius:20px;box-shadow:var(--shadow);padding:20px}
+    h2{margin:0 0 10px}
+    .grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+    label{font-size:13px;color:var(--muted)}
+    input,select{width:100%;padding:10px 12px;border-radius:12px;border:1px solid #233138;background:#0e1a20;color:var(--text)}
+    .row{display:flex;gap:10px;align-items:center}
+    .avatar{width:96px;height:96px;border-radius:50%;background:#0e1a20 url('') center/cover no-repeat;border:2px solid #1f2c33;display:grid;place-items:center;font-weight:800}
+    .btn{padding:12px 14px;border-radius:12px;border:0;background:var(--brand);color:#032d23;font-weight:800;cursor:pointer}
+    .muted{color:var(--muted);font-size:12px}
+    .error{margin-top:10px;padding:10px;border-radius:10px;background:#2a1215;color:#ffa39e;display:none}
+    .ok{margin-top:10px;padding:10px;border-radius:10px;background:#102a18;color:#b7eb8f;display:none}
+    @media(max-width:650px){.grid{grid-template-columns:1fr}}
+    .badge{display:inline-flex;align-items:center;gap:6px;background:#0e1a20;border:1px solid #1f2c33;padding:6px 10px;border-radius:999px;font-size:12px}
+    .tick{width:16px;height:16px;border-radius:50%;background:#1DA1F2;display:inline-grid;place-items:center;color:#fff;font-size:12px}
   </style>
 </head>
 <body>
-  <div class="container">
-    <h1>Complete Your Profile</h1>
-    
-    <form class="profile-form" id="profileForm">
-      <div class="profile-pic-upload">
-        <div class="profile-pic" id="profilePicContainer">
-          <div class="initials">?</div>
-          <input type="file" id="profilePic" accept="image/*">
+  <div class="wrap">
+    <div class="card">
+      <h2>Create your profile</h2>
+      <p class="muted">Complete this once. You can edit later from Home → Menu.</p>
+      <div class="row" style="gap:16px;margin:10px 0 16px">
+        <div class="avatar" id="avatarPreview">RX</div>
+        <div class="badge" id="verifyBadge" style="display:none"><span class="tick">✓</span> Verified</div>
+      </div>
+
+      <div class="grid">
+        <div>
+          <label>Name</label>
+          <input id="name" placeholder="Your name" />
         </div>
-        <span>Click to upload profile picture</span>
+        <div>
+          <label>Gender</label>
+          <select id="gender">
+            <option>Male</option>
+            <option>Female</option>
+            <option>Custom</option>
+          </select>
+        </div>
+        <div>
+          <label>Month</label>
+          <select id="dobMonth"></select>
+        </div>
+        <div>
+          <label>Day</label>
+          <select id="dobDay"></select>
+        </div>
+        <div>
+          <label>Year</label>
+          <select id="dobYear"></select>
+        </div>
+        <div>
+          <label>Age (auto)</label>
+          <input id="age" disabled />
+        </div>
+        <div style="grid-column:1 / -1">
+          <label>Username (unique, ≥4 chars)</label>
+          <input id="username" placeholder="e.g. raojatin" />
+        </div>
+        <div style="grid-column:1 / -1">
+          <label>Upload Avatar (optional if Gender=Custom)</label>
+          <input id="avatarFile" type="file" accept="image/*" />
+          <div class="muted">Default avatar will be applied based on gender if you don't upload.</div>
+        </div>
       </div>
-      
-      <div class="form-group">
-        <label for="fullName">Full Name</label>
-        <input type="text" id="fullName" required>
-      </div>
-      
-      <div class="form-group">
-        <label for="username">Username</label>
-        <input type="text" id="username" required>
-        <div class="error" id="usernameError"></div>
-      </div>
-      
-      <button type="submit" class="save-btn" id="saveProfile">Save & Continue</button>
-    </form>
-  </div>
-  
-  <div class="footer">
-    <a href="#" id="ownerLink">An App By Rao Jatin</a>
+
+      <button class="btn" id="saveBtn" style="margin-top:16px">Generate Profile</button>
+      <div class="error" id="err"></div>
+      <div class="ok" id="ok"></div>
+    </div>
   </div>
 
-  <script>
-    document.addEventListener('DOMContentLoaded', async () => {
-      const profileForm = document.getElementById('profileForm');
-      const profilePicInput = document.getElementById('profilePic');
-      const profilePicContainer = document.getElementById('profilePicContainer');
-      const fullNameInput = document.getElementById('fullName');
-      const usernameInput = document.getElementById('username');
-      const usernameError = document.getElementById('usernameError');
-      const saveBtn = document.getElementById('saveProfile');
-      const ownerLink = document.getElementById('ownerLink');
-      
-      let profilePicUrl = '';
-      let profilePicFile = null;
-      
-      // Check if user is logged in
-      auth.onAuthStateChanged(async (user) => {
-        if (!user) {
-          window.location.href = 'index.html';
-        } else {
-          // Pre-fill email if available
-          if (user.email) {
-            fullNameInput.value = user.displayName || '';
-          }
-        }
-      });
-      
-      // Handle profile picture upload
-      profilePicInput.addEventListener('change', (e) => {
-        const file = e.target.files[0];
-        if (file) {
-          profilePicFile = file;
-          const reader = new FileReader();
-          reader.onload = (event) => {
-            const img = document.createElement('img');
-            img.src = event.target.result;
-            profilePicContainer.innerHTML = '';
-            profilePicContainer.appendChild(img);
-          };
-          reader.readAsDataURL(file);
-        }
-      });
-      
-      // Check username uniqueness
-      usernameInput.addEventListener('blur', async () => {
-        const username = usernameInput.value.trim().toLowerCase();
-        if (username) {
-          const q = query(collection(db, 'users'), where('username', '==', username));
-          const querySnapshot = await getDocs(q);
-          
-          if (!querySnapshot.empty) {
-            usernameError.textContent = 'Username is already taken';
-            saveBtn.disabled = true;
-          } else {
-            usernameError.textContent = '';
-            saveBtn.disabled = false;
-          }
-        }
-      });
-      
-      // Handle form submission
-      profileForm.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        saveBtn.disabled = true;
-        saveBtn.textContent = 'Saving...';
-        
-        const user = auth.currentUser;
-        if (!user) {
-          window.location.href = 'index.html';
-          return;
-        }
-        
-        const fullName = fullNameInput.value.trim();
-        const username = usernameInput.value.trim().toLowerCase();
-        
-        try {
-          // Upload profile picture if selected
-          if (profilePicFile) {
-            const storageRef = ref(storage, `profile-pics/${user.uid}`);
-            const snapshot = await uploadBytes(storageRef, profilePicFile);
-            profilePicUrl = await getDownloadURL(snapshot.ref);
-          }
-          
-          // Save user profile
-          await setDoc(doc(db, 'users', user.uid), {
-            uid: user.uid,
-            name: fullName,
-            username: username,
-            photoURL: profilePicUrl || '',
-            email: user.email || '',
-            createdAt: new Date()
-          });
-          
-          window.location.href = 'home.html';
-        } catch (error) {
-          console.error('Error saving profile:', error);
-          alert('Error saving profile. Please try again.');
-          saveBtn.disabled = false;
-          saveBtn.textContent = 'Save & Continue';
-        }
-      });
-      
-      // Owner link
-      ownerLink.addEventListener('click', (e) => {
-        e.preventDefault();
-        if (auth.currentUser) {
-          window.location.href = 'chat.html?userId=raojatin';
-        } else {
-          alert('Please complete your profile first.');
-        }
-      });
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+    import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+    import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js";
+
+    const firebaseConfig= { apiKey: "AIzaSyAJHqq9T9d5zbHoCumvNt9AK1L2fusa8Gk", authDomain: "wbapp-ff0f2.firebaseapp.com", projectId: "wbapp-ff0f2", storageBucket: "wbapp-ff0f2.firebasestorage.app", messagingSenderId: "580773775966", appId: "1:580773775966:web:d851d41c2091257a2d42cf" };
+    const app= initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+    const storage = getStorage(app);
+
+    const err = (m)=>{ const el=document.getElementById('err'); el.textContent=m; el.style.display='block'; setTimeout(()=>el.style.display='none',5000)};
+    const ok = (m)=>{ const el=document.getElementById('ok'); el.textContent=m; el.style.display='block'; setTimeout(()=>el.style.display='none',3000)};
+
+    const monthSel = document.getElementById('dobMonth');
+    const daySel = document.getElementById('dobDay');
+    const yearSel = document.getElementById('dobYear');
+    const ageEl = document.getElementById('age');
+    const uname = document.getElementById('username');
+    const avatarPrev = document.getElementById('avatarPreview');
+    const verifyBadge = document.getElementById('verifyBadge');
+
+    const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    months.forEach((m,i)=>{ const o=document.createElement('option'); o.value=i+1;o.textContent=m; monthSel.appendChild(o) });
+    for(let y=2025;y>=1980;y--){ const o=document.createElement('option'); o.value=y;o.textContent=y; yearSel.appendChild(o) }
+    const fillDays=()=>{ const y=+yearSel.value||2025; const m=+monthSel.value||1; const days=new Date(y,m,0).getDate(); daySel.innerHTML=''; for(let d=1; d<=days; d++){ const o=document.createElement('option'); o.value=d;o.textContent=d; daySel.appendChild(o) } }; fillDays();
+    [monthSel,yearSel].forEach(el=>el.addEventListener('change',()=>{ fillDays(); updateAge(); }));
+    daySel.addEventListener('change',updateAge);
+
+    function updateAge(){
+      const y=+yearSel.value||2025, m=(+monthSel.value||1)-1, d=+daySel.value||1; const dob=new Date(y,m,d);
+      const today=new Date(); let age=today.getFullYear()-dob.getFullYear(); const adj = (today.getMonth()<m) || (today.getMonth()===m && today.getDate()<d); if(adj) age--; ageEl.value = age>=0?age:'';
+    }
+
+    document.getElementById('gender').addEventListener('change', (e)=>{
+      const g=e.target.value; if(g==='Male'){ avatarPrev.textContent='M'; } else if(g==='Female'){ avatarPrev.textContent='F'; } else { avatarPrev.textContent='RX'; }
+    });
+
+    document.getElementById('avatarFile').addEventListener('change', (e)=>{
+      const file=e.target.files?.[0]; if(!file) return; const reader=new FileReader(); reader.onload=()=>{ avatarPrev.style.backgroundImage=`url('${reader.result}')`; avatarPrev.textContent=''; }; reader.readAsDataURL(file);
+    });
+
+    onAuthStateChanged(auth, (user)=>{ if(!user){ location.href='index.html'; } });
+
+    document.getElementById('saveBtn').addEventListener('click', async()=>{
+      const user = auth.currentUser; if(!user) return err('Not signed in');
+      const name = (document.getElementById('name').value||'').trim();
+      const gender = document.getElementById('gender').value;
+      const y=+yearSel.value, m=+monthSel.value, d=+daySel.value; const dob = `${y}-${String(m).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+      const age = +ageEl.value||0;
+      const username = (uname.value||'').trim().toLowerCase();
+      const file = document.getElementById('avatarFile').files?.[0]||null;
+
+      if(!name) return err('Enter your name');
+      if(username.length<4) return err('Username must be at least 4 characters');
+
+      // Check uniqueness
+      const udoc = await getDoc(doc(db,'Users',username));
+      if(udoc.exists()) return err('Username already exists. Choose another.');
+
+      // Avatar
+      let avatarUrl = '';
+      if(file){
+        const r = ref(storage, `avatars/${username}_${Date.now()}.jpg`);
+        await uploadBytes(r, file);
+        avatarUrl = await getDownloadURL(r);
+      } else {
+        avatarUrl = gender==='Female' ? 'https://ui-avatars.com/api/?name=F&background=0e1a20&color=00a884' : (gender==='Male' ? 'https://ui-avatars.com/api/?name=M&background=0e1a20&color=00a884' : 'https://ui-avatars.com/api/?name=RX&background=0e1a20&color=00a884');
+      }
+
+      const verified = username==='raojatin';
+      if(verified){ verifyBadge.style.display='inline-flex'; }
+
+      const payload = {
+        email: user.email,
+        name, dob, age, gender,
+        avatar: avatarUrl,
+        verified,
+        online: true,
+        lastSeen: new Date().toISOString(),
+        blockedUsers: []
+      };
+
+      await setDoc(doc(db,'Users', username), payload);
+      localStorage.setItem('rx_username', username);
+      localStorage.setItem('rx_name', name);
+      ok('Profile created! Redirecting…');
+      setTimeout(()=>location.href='home.html', 800);
     });
   </script>
 </body>

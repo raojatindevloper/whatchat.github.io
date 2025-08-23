@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8" /><meta name="viewport" content="width=device-width, initial-scale=1" /><title>Help — Rao’s Chat X</title>
+<style>body{margin:0;background:#0b141a;color:#e9edef;font-family:system-ui,Segoe UI,Roboto;padding:24px} a{color:#00a884} input,textarea{width:100%;padding:10px;border-radius:12px;border:1px solid #233138;background:#0e1a20;color:#e9edef}</style></head>
+<body>
+  <h1>Request Update</h1>
+  <p>Share your feedback or request a feature. A report will be created in Firestore under <code>Reports</code>.</p>
+  <div style="max-width:600px">
+    <label>Your Username</label>
+    <input id="me" placeholder="raojatin" />
+    <label>Feature / Issue</label>
+    <textarea id="reason" rows="5" placeholder="Describe your request"></textarea>
+    <button id="send" style="padding:10px 14px;border-radius:12px;border:0;background:#00a884;color:#032d23;font-weight:900;margin-top:10px">Submit</button>
+    <div id="msg" style="margin-top:10px;color:#8696a0"></div>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+    const firebaseConfig= { apiKey: "AIzaSyAJHqq9T9d5zbHoCumvNt9AK1L2fusa8Gk", authDomain: "wbapp-ff0f2.firebaseapp.com", projectId: "wbapp-ff0f2", storageBucket: "wbapp-ff0f2.firebasestorage.app", messagingSenderId: "580773775966", appId: "1:580773775966:web:d851d41c2091257a2d42cf" };
+    const app= initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+    const me = document.getElementById('me');
+    const reason = document.getElementById('reason');
+    const msg = document.getElementById('msg');
+    document.getElementById('send').onclick = async()=>{
+      const reporter = me.value.trim(); const why = reason.value.trim(); if(!reporter||!why){ msg.textContent='Fill both fields.'; return; }
+      await addDoc(collection(db,'Reports'), { reporter, reportedUser: 'feature-request', reason: why, time: new Date().toISOString() });
+      msg.textContent='Thanks! Your request has been recorded.';
+      me.value=''; reason.value='';
+    }
+  </script>
+  <p><a href="home.html">← Back to Home</a></p>
+</body></html>
+

@@ -1,355 +1,197 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>What-Chat | Chat</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Rao’s Chat X — Chat</title>
   <style>
-    :root {
-      --primary: #7c3aed;
-      --primary-light: #a78bfa;
-      --white: #ffffff;
-      --gray: #f3f4f6;
-      --dark: #1f2937;
-    }
-    
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    }
-    
-    body {
-      background-color: var(--gray);
-      display: flex;
-      flex-direction: column;
-      height: 100vh;
-    }
-    
-    .chat-header {
-      background-color: var(--white);
-      padding: 1rem;
-      display: flex;
-      align-items: center;
-      gap: 1rem;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-      position: sticky;
-      top: 0;
-      z-index: 10;
-    }
-    
-    .back-btn {
-      background: none;
-      border: none;
-      cursor: pointer;
-    }
-    
-    .user-avatar {
-      width: 40px;
-      height: 40px;
-      border-radius: 50%;
-      background-color: #ddd;
-      overflow: hidden;
-    }
-    
-    .user-avatar img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-    }
-    
-    .user-info {
-      flex: 1;
-    }
-    
-    .user-name {
-      font-weight: 600;
-      display: flex;
-      align-items: center;
-      gap: 0.25rem;
-    }
-    
-    .verified-badge {
-      color: var(--primary);
-      font-size: 0.75rem;
-    }
-    
-    .username {
-      color: #6b7280;
-      font-size: 0.75rem;
-    }
-    
-    .chat-messages {
-      flex: 1;
-      padding: 1rem;
-      overflow-y: auto;
-      display: flex;
-      flex-direction: column;
-      gap: 0.5rem;
-    }
-    
-    .message {
-      max-width: 70%;
-      padding: 0.75rem 1rem;
-      border-radius: 1rem;
-      font-size: 0.875rem;
-    }
-    
-    .sent {
-      align-self: flex-end;
-      background-color: var(--primary);
-      color: var(--white);
-      border-bottom-right-radius: 0.25rem;
-    }
-    
-    .received {
-      align-self: flex-start;
-      background-color: var(--white);
-      color: var(--dark);
-      border-bottom-left-radius: 0.25rem;
-    }
-    
-    .message-time {
-      font-size: 0.625rem;
-      color: rgba(255,255,255,0.7);
-      margin-top: 0.25rem;
-      text-align: right;
-    }
-    
-    .received .message-time {
-      color: #6b7280;
-    }
-    
-    .chat-input {
-      display: flex;
-      padding: 1rem;
-      background-color: var(--white);
-      position: sticky;
-      bottom: 0;
-    }
-    
-    .chat-input input {
-      flex: 1;
-      padding: 0.75rem 1rem;
-      border-radius: 2rem;
-      border: 1px solid #d1d5db;
-      outline: none;
-    }
-    
-    .send-btn {
-      background-color: var(--primary);
-      color: var(--white);
-      border: none;
-      border-radius: 50%;
-      width: 40px;
-      height: 40px;
-      margin-left: 0.5rem;
-      cursor: pointer;
-    }
-    
-    .no-messages {
-      text-align: center;
-      margin-top: 2rem;
-      color: #6b7280;
-    }
+    :root{ --bg:#0b141a; --panel:#111b21; --text:#e9edef; --muted:#8696a0; --brand:#00a884; --me:#005c4b; --them:#1f2c33; --shadow:0 10px 25px rgba(0,0,0,.35)}
+    body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,Segoe UI,Roboto;}
+    header{position:sticky;top:0;background:var(--panel);display:flex;gap:10px;align-items:center;padding:8px 12px;z-index:5;box-shadow:0 2px 0 rgba(0,0,0,.2)}
+    .avatar{width:36px;height:36px;border-radius:50%;background:#0e1a20 center/cover no-repeat}
+    .name{font-weight:800}
+    .sub{font-size:12px;color:var(--muted)}
+    .menu{margin-left:auto;display:flex;gap:8px}
+    .btn{padding:8px 10px;border-radius:10px;border:1px solid #1f2c33;background:#162027;color:var(--text);cursor:pointer}
+    .msgs{padding:10px; display:flex; flex-direction:column; gap:6px; min-height: calc(100dvh - 160px)}
+    .bubble{max-width:78%; padding:10px 12px; border-radius:16px; box-shadow:0 1px 0 rgba(0,0,0,.2); position:relative}
+    .me{align-self:flex-end; background:var(--me)}
+    .them{align-self:flex-start; background:var(--them)}
+    .time{font-size:11px; color:#cbd5e1; margin-left:8px}
+    .reacts{position:absolute; bottom:-14px; right:10px; font-size:14px}
+    .composer{position:sticky; bottom:0; background:var(--panel); display:flex; gap:8px; padding:8px; align-items:center}
+    input[type=text]{flex:1; padding:12px; border-radius:999px; border:1px solid #233138; background:#0e1a20; color:var(--text)}
+    .send{padding:10px 14px; border-radius:999px; background:var(--brand); color:#032d23; font-weight:900; border:0}
+    .typing{padding:6px 12px; font-size:12px; color:var(--muted)}
+    .context{position:fixed; display:none; background:#000; color:#fff; padding:6px 8px; border-radius:10px; z-index:20}
+    .reactions{display:flex; gap:6px}
   </style>
 </head>
 <body>
-  <div class="chat-header">
-    <button class="back-btn" id="backBtn">
-      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
-        <path fill-rule="evenodd" d="M15 8a.5.5 0 0 0-.5-.5H2.707l3.147-3.146a.5.5 0 1 0-.708-.708l-4 4a.5.5 0 0 0 0 .708l4 4a.5.5 0 0 0 .708-.708L2.707 8.5H14.5A.5.5 0 0 0 15 8z"/>
-      </svg>
-    </button>
-    
-    <div class="user-avatar" id="chatPartnerAvatar">
-      <div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;background-color:#a78bfa;color:white;">?</div>
+  <header>
+    <div class="avatar" id="av"></div>
+    <div>
+      <div class="name" id="nm"></div>
+      <div class="sub" id="status">…</div>
     </div>
-    
-    <div class="user-info">
-      <div class="user-name" id="chatPartnerName">
-        Loading...
-        <span class="verified-badge" id="verifiedBadge" style="display:none;">✓</span>
-      </div>
-      <div class="username" id="chatPartnerUsername">@username</div>
+    <div class="menu">
+      <button class="btn" id="toggleTheme">Dark/Light</button>
+      <button class="btn" id="blockBtn">Block</button>
+      <button class="btn" id="reportBtn">Report</button>
     </div>
-  </div>
-  
-  <div class="chat-messages" id="chatMessages">
-    <div class="no-messages">Loading messages...</div>
-  </div>
-  
-  <div class="chat-input">
-    <input type="text" id="messageInput" placeholder="Type a message...">
-    <button class="send-btn" id="sendBtn">
-      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
-        <path d="M15.854.146a.5.5 0 0 1 .11.54l-5.819 14.547a.5.5 0 0 1-.934.008L7.02 9.966 1.64 6.324a.5.5 0 0 1 .06-.94l13-5a.5.5 0 0 1 .537.082z"/>
-      </svg>
-    </button>
+  </header>
+
+  <div class="typing" id="typing" style="display:none"></div>
+  <div class="msgs" id="msgs"></div>
+
+  <div class="composer">
+    <input id="msg" type="text" placeholder="Type a message" />
+    <button class="send" id="send">Send</button>
   </div>
 
-  <script>
-    document.addEventListener('DOMContentLoaded', async () => {
-      const backBtn = document.getElementById('backBtn');
-      const chatPartnerAvatar = document.getElementById('chatPartnerAvatar');
-      const chatPartnerName = document.getElementById('chatPartnerName');
-      const chatPartnerUsername = document.getElementById('chatPartnerUsername');
-      const verifiedBadge = document.getElementById('verifiedBadge');
-      const chatMessages = document.getElementById('chatMessages');
-      const messageInput = document.getElementById('messageInput');
-      const sendBtn = document.getElementById('sendBtn');
-      
-      let currentUser = null;
-      let chatPartnerId = null;
-      let chatPartner = null;
-      let chatId = null;
-      let unsubscribeMessages = null;
-      
-      // Get chat partner ID from URL
-      const urlParams = new URLSearchParams(window.location.search);
-      chatPartnerId = urlParams.get('userId');
-      
-      if (!chatPartnerId) {
-        window.location.href = 'home.html';
-        return;
-      }
-      
-      // Check authentication
-      auth.onAuthStateChanged(async (user) => {
-        if (!user) {
-          window.location.href = 'index.html';
-        } else {
-          currentUser = user;
-          await loadChatPartner();
-          setupChat();
-        }
+  <div class="context" id="ctxMenu">
+    <div class="reactions">
+      <button>👍</button><button>❤️</button><button>😂</button><button>😮</button><button>😢</button><button>🔥</button>
+    </div>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+    import { getFirestore, doc, getDoc, setDoc, updateDoc, collection, addDoc, serverTimestamp, onSnapshot, query, orderBy } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+    const firebaseConfig= { apiKey: "AIzaSyAJHqq9T9d5zbHoCumvNt9AK1L2fusa8Gk", authDomain: "wbapp-ff0f2.firebaseapp.com", projectId: "wbapp-ff0f2", storageBucket: "wbapp-ff0f2.firebasestorage.app", messagingSenderId: "580773775966", appId: "1:580773775966:web:d851d41c2091257a2d42cf" };
+    const app= initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    const params = new URLSearchParams(location.search);
+    let other = (params.get('with')||'').toLowerCase();
+    const myUsername = localStorage.getItem('rx_username');
+    if(!other){ alert('Missing ?with=username'); location.href='home.html'; }
+
+    function toggleTheme(){ const cur=localStorage.getItem('rx_theme')||'dark'; localStorage.setItem('rx_theme', cur==='dark'?'light':'dark'); location.reload(); }
+    function applyTheme(){ const t=localStorage.getItem('rx_theme')||'dark'; if(t==='light'){ document.documentElement.style.setProperty('--bg','#f0f2f5'); document.documentElement.style.setProperty('--panel','#ffffff'); document.documentElement.style.setProperty('--text','#111'); document.documentElement.style.setProperty('--muted','#556'); document.documentElement.style.setProperty('--me','#d9fdd3'); document.documentElement.style.setProperty('--them','#ffffff'); } }
+    applyTheme();
+    document.getElementById('toggleTheme').onclick = toggleTheme;
+
+    const av = document.getElementById('av');
+    const nm = document.getElementById('nm');
+    const status = document.getElementById('status');
+    const typingEl = document.getElementById('typing');
+    const msgsEl = document.getElementById('msgs');
+    const input = document.getElementById('msg');
+
+    // Notifications (when tab active)
+    if('Notification' in window && Notification.permission==='default'){ Notification.requestPermission(); }
+
+    const users = [myUsername, other].sort();
+    const chatId = users.join('_');
+    const chatRef = doc(db,'Chats', chatId);
+
+    // Ensure chat doc exists
+    (async()=>{ const c=await getDoc(chatRef); if(!c.exists()){ await setDoc(chatRef,{ users, lastMessage:'', lastMessageTime:new Date().toISOString(), typing:{}}); } })();
+
+    // Load other profile
+    (async()=>{
+      const d = await getDoc(doc(db,'Users', other));
+      if(d.exists()){
+        const u=d.data(); av.style.backgroundImage=`url('${u.avatar}')`; nm.innerHTML = `${u.name||other} ${u.verified?'<span title="Verified" style="color:#1DA1F2">✓</span>':''}`;
+        const last = new Date(u.lastSeen||0);
+        const online = (Date.now()-last.getTime())<60000; status.textContent = online? 'Online' : `last seen ${last.toLocaleString()}`;
+      } else { nm.textContent = other; }
+    })();
+
+    // Block button
+    document.getElementById('blockBtn').onclick = async()=>{
+      const meRef = doc(db,'Users', myUsername);
+      const me = await getDoc(meRef);
+      const list = me.exists() ? (me.data().blockedUsers||[]) : [];
+      if(list.includes(other)) { alert('Already blocked'); return; }
+      list.push(other);
+      await updateDoc(meRef, { blockedUsers: list });
+      alert('User blocked');
+    };
+
+    // Report button
+    document.getElementById('reportBtn').onclick = async()=>{
+      const reason = prompt('Reason for report?'); if(!reason) return;
+      await addDoc(collection(db,'Reports'), { reporter: myUsername, reportedUser: other, reason, time: new Date().toISOString() });
+      alert('Report submitted');
+    };
+
+    // Typing indicator handling
+    let typingTimer;
+    input.addEventListener('input', async()=>{
+      clearTimeout(typingTimer);
+      await updateDoc(chatRef, { [`typing.${myUsername}`]: true });
+      typingTimer = setTimeout(async()=>{ try{ await updateDoc(chatRef, { [`typing.${myUsername}`]: false }); }catch{} }, 1000);
+    });
+
+    onSnapshot(chatRef, (snap)=>{
+      const d=snap.data(); if(!d) return; const t=d.typing||{}; typingEl.style.display = t[other]? 'block':'none'; typingEl.textContent = `${other} is typing…`;
+    });
+
+    // Messages subcollection
+    const msgsQ = query(collection(db,'Chats', chatId, 'messages'), orderBy('time'));
+    onSnapshot(msgsQ, (snapshot)=>{
+      msgsEl.innerHTML='';
+      snapshot.forEach(docSnap=>{
+        const m = docSnap.data();
+        const isMe = m.sender===myUsername;
+        const div = document.createElement('div'); div.className = `bubble ${isMe?'me':'them'}`; div.textContent = m.text; 
+        const time = document.createElement('span'); time.className='time'; time.textContent = new Date(m.time?.toDate?.()?m.time.toDate():m.time||Date.now()).toLocaleTimeString(); div.appendChild(time);
+        const reacts = document.createElement('div'); reacts.className='reacts'; reacts.textContent = m.reactions? Object.values(m.reactions).join(' '):''; div.appendChild(reacts);
+        div.dataset.id = docSnap.id;
+
+        // Long press / context menu for reactions
+        let pressTimer;
+        const showMenu=(x,y)=>{ const ctx=document.getElementById('ctxMenu'); ctx.style.left=x+'px'; ctx.style.top=y+'px'; ctx.style.display='block'; ctx.dataset.msgId = docSnap.id; };
+        const hideMenu=()=>{ document.getElementById('ctxMenu').style.display='none'; };
+        div.addEventListener('contextmenu', (e)=>{ e.preventDefault(); showMenu(e.pageX, e.pageY); });
+        div.addEventListener('touchstart', (e)=>{ pressTimer=setTimeout(()=>{ const t=e.touches[0]; showMenu(t.pageX, t.pageY); }, 500); });
+        div.addEventListener('touchend', ()=> clearTimeout(pressTimer));
+        document.addEventListener('click', (e)=>{ if(e.target.closest('#ctxMenu')) return; hideMenu(); });
+
+        msgsEl.appendChild(div);
+        msgsEl.scrollTop = msgsEl.scrollHeight;
+
+        // Notify when receiving
+        if('Notification' in window && document.hidden && !isMe){ try{ new Notification(`New message from ${other}`, { body: m.text }); }catch{} }
       });
-      
-      // Load chat partner info
-      async function loadChatPartner() {
-        try {
-          const partnerDoc = await getDoc(doc(db, 'users', chatPartnerId));
-          
-          if (partnerDoc.exists()) {
-            chatPartner = partnerDoc.data();
-            
-            // Display partner info
-            chatPartnerName.textContent = chatPartner.name;
-            chatPartnerUsername.textContent = `@${chatPartner.username}`;
-            
-            if (chatPartner.username === 'raojatin') {
-              verifiedBadge.style.display = 'inline';
-            }
-            
-            // Set avatar
-            if (chatPartner.photoURL) {
-              chatPartnerAvatar.innerHTML = `<img src="${chatPartner.photoURL}" alt="${chatPartner.name}">`;
-            } else {
-              chatPartnerAvatar.innerHTML = `<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;background-color:#a78bfa;color:white;">${chatPartner.name.charAt(0)}</div>`;
-            }
-          } else {
-            alert('User not found');
-            window.location.href = 'home.html';
-          }
-        } catch (error) {
-          console.error('Error loading chat partner:', error);
-          alert('Error loading chat. Please try again.');
-          window.location.href = 'home.html';
-        }
-      }
-      
-      // Setup chat with real-time updates
-      function setupChat() {
-        // Generate chat ID (sorted user IDs joined with underscore)
-        const userIds = [currentUser.uid, chatPartnerId].sort();
-        chatId = userIds.join('_');
-        
-        // Clear existing messages
-        chatMessages.innerHTML = '<div class="no-messages">Loading messages...</div>';
-        
-        // Subscribe to real-time updates
-        unsubscribeMessages = onSnapshot(
-          collection(db, 'chats', chatId, 'messages'),
-          (querySnapshot) => {
-            chatMessages.innerHTML = '';
-            
-            if (querySnapshot.empty) {
-              chatMessages.innerHTML = '<div class="no-messages">No messages yet. Say hello!</div>';
-              return;
-            }
-            
-            querySnapshot.forEach((doc) => {
-              const message = doc.data();
-              addMessageToChat(message);
-            });
-            
-            // Scroll to bottom
-            chatMessages.scrollTop = chatMessages.scrollHeight;
-          },
-          (error) => {
-            console.error('Error listening to messages:', error);
-          }
-        );
-      }
-      
-      // Add message to chat UI
-      function addMessageToChat(message) {
-        const messageDiv = document.createElement('div');
-        messageDiv.className = `message ${message.senderId === currentUser.uid ? 'sent' : 'received'}`;
-        
-        const time = message.timestamp?.toDate() || new Date();
-        const timeStr = time.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-        
-        messageDiv.innerHTML = `
-          <div>${message.text}</div>
-          <div class="message-time">${timeStr}</div>
-        `;
-        
-        chatMessages.appendChild(messageDiv);
-      }
-      
-      // Send message
-      async function sendMessage() {
-        const text = messageInput.value.trim();
-        if (!text) return;
-        
-        try {
-          // Add message to Firestore
-          await addDoc(collection(db, 'chats', chatId, 'messages'), {
-            senderId: currentUser.uid,
-            receiverId: chatPartnerId,
-            text: text,
-            timestamp: new Date()
-          });
-          
-          // Clear input
-          messageInput.value = '';
-        } catch (error) {
-          console.error('Error sending message:', error);
-          alert('Error sending message. Please try again.');
-        }
-      }
-      
-      // Event listeners
-      backBtn.addEventListener('click', () => {
-        window.location.href = 'home.html';
-      });
-      
-      sendBtn.addEventListener('click', sendMessage);
-      
-      messageInput.addEventListener('keypress', (e) => {
-        if (e.key === 'Enter') {
-          sendMessage();
-        }
-      });
-      
-      // Clean up on page unload
-      window.addEventListener('beforeunload', () => {
-        if (unsubscribeMessages) {
-          unsubscribeMessages();
-        }
-      });
+    });
+
+    document.getElementById('ctxMenu').addEventListener('click', async(e)=>{
+      if(e.target.tagName!=='BUTTON') return; const emoji=e.target.textContent; const id = e.currentTarget.dataset.msgId; if(!id) return;
+      const { updateDoc } = await import('https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js');
+      await updateDoc(doc(db,'Chats', chatId, 'messages', id), { [`reactions.${myUsername}`]: emoji });
+      e.currentTarget.style.display='none';
+    });
+
+    // Send
+    document.getElementById('send').addEventListener('click', send);
+    input.addEventListener('keydown', (e)=>{ if(e.key==='Enter'){ send(); } });
+
+    async function send(){
+      const text = input.value.trim(); if(!text) return;
+      // block checks
+      const me = await getDoc(doc(db,'Users', myUsername));
+      const he = await getDoc(doc(db,'Users', other));
+      const myBlocked = me.exists()? (me.data().blockedUsers||[]) : [];
+      const hisBlocked = he.exists()? (he.data().blockedUsers||[]) : [];
+      if(myBlocked.includes(other)) return alert('You have blocked this user. Unblock from profile to send messages.');
+      if(hisBlocked.includes(myUsername)) return alert('You are blocked by this user.');
+
+      const now = serverTimestamp();
+      await addDoc(collection(db,'Chats', chatId, 'messages'), { sender: myUsername, text, time: now });
+      await updateDoc(chatRef, { lastMessage: text, lastMessageTime: new Date().toISOString() });
+      input.value='';
+    }
+
+    // Presence heartbeat for me
+    onAuthStateChanged(auth, async(user)=>{
+      if(!user){ location.href='index.html'; return; }
+      setInterval(async()=>{ try{ await updateDoc(doc(db,'Users', myUsername), { online:true, lastSeen:new Date().toISOString() }); }catch{} }, 30000);
     });
   </script>
 </body>

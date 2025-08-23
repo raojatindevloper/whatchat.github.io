@@ -1,261 +1,165 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>What-Chat | Home</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Rao’s Chat X — Home</title>
   <style>
-    :root {
-      --primary: #7c3aed;
-      --primary-light: #a78bfa;
-      --white: #ffffff;
-      --gray: #f3f4f6;
-      --dark: #1f2937;
-    }
-    
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    }
-    
-    body {
-      background-color: var(--gray);
-      display: flex;
-      flex-direction: column;
-      min-height: 100vh;
-    }
-    
-    header {
-      background-color: var(--white);
-      padding: 1rem;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-      position: sticky;
-      top: 0;
-      z-index: 10;
-    }
-    
-    .search-container {
-      display: flex;
-      align-items: center;
-      background-color: var(--gray);
-      border-radius: 8px;
-      padding: 0.5rem 1rem;
-    }
-    
-    .search-container input {
-      flex: 1;
-      border: none;
-      background: transparent;
-      padding: 0.5rem;
-      outline: none;
-    }
-    
-    .search-container svg {
-      color: #6b7280;
-    }
-    
-    .user-list {
-      padding: 1rem;
-      flex: 1;
-    }
-    
-    .user-card {
-      display: flex;
-      align-items: center;
-      gap: 1rem;
-      padding: 1rem;
-      background-color: var(--white);
-      border-radius: 8px;
-      margin-bottom: 1rem;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-    }
-    
-    .user-avatar {
-      width: 50px;
-      height: 50px;
-      border-radius: 50%;
-      background-color: #ddd;
-      overflow: hidden;
-    }
-    
-    .user-avatar img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-    }
-    
-    .user-info {
-      flex: 1;
-    }
-    
-    .user-name {
-      font-weight: 600;
-      display: flex;
-      align-items: center;
-      gap: 0.25rem;
-    }
-    
-    .verified-badge {
-      color: var(--primary);
-      font-size: 0.875rem;
-    }
-    
-    .username {
-      color: #6b7280;
-      font-size: 0.875rem;
-    }
-    
-    .message-btn {
-      background-color: var(--primary);
-      color: var(--white);
-      border: none;
-      border-radius: 4px;
-      padding: 0.5rem 1rem;
-      font-size: 0.875rem;
-      cursor: pointer;
-    }
-    
-    .no-users {
-      text-align: center;
-      margin-top: 2rem;
-      color: #6b7280;
-    }
-    
-    .footer {
-      margin-top: auto;
-      padding: 1rem;
-      text-align: center;
-    }
-    
-    .footer a {
-      color: var(--primary);
-      text-decoration: none;
-      font-weight: 600;
-    }
+    :root{ --bg:#0b141a; --panel:#111b21; --text:#e9edef; --muted:#8696a0; --brand:#00a884; --good:#22c55e; --shadow:0 10px 25px rgba(0,0,0,.35)}
+    body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,Segoe UI,Roboto}
+    header{position:sticky;top:0;background:var(--panel);display:flex;align-items:center;justify-content:space-between;padding:14px 16px; z-index:5; box-shadow:0 2px 0 rgba(0,0,0,.2)}
+    .title{font-weight:800}
+    .menuBtn{width:34px;height:26px;display:grid;gap:5px;cursor:pointer}
+    .menuBtn span{height:3px;background:#cfd8dc;border-radius:6px}
+    .menu{position:fixed;right:12px;top:56px;background:var(--panel);border:1px solid #1f2c33;border-radius:14px;min-width:220px;box-shadow:var(--shadow);display:none}
+    .menu a{display:block;color:var(--text);text-decoration:none;padding:12px 14px;border-bottom:1px solid #1f2c33}
+    .menu a:last-child{border-bottom:0}
+    .fab{position:fixed;right:16px;bottom:16px;width:56px;height:56px;border-radius:50%;background:var(--brand);display:grid;place-items:center;font-size:28px;color:#032d23;font-weight:900;cursor:pointer;box-shadow:var(--shadow)}
+    .searchSheet{position:fixed;inset:0;background:rgba(0,0,0,.55);display:none;align-items:center;justify-content:center;padding:16px}
+    .sheet{background:var(--panel);border-radius:18px;padding:16px;max-width:520px;width:100%;box-shadow:var(--shadow)}
+    input[type=text]{width:100%;padding:12px;border-radius:12px;border:1px solid #233138;background:#0e1a20;color:var(--text)}
+    .list{padding:8px}
+    .chatCard{display:flex;gap:12px;align-items:center;padding:12px;border-bottom:1px solid #1f2c33;cursor:pointer}
+    .avatar{width:44px;height:44px;border-radius:50%;background:#0e1a20 center/cover no-repeat}
+    .name{font-weight:700}
+    .last{color:var(--muted);font-size:13px}
+    .right{text-align:right;margin-left:auto}
+    .dot{width:10px;height:10px;border-radius:50%;display:inline-block;margin-left:6px}
   </style>
 </head>
 <body>
   <header>
-    <div class="search-container">
-      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
-        <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z"/>
-      </svg>
-      <input type="text" id="searchInput" placeholder="Search by username like @piyush">
-    </div>
+    <div class="title">Rao’s Chat X</div>
+    <div class="menuBtn" id="menuBtn"><span></span><span></span><span></span></div>
   </header>
-  
-  <div class="user-list" id="userList">
-    <div class="no-users">Loading users...</div>
-  </div>
-  
-  <div class="footer">
-    <a href="#" id="ownerLink">An App By Rao Jatin</a>
+
+  <div class="menu" id="menu">
+    <a href="#" id="ver">Web App Version = 1.00X</a>
+    <a href="about.html">About</a>
+    <a href="privacy.html">Privacy Policy</a>
+    <a href="help.html">Request Update</a>
+    <a href="#" id="toggleTheme">Dark/Light</a>
+    <a href="#" id="signOut">Sign out</a>
+    <a href="#" id="closeMenu">Close Menu</a>
   </div>
 
-  <script>
-    document.addEventListener('DOMContentLoaded', async () => {
-      const userList = document.getElementById('userList');
-      const searchInput = document.getElementById('searchInput');
-      const ownerLink = document.getElementById('ownerLink');
-      
-      let currentUser = null;
-      let allUsers = [];
-      
-      // Check authentication
-      auth.onAuthStateChanged(async (user) => {
-        if (!user) {
-          window.location.href = 'index.html';
-        } else {
-          currentUser = user;
-          loadUsers();
-        }
+  <div class="list" id="chatList"></div>
+
+  <div class="fab" id="fab">+</div>
+
+  <div class="searchSheet" id="searchSheet">
+    <div class="sheet">
+      <h3 style="margin-top:0">Start new chat</h3>
+      <input id="searchUser" type="text" placeholder="Enter username (e.g. piyush123)" />
+      <div id="searchResult" style="margin-top:12px"></div>
+    </div>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+    import { getFirestore, doc, getDoc, collection, query, where, onSnapshot, orderBy } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+    const firebaseConfig= { apiKey: "AIzaSyAJHqq9T9d5zbHoCumvNt9AK1L2fusa8Gk", authDomain: "wbapp-ff0f2.firebaseapp.com", projectId: "wbapp-ff0f2", storageBucket: "wbapp-ff0f2.firebasestorage.app", messagingSenderId: "580773775966", appId: "1:580773775966:web:d851d41c2091257a2d42cf" };
+    const app= initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    const chatList = document.getElementById('chatList');
+    const menu = document.getElementById('menu');
+    const menuBtn = document.getElementById('menuBtn');
+    const searchSheet = document.getElementById('searchSheet');
+
+    function toggleTheme(){ const cur=localStorage.getItem('rx_theme')||'dark'; localStorage.setItem('rx_theme', cur==='dark'?'light':'dark'); location.reload(); }
+    function applyTheme(){ const t=localStorage.getItem('rx_theme')||'dark'; if(t==='light'){ document.documentElement.style.setProperty('--bg','#f0f2f5'); document.documentElement.style.setProperty('--panel','#ffffff'); document.documentElement.style.setProperty('--text','#111'); document.documentElement.style.setProperty('--muted','#556'); } }
+    applyTheme();
+
+    menuBtn.onclick = ()=>{ menu.style.display = 'block'; };
+    document.getElementById('closeMenu').onclick = ()=> menu.style.display='none';
+    document.getElementById('toggleTheme').onclick = (e)=>{ e.preventDefault(); toggleTheme(); };
+    document.getElementById('signOut').onclick = async (e)=>{ e.preventDefault(); await signOut(auth); location.href='index.html'; };
+
+    onAuthStateChanged(auth, async (user)=>{
+      if(!user){ location.href='index.html'; return; }
+      // find my username
+      let myUsername = localStorage.getItem('rx_username');
+      if(!myUsername){
+        // query Users where email==user.email
+        const usersQ = query(collection(db,'Users'), where('email','==', user.email));
+        const snap = await (await import('https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js')).getDocs(usersQ);
+        if(!snap.empty){ myUsername = snap.docs[0].id; localStorage.setItem('rx_username', myUsername); localStorage.setItem('rx_name', snap.docs[0].data().name||''); }
+      }
+      if(!myUsername){ location.href='profile.html'; return; }
+
+      // presence heartbeat
+      setInterval(async()=>{
+        const { updateDoc } = await import('https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js');
+        await updateDoc(doc(db,'Users', myUsername), { online:true, lastSeen: new Date().toISOString() });
+      }, 30000);
+      window.addEventListener('beforeunload', async()=>{
+        const { updateDoc } = await import('https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js');
+        try{ await updateDoc(doc(db,'Users', myUsername), { online:false, lastSeen: new Date().toISOString() }); }catch{}
       });
-      
-      // Load all users (except current user)
-      async function loadUsers(searchTerm = '') {
-        try {
-          userList.innerHTML = '<div class="no-users">Loading users...</div>';
-          
-          let q = collection(db, 'users');
-          const querySnapshot = await getDocs(q);
-          
-          allUsers = [];
-          querySnapshot.forEach((doc) => {
-            if (doc.id !== currentUser.uid) {
-              allUsers.push(doc.data());
+
+      // watch chats for me
+      const chatsQ = query(collection(db,'Chats'), where('users','array-contains', myUsername), orderBy('lastMessageTime','desc'));
+      onSnapshot(chatsQ, async (snapshot)=>{
+        chatList.innerHTML='';
+        snapshot.forEach(docSnap=>{
+          const c=docSnap.data();
+          const other = c.users.find(u=>u!==myUsername);
+          const li = document.createElement('div'); li.className='chatCard';
+          const avatar = document.createElement('div'); avatar.className='avatar';
+          const left = document.createElement('div');
+          const right = document.createElement('div'); right.className='right';
+          left.innerHTML = `<div class="name" id="nm_${docSnap.id}">${other}</div><div class="last">${c.lastMessage||''}</div>`;
+          right.innerHTML = `<div class="last">${new Date(c.lastMessageTime||Date.now()).toLocaleTimeString()}</div>`;
+          li.appendChild(avatar); li.appendChild(left); li.appendChild(right);
+          li.addEventListener('click', ()=>{ location.href=`chat.html?with=${encodeURIComponent(other)}`; });
+          chatList.appendChild(li);
+
+          // fetch other profile for avatar + online
+          (async()=>{
+            const p = await getDoc(doc(db,'Users', other));
+            if(p.exists()){
+              const d=p.data(); avatar.style.backgroundImage=`url('${d.avatar}')`;
+              const nm = document.getElementById(`nm_${docSnap.id}`);
+              const dot = document.createElement('span'); dot.className='dot'; dot.style.background = ((Date.now()-new Date(d.lastSeen||0).getTime())<60000)?'#22c55e':'#6b7280'; nm.appendChild(dot);
+              nm.textContent = d.name||other; nm.appendChild(dot);
             }
-          });
-          
-          displayUsers(allUsers, searchTerm);
-        } catch (error) {
-          console.error('Error loading users:', error);
-          userList.innerHTML = '<div class="no-users">Error loading users. Please try again.</div>';
-        }
-      }
-      
-      // Display users with optional search filtering
-      function displayUsers(users, searchTerm = '') {
-        if (users.length === 0) {
-          userList.innerHTML = '<div class="no-users">No users found</div>';
-          return;
-        }
-        
-        let filteredUsers = users;
-        if (searchTerm) {
-          const term = searchTerm.toLowerCase();
-          filteredUsers = users.filter(user => 
-            user.username.toLowerCase().includes(term) || 
-            user.name.toLowerCase().includes(term)
-          );
-        }
-        
-        userList.innerHTML = '';
-        
-        filteredUsers.forEach(user => {
-          const userCard = document.createElement('div');
-          userCard.className = 'user-card';
-          
-          userCard.innerHTML = `
-            <div class="user-avatar">
-              ${user.photoURL ? 
-                `<img src="${user.photoURL}" alt="${user.name}">` : 
-                `<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;background-color:#a78bfa;color:white;">${user.name.charAt(0)}</div>`
-              }
-            </div>
-            <div class="user-info">
-              <div class="user-name">
-                ${user.name}
-                ${user.username === 'raojatin' ? '<span class="verified-badge">✓</span>' : ''}
-              </div>
-              <div class="username">@${user.username}</div>
-            </div>
-            <button class="message-btn" data-userid="${user.uid}">Message</button>
-          `;
-          
-          userList.appendChild(userCard);
+          })();
         });
-        
-        // Add event listeners to message buttons
-        document.querySelectorAll('.message-btn').forEach(btn => {
-          btn.addEventListener('click', () => {
-            const userId = btn.getAttribute('data-userid');
-            window.location.href = `chat.html?userId=${userId}`;
-          });
-        });
-      }
-      
-      // Search functionality
-      searchInput.addEventListener('input', (e) => {
-        const term = e.target.value.replace('@', '');
-        displayUsers(allUsers, term);
       });
-      
-      // Owner link
-      ownerLink.addEventListener('click', (e) => {
-        e.preventDefault();
-        window.location.href = 'chat.html?userId=raojatin';
+
+      // FAB search
+      document.getElementById('fab').onclick = ()=>{ searchSheet.style.display='flex'; };
+      searchSheet.addEventListener('click', (e)=>{ if(e.target===searchSheet) searchSheet.style.display='none'; });
+
+      document.getElementById('searchUser').addEventListener('input', async (e)=>{
+        const q = e.target.value.trim().toLowerCase();
+        const box = document.getElementById('searchResult');
+        box.innerHTML='';
+        if(q.length<3) return;
+        const p = await getDoc(doc(db,'Users', q));
+        if(!p.exists()) { box.innerHTML = '<div class="last">No such user.</div>'; return; }
+        const d = p.data();
+        const card = document.createElement('div'); card.className='chatCard';
+        card.innerHTML = `<div class="avatar" style="background-image:url('${d.avatar}')"></div>
+          <div><div class="name">${d.name} ${d.verified?'<span title="Verified" style="color:#1DA1F2">✓</span>':''}</div>
+          <div class="last">@${q} • ${d.gender} • ${d.age} yrs • ${d.dob}</div></div>
+          <div class="right"><button id="startBtn" style="padding:8px 10px;border-radius:10px;border:0;background:var(--brand);color:#032d23;font-weight:800;cursor:pointer">Start Chat</button></div>`;
+        box.appendChild(card);
+        card.querySelector('#startBtn').addEventListener('click', async()=>{
+          const other = q; const users = [myUsername, other].sort(); const chatId = users.join('_');
+          // create or update chat root
+          const { setDoc, getDoc: gD } = await import('https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js');
+          const chatRef = doc(db,'Chats', chatId);
+          const exists = await gD(chatRef);
+          if(!exists.exists()){
+            await setDoc(chatRef, { users, lastMessage:'', lastMessageTime: new Date().toISOString() });
+          }
+          location.href = `chat.html?with=${encodeURIComponent(other)}`;
+        });
       });
     });
   </script>

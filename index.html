@@ -1,247 +1,134 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>What-Chat | Login</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Rao’s Chat X — Login</title>
   <style>
     :root {
-      --primary: #7c3aed;
-      --primary-light: #a78bfa;
-      --white: #ffffff;
-      --gray: #f3f4f6;
-      --dark: #1f2937;
+      --bg: #0b141a;         /* WhatsApp dark bg */
+      --card: #111b21;
+      --text: #e9edef;
+      --muted: #8696a0;
+      --brand: #00a884;      /* WhatsApp green */
+      --danger: #ff4d4f;
+      --success: #22c55e;
+      --shadow: 0 10px 25px rgba(0,0,0,.35);
     }
-    
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    }
-    
-    body {
-      background-color: var(--gray);
-      display: flex;
-      flex-direction: column;
-      min-height: 100vh;
-    }
-    
-    .container {
-      max-width: 400px;
-      margin: auto;
-      padding: 2rem;
-      text-align: center;
-    }
-    
-    .logo {
-      width: 100px;
-      height: 100px;
-      margin-bottom: 1rem;
-      border-radius: 50%;
-      background-color: var(--primary);
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      color: var(--white);
-      font-size: 2rem;
-      font-weight: bold;
-    }
-    
-    h1 {
-      color: var(--primary);
-      margin-bottom: 2rem;
-    }
-    
-    .login-options {
-      display: flex;
-      flex-direction: column;
-      gap: 1rem;
-    }
-    
-    .btn {
-      padding: 0.75rem 1.5rem;
-      border-radius: 8px;
-      border: none;
-      font-size: 1rem;
-      font-weight: 600;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 0.5rem;
-    }
-    
-    .btn-google {
-      background-color: var(--white);
-      color: var(--dark);
-      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-    }
-    
-    .btn-phone {
-      background-color: var(--primary);
-      color: var(--white);
-    }
-    
-    .phone-input {
-      display: none;
-      flex-direction: column;
-      gap: 1rem;
-      margin-top: 1rem;
-    }
-    
-    .phone-input input {
-      padding: 0.75rem;
-      border-radius: 8px;
-      border: 1px solid #d1d5db;
-    }
-    
-    .footer {
-      margin-top: auto;
-      padding: 1rem;
-      text-align: center;
-    }
-    
-    .footer a {
-      color: var(--primary);
-      text-decoration: none;
-      font-weight: 600;
-    }
-    
-    .modal {
-      display: none;
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background-color: rgba(0,0,0,0.5);
-      align-items: center;
-      justify-content: center;
-    }
-    
-    .modal-content {
-      background-color: var(--white);
-      padding: 2rem;
-      border-radius: 8px;
-      max-width: 400px;
-      width: 90%;
-      text-align: center;
-    }
-    
-    .close-modal {
-      margin-top: 1rem;
-      padding: 0.5rem 1rem;
-      background-color: var(--primary);
-      color: var(--white);
-      border: none;
-      border-radius: 4px;
-      cursor: pointer;
-    }
+    * { box-sizing: border-box; }
+    body { margin: 0; font-family: system-ui, -apple-system, Segoe UI, Roboto, Noto Sans, Ubuntu, Cantarell, 'Helvetica Neue', Arial; background: var(--bg); color: var(--text); }
+    .wrap { min-height: 100dvh; display: grid; place-items: center; padding: 24px; }
+    .card { width: 100%; max-width: 420px; background: var(--card); border-radius: 20px; box-shadow: var(--shadow); padding: 28px; }
+    h1 { margin: 0 0 8px; font-size: 24px; }
+    .subtitle { color: var(--muted); margin-bottom: 18px; }
+    label { display:block; font-size: 14px; margin: 12px 0 6px; color: var(--muted); }
+    input[type=email], input[type=password] { width: 100%; padding: 12px 14px; border-radius: 12px; border: 1px solid #233138; background: #0e1a20; color: var(--text); outline: none; }
+    .row { display:flex; align-items:center; justify-content: space-between; gap: 12px; margin-top: 12px; }
+    .checkbox { display:flex; align-items:center; gap: 8px; color: var(--muted); font-size: 14px; }
+    button.primary { width: 100%; margin-top: 16px; background: var(--brand); color: #032d23; border: 0; padding: 12px 14px; border-radius: 12px; font-weight: 700; cursor: pointer; }
+    button.secondary { width: 100%; margin-top: 10px; background: #1f2c33; color: var(--text); border: 1px solid #1f2c33; padding: 12px 14px; border-radius: 12px; font-weight: 600; cursor: pointer; }
+    .tiny { font-size: 12px; color: var(--muted); margin-top: 12px; text-align: center; }
+    .error { margin-top: 10px; padding: 10px; border-radius: 10px; background: #2a1215; color: #ffa39e; display:none; }
+    .success { margin-top: 10px; padding: 10px; border-radius: 10px; background: #102a18; color: #b7eb8f; display:none; }
+    .brand { display:flex; align-items:center; gap:10px; margin-bottom: 10px; }
+    .brand .logo { width: 36px; height: 36px; border-radius: 10px; background: linear-gradient(135deg,#00a884,#0be0a8); display:grid; place-items:center; color:#063; font-weight:900; }
   </style>
 </head>
 <body>
-  <div class="container">
-    <div class="logo">W</div>
-    <h1>What-Chat</h1>
-    
-    <div class="login-options">
-      <button class="btn btn-google" id="googleLogin">
-        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
-          <path d="M15.545 6.558a9.42 9.42 0 0 1 .139 1.626c0 2.434-.87 4.492-2.384 5.885h.002C11.978 15.292 10.158 16 8 16A8 8 0 1 1 8 0a7.689 7.689 0 0 1 5.352 2.082l-2.284 2.284A4.347 4.347 0 0 0 8 3.166c-2.087 0-3.86 1.408-4.492 3.304a4.792 4.792 0 0 0 0 3.063h.003c.635 1.893 2.405 3.301 4.492 3.301 1.078 0 2.004-.276 2.722-.764h-.003a3.702 3.702 0 0 0 1.599-2.431H8v-3.08h7.545z"/>
-        </svg>
-        Continue with Google
-      </button>
-      
-      <button class="btn btn-phone" id="phoneLoginBtn">
-        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
-          <path d="M11 1a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1h6zM5 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2H5z"/>
-          <path d="M8 14a1 1 0 1 0 0-2 1 1 0 0 0 0 2z"/>
-        </svg>
-        Continue with Phone
-      </button>
-      
-      <div class="phone-input" id="phoneInput">
-        <input type="tel" id="phoneNumber" placeholder="Enter phone number" required>
-        <input type="text" id="otp" placeholder="Enter OTP" disabled>
-        <button class="btn btn-phone" id="sendOtpBtn">Send OTP</button>
+  <div class="wrap">
+    <div class="card">
+      <div class="brand">
+        <div class="logo">RX</div>
+        <div>
+          <h1>Rao’s Chat X</h1>
+          <div class="subtitle">Login to continue</div>
+        </div>
       </div>
-    </div>
-  </div>
-  
-  <div class="footer">
-    <a href="#" id="ownerLink">An App By Rao Jatin</a>
-  </div>
-  
-  <div class="modal" id="phoneModal">
-    <div class="modal-content">
-      <p>Currently, mobile number login is not available. Please use Google Login.</p>
-      <p>For more information, <a href="mailto:raodevlopers@gmail.com" id="contactLink">click here</a>.</p>
-      <button class="close-modal" id="closeModal">OK</button>
+
+      <label for="email">Email</label>
+      <input id="email" type="email" placeholder="you@example.com" autocomplete="email" />
+
+      <label for="password">Password</label>
+      <input id="password" type="password" placeholder="••••••••" autocomplete="current-password" />
+
+      <div class="row">
+        <label class="checkbox"><input type="checkbox" id="remember" /> Remember me</label>
+        <a href="#" id="toggleMode" class="tiny">Dark/Light</a>
+      </div>
+
+      <button class="primary" id="loginBtn">Login</button>
+      <button class="secondary" id="signupBtn">Create new account</button>
+
+      <div class="error" id="err"></div>
+      <div class="success" id="ok"></div>
+
+      <div class="tiny">Version 1.00X</div>
     </div>
   </div>
 
-  <script>
-    // Firebase imports and initialization are already in the module script above
-    
-    document.addEventListener('DOMContentLoaded', () => {
-      const googleLoginBtn = document.getElementById('googleLogin');
-      const phoneLoginBtn = document.getElementById('phoneLoginBtn');
-      const phoneInput = document.getElementById('phoneInput');
-      const sendOtpBtn = document.getElementById('sendOtpBtn');
-      const phoneModal = document.getElementById('phoneModal');
-      const closeModal = document.getElementById('closeModal');
-      const ownerLink = document.getElementById('ownerLink');
-      
-      // Toggle phone input visibility
-      phoneLoginBtn.addEventListener('click', () => {
-        phoneInput.style.display = phoneInput.style.display === 'flex' ? 'none' : 'flex';
-      });
-      
-      // Handle Google login
-      googleLoginBtn.addEventListener('click', async () => {
-        const provider = new GoogleAuthProvider();
-        try {
-          const result = await signInWithPopup(auth, provider);
-          const user = result.user;
-          
-          // Check if user has profile
-          const userDoc = await getDoc(doc(db, 'users', user.uid));
-          
-          if (userDoc.exists()) {
-            window.location.href = 'home.html';
-          } else {
-            window.location.href = 'profile.html';
-          }
-        } catch (error) {
-          console.error('Google login error:', error);
-          alert('Login failed. Please try again.');
-        }
-      });
-      
-      // Handle phone login (just UI for now)
-      sendOtpBtn.addEventListener('click', () => {
-        setTimeout(() => {
-          phoneModal.style.display = 'flex';
-        }, 3000);
-      });
-      
-      // Close modal
-      closeModal.addEventListener('click', () => {
-        phoneModal.style.display = 'none';
-      });
-      
-      // Owner link
-      ownerLink.addEventListener('click', (e) => {
-        e.preventDefault();
-        // Check if user is logged in
-        if (auth.currentUser) {
-          // Redirect to chat with owner
-          window.location.href = 'chat.html?userId=raojatin';
-        } else {
-          alert('Please login first to contact the owner.');
-        }
-      });
+  <script type="module">
+    // Import Firebase SDK
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import { getAuth, setPersistence, browserLocalPersistence, browserSessionPersistence, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+    import { getFirestore, collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+    // Your Firebase config
+    const firebaseConfig= { apiKey: "AIzaSyAJHqq9T9d5zbHoCumvNt9AK1L2fusa8Gk", authDomain: "wbapp-ff0f2.firebaseapp.com", projectId: "wbapp-ff0f2", storageBucket: "wbapp-ff0f2.firebasestorage.app", messagingSenderId: "580773775966", appId: "1:580773775966:web:d851d41c2091257a2d42cf" };
+    const app= initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    // Theme toggle
+    const toggle = document.getElementById('toggleMode');
+    const applyTheme = () => {
+      const t = localStorage.getItem('rx_theme')||'dark';
+      if(t==='light') document.documentElement.style.setProperty('--bg','#f0f2f5'),document.documentElement.style.setProperty('--card','#ffffff'),document.documentElement.style.setProperty('--text','#111'),document.documentElement.style.setProperty('--muted','#556');
+    };
+    toggle.addEventListener('click', (e)=>{ e.preventDefault(); const t = localStorage.getItem('rx_theme')==='light'?'dark':'light'; localStorage.setItem('rx_theme',t); location.reload(); });
+    applyTheme();
+
+    const err = (m)=>{ const el=document.getElementById('err'); el.textContent=m; el.style.display='block'; setTimeout(()=>el.style.display='none',5000)};
+    const ok = (m)=>{ const el=document.getElementById('ok'); el.textContent=m; el.style.display='block'; setTimeout(()=>el.style.display='none',3000)};
+
+    async function redirectPostLogin(user){
+      // Find if profile exists (Users collection has doc where email == user.email)
+      const q = query(collection(db,'Users'), where('email','==', user.email));
+      const snap = await getDocs(q);
+      if(!snap.empty){
+        const doc = snap.docs[0];
+        const me = doc.data();
+        localStorage.setItem('rx_username', doc.id);
+        localStorage.setItem('rx_name', me.name||'');
+        location.href = 'home.html';
+      } else {
+        location.href = 'profile.html';
+      }
+    }
+
+    onAuthStateChanged(auth, (user)=>{ if(user){ redirectPostLogin(user); }});
+
+    document.getElementById('loginBtn').addEventListener('click', async()=>{
+      const email = (document.getElementById('email').value||'').trim();
+      const password = document.getElementById('password').value;
+      const remember = document.getElementById('remember').checked;
+      if(!email||!password) return err('Please enter email and password.');
+      try{
+        await setPersistence(auth, remember?browserLocalPersistence:browserSessionPersistence);
+        await signInWithEmailAndPassword(auth, email, password);
+        ok('Logged in! Redirecting…');
+        // redirect handled by onAuthStateChanged
+      }catch(e){ err(e.message); }
+    });
+
+    document.getElementById('signupBtn').addEventListener('click', async()=>{
+      const email = (document.getElementById('email').value||'').trim();
+      const password = document.getElementById('password').value||Math.random().toString(36).slice(2)+"A1!";
+      if(!email){ return err('Enter an email to sign up.'); }
+      try{
+        await setPersistence(auth, browserLocalPersistence);
+        await createUserWithEmailAndPassword(auth, email, password);
+        ok('Account created! Redirecting to profile setup…');
+      }catch(e){ err(e.message); }
     });
   </script>
 </body>
