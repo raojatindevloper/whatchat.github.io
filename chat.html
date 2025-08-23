@@ -404,7 +404,10 @@
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
     import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-    import { getFirestore, doc, getDoc, collection, query, where, onSnapshot, orderBy, addDoc, updateDoc, serverTimestamp, arrayUnion } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+    import { 
+  getFirestore, doc, getDoc, collection, query, where, onSnapshot, orderBy,
+  addDoc, updateDoc, setDoc, getDocs, serverTimestamp, increment 
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
     const firebaseConfig= { apiKey: "AIzaSyAJHqq9T9d5zbHoCumvNt9AK1L2fusa8Gk", authDomain: "wbapp-ff0f2.firebaseapp.com", projectId: "wbapp-ff0f2", storageBucket: "wbapp-ff0f2.firebasestorage.app", messagingSenderId: "580773775966", appId: "1:580773775966:web:d851d41c2091257a2d42cf" };
     const app= initializeApp(firebaseConfig);
@@ -414,6 +417,10 @@
     const urlParams = new URLSearchParams(window.location.search);
     const otherUsername = urlParams.get('with');
     let myUsername = '';
+    if (!otherUsername) {
+  alert("No user specified, please go back.");
+  window.location.href = "home.html";
+}
     let chatId = '';
     let otherUserData = null;
 
@@ -624,19 +631,24 @@
           seenBy: {}
         });
         
-        // Update last message in chat
-        await updateDoc(doc(db, 'Chats', chatId), {
-          lastMessage: text,
-          lastMessageTime: serverTimestamp(),
-          users: [myUsername, otherUsername],
-          [`unreadCount.${otherUsername}`]: (await getDoc(doc(db, 'Chats', chatId))).data()?.unreadCount?.[otherUsername] + 1 || 1
-        });
+        // Create/Update chat summary atomically
+await setDoc(
+  doc(db, 'Chats', chatId),
+  {
+    lastMessage: text,
+    lastMessageTime: serverTimestamp(),
+    users: [myUsername, otherUsername],
+    // unread for receiver +1 (atomic)
+    [`unreadCount.${otherUsername}`]: increment(1)
+  },
+  { merge: true }
+);
         
         // Update recent chats for both users
         const recentChatData = {
           username: otherUsername,
           lastMessage: text,
-          timestamp: new Date().toISOString(),
+          timestamp: serverTimestamp(),
           unreadCount: 0
         };
         
@@ -645,7 +657,7 @@
         const otherRecentChatData = {
           username: myUsername,
           lastMessage: text,
-          timestamp: new Date().toISOString(),
+          timestamp: serverTimestamp(),
           unreadCount: 1
         };
         

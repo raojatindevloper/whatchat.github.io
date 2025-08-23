@@ -1,724 +1,157 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Rao's Chat X — Admin Panel</title>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <meta charset="UTF-8">
+  <title>Admin Panel</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
-    :root {
-      --primary: #00897b;
-      --primary-light: #4ebaaa;
-      --primary-dark: #005b4f;
-      --secondary: #f5f5f5;
-      --text-primary: #212121;
-      --text-secondary: #757575;
-      --text-on-primary: #ffffff;
-      --bg-light: #fafafa;
-      --bg-dark: #121212;
-      --card-light: #ffffff;
-      --card-dark: #1e1e1e;
-      --success: #4caf50;
-      --warning: #ff9800;
-      --error: #f44336;
-      --online: #4caf50;
-      --offline: #9e9e9e;
-      --shadow-sm: 0 2px 8px rgba(0,0,0,0.1);
-      --shadow-md: 0 4px 16px rgba(0,0,0,0.12);
-      --shadow-lg: 0 8px 24px rgba(0,0,0,0.15);
-      --radius-sm: 8px;
-      --radius-md: 12px;
-      --radius-lg: 16px;
-      --transition: all 0.3s ease;
-    }
-
-    .dark-theme {
-      --bg: var(--bg-dark);
-      --card: var(--card-dark);
-      --text: var(--text-on-primary);
-      --text-muted: #b0b0b0;
-      --border: #2d2d2d;
-    }
-
-    .light-theme {
-      --bg: var(--bg-light);
-      --card: var(--card-light);
-      --text: var(--text-primary);
-      --text-muted: var(--text-secondary);
-      --border: #e0e0e0;
-    }
-
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
-
     body {
-      margin: 0;
-      background: var(--bg);
-      color: var(--text);
-      font-family: 'Segoe UI', Roboto, -apple-system, BlinkMacSystemFont, 'Helvetica Neue', Arial, sans-serif;
-      line-height: 1.5;
-      transition: var(--transition);
+      font-family: Arial, sans-serif;
+      margin: 0; padding: 0;
+      background: #f4f6f9;
+      color: #333;
     }
-
-    /* Header Styles */
     header {
-      position: sticky;
-      top: 0;
-      background: var(--card);
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 16px;
-      z-index: 100;
-      box-shadow: var(--shadow-sm);
-      backdrop-filter: blur(10px);
-      -webkit-backdrop-filter: blur(10px);
-    }
-
-    .title {
-      font-weight: 700;
-      font-size: 1.25rem;
-      background: linear-gradient(135deg, var(--primary), var(--primary-light));
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-    }
-
-    .headerActions {
-      display: flex;
-      gap: 8px;
-      align-items: center;
-    }
-
-    .notificationBtn {
-      position: relative;
-      width: 40px;
-      height: 40px;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-      transition: var(--transition);
-      background: rgba(0,0,0,0.05);
-    }
-
-    .notificationBtn:hover {
-      background: rgba(0,0,0,0.1);
-    }
-
-    .notificationBadge {
-      position: absolute;
-      top: -4px;
-      right: -4px;
-      background: var(--error);
+      background: #6200ea;
       color: white;
-      font-size: 10px;
-      font-weight: 700;
-      width: 18px;
-      height: 18px;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-
-    .actionBtn {
-      width: 40px;
-      height: 40px;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-      transition: var(--transition);
-      background: rgba(0,0,0,0.05);
-    }
-
-    .actionBtn:hover {
-      background: rgba(0,0,0,0.1);
-    }
-
-    /* Main Content */
-    .container {
-      max-width: 1200px;
-      margin: 0 auto;
-      padding: 16px;
-    }
-
-    .section {
-      background: var(--card);
-      border-radius: var(--radius-md);
-      margin-bottom: 24px;
-      overflow: hidden;
-      box-shadow: var(--shadow-sm);
-    }
-
-    .section-header {
-      padding: 16px;
-      border-bottom: 1px solid var(--border);
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-    }
-
-    .section-title {
-      font-weight: 600;
-      font-size: 18px;
-    }
-
-    .section-content {
-      padding: 16px;
-      overflow-x: auto;
-    }
-
-    /* Table Styles */
-    table {
-      width: 100%;
-      border-collapse: collapse;
-    }
-
-    th, td {
-      padding: 12px 16px;
-      text-align: left;
-      border-bottom: 1px solid var(--border);
-    }
-
-    th {
-      font-weight: 600;
-      color: var(--text-muted);
-      font-size: 14px;
-    }
-
-    tr:last-child td {
-      border-bottom: none;
-    }
-
-    tr:hover {
-      background: rgba(0,0,0,0.03);
-    }
-
-    /* Button Styles */
-    .btn {
-      padding: 8px 16px;
-      border-radius: var(--radius-sm);
-      border: none;
-      font-size: 14px;
-      font-weight: 500;
-      cursor: pointer;
-      transition: var(--transition);
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-    }
-
-    .btn-sm {
-      padding: 6px 12px;
-      font-size: 13px;
-    }
-
-    .btn-primary {
-      background: var(--primary);
-      color: white;
-    }
-
-    .btn-primary:hover {
-      background: var(--primary-dark);
-    }
-
-    .btn-secondary {
-      background: rgba(0,0,0,0.08);
-      color: var(--text);
-    }
-
-    .btn-secondary:hover {
-      background: rgba(0,0,0,0.12);
-    }
-
-    .btn-success {
-      background: var(--success);
-      color: white;
-    }
-
-    .btn-success:hover {
-      background: #3d8b40;
-    }
-
-    .btn-error {
-      background: var(--error);
-      color: white;
-    }
-
-    .btn-error:hover {
-      background: #d32f2f;
-    }
-
-    /* Status Badges */
-    .badge {
-      display: inline-block;
-      padding: 4px 8px;
-      border-radius: 12px;
-      font-size: 12px;
-      font-weight: 600;
-    }
-
-    .badge-success {
-      background: rgba(76, 175, 80, 0.15);
-      color: var(--success);
-    }
-
-    .badge-warning {
-      background: rgba(255, 152, 0, 0.15);
-      color: var(--warning);
-    }
-
-    .badge-error {
-      background: rgba(244, 67, 54, 0.15);
-      color: var(--error);
-    }
-
-    .badge-info {
-      background: rgba(33, 150, 243, 0.15);
-      color: #2196f3;
-    }
-
-    /* Verified Badge */
-    .verified-badge {
-      color: #1DA1F2;
-      font-size: 14px;
-      margin-left: 4px;
-    }
-
-    /* Empty State */
-    .empty-state {
+      padding: 1rem;
       text-align: center;
-      padding: 40px 20px;
-      color: var(--text-muted);
     }
-
-    .empty-state i {
-      font-size: 48px;
-      margin-bottom: 16px;
-      opacity: 0.5;
+    #admin-content {
+      padding: 1rem;
     }
-
-    /* Responsive Design */
-    @media (max-width: 768px) {
-      .container {
-        padding: 12px;
-      }
-      
-      th, td {
-        padding: 10px 12px;
-      }
-      
-      .btn {
-        padding: 6px 12px;
-        font-size: 13px;
-      }
+    .user-card {
+      background: white;
+      margin: 0.5rem 0;
+      padding: 1rem;
+      border-radius: 10px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
     }
-
-    @media (max-width: 480px) {
-      .section-header {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 12px;
-      }
-      
-      .section-title {
-        font-size: 16px;
-      }
+    .user-actions button {
+      margin-right: 0.5rem;
+      padding: 6px 10px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.9rem;
+    }
+    .verify { background: #03a9f4; color: white; }
+    .ban { background: #f44336; color: white; }
+    .greet { background: #4caf50; color: white; }
+    .logout-btn {
+      background: #ff9800;
+      color: white;
+      border: none;
+      padding: 8px 12px;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+    @media (max-width:600px){
+      .user-card { font-size: 0.9rem; }
+      .user-actions button { font-size: 0.8rem; padding: 5px 8px; }
     }
   </style>
 </head>
-<body class="light-theme">
+<body>
   <header>
-    <div class="title">Rao's Chat X — Admin Panel</div>
-    <div class="headerActions">
-      <div class="notificationBtn" id="notificationBtn">
-        <i class="fas fa-bell"></i>
-        <div class="notificationBadge" id="notificationBadge" style="display: none;">0</div>
-      </div>
-      <div class="actionBtn" id="backBtn">
-        <i class="fas fa-arrow-left"></i>
-      </div>
-      <div class="actionBtn" id="toggleTheme">
-        <i class="fas fa-moon"></i>
-      </div>
-      <div class="actionBtn" id="signOut">
-        <i class="fas fa-sign-out-alt"></i>
-      </div>
-    </div>
+    <h1>Admin Dashboard</h1>
+    <p id="welcome">Checking admin access...</p>
+    <button class="logout-btn" onclick="logout()">Logout</button>
   </header>
 
-  <div class="container">
-    <div class="section">
-      <div class="section-header">
-        <div class="section-title">Users Management</div>
-      </div>
-      <div class="section-content">
-        <table id="usersTable">
-          <thead>
-            <tr>
-              <th>Name</th>
-              <th>Username</th>
-              <th>Email</th>
-              <th>Verified Status</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody id="usersTableBody">
-            <tr>
-              <td colspan="5">
-                <div class="empty-state">
-                  <i class="fas fa-users"></i>
-                  <p>Loading users...</p>
-                </div>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-    </div>
-
-    <div class="section">
-      <div class="section-header">
-        <div class="section-title">Verification Requests</div>
-        <div class="badge" id="requestsCount">0 Pending</div>
-      </div>
-      <div class="section-content">
-        <table id="requestsTable">
-          <thead>
-            <tr>
-              <th>Username</th>
-              <th>Name</th>
-              <th>Mobile</th>
-              <th>Payment Status</th>
-              <th>Date</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody id="requestsTableBody">
-            <tr>
-              <td colspan="6">
-                <div class="empty-state">
-                  <i class="fas fa-clipboard-list"></i>
-                  <p>No pending verification requests</p>
-                </div>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-    </div>
+  <div id="admin-content" style="display:none;">
+    <h2>All Users</h2>
+    <div id="user-list"></div>
   </div>
 
   <script type="module">
+    // Firebase imports
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
     import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-    import { getFirestore, doc, getDoc, collection, query, where, onSnapshot, updateDoc, deleteDoc, orderBy } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+    import { getFirestore, collection, getDocs, doc, updateDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-    const firebaseConfig = { 
-      apiKey: "AIzaSyAJHqq9T9d5zbHoCumvNt9AK1L2fusa8Gk", 
-      authDomain: "wbapp-ff0f2.firebaseapp.com", 
-      projectId: "wbapp-ff0f2", 
-      storageBucket: "wbapp-ff0f2.firebasestorage.app", 
-      messagingSenderId: "580773775966", 
-      appId: "1:580773775966:web:d851d41c2091257a2d42cf" 
+    // Firebase config (Apna config daalna)
+    const firebaseConfig = {
+      apiKey: "YOUR-API-KEY",
+      authDomain: "YOUR-PROJECT.firebaseapp.com",
+      projectId: "YOUR-PROJECT-ID",
+      storageBucket: "YOUR-PROJECT.appspot.com",
+      messagingSenderId: "YOUR-SENDER-ID",
+      appId: "YOUR-APP-ID"
     };
-    
+
+    // Init
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
     const db = getFirestore(app);
 
-    // Theme management
-    function toggleTheme() { 
-      const cur = localStorage.getItem('rx_theme') || 'light';
-      const newTheme = cur === 'dark' ? 'light' : 'dark';
-      localStorage.setItem('rx_theme', newTheme);
-      applyTheme();
-    }
-
-    function applyTheme() { 
-      const t = localStorage.getItem('rx_theme') || 'light';
-      if (t === 'dark') {
-        document.body.classList.remove('light-theme');
-        document.body.classList.add('dark-theme');
-        document.getElementById('toggleTheme').innerHTML = '<i class="fas fa-sun"></i>';
-      } else {
-        document.body.classList.remove('dark-theme');
-        document.body.classList.add('light-theme');
-        document.getElementById('toggleTheme').innerHTML = '<i class="fas fa-moon"></i>';
-      }
-    }
-    
-    applyTheme();
-
-    // Navigation
-    document.getElementById('backBtn').onclick = () => {
-      window.history.back();
-    };
-
-    document.getElementById('toggleTheme').onclick = () => {
-      toggleTheme();
-    };
-
-    document.getElementById('signOut').onclick = async () => {
-      await signOut(auth);
-      location.href = 'index.html';
-    };
-
-    // Check if user is admin
-    async function isAdminUser(uid) {
-      try {
-        // In a real implementation, you would check against a list of admin users
-        // For now, we'll check if the user's email contains "admin" or is a specific admin email
-        const userDoc = await getDoc(doc(db, 'Users', uid));
-        if (userDoc.exists()) {
-          const userData = userDoc.data();
-          return userData.email === 'admin@raoschat.com' || userData.email.includes('admin');
-        }
-        return false;
-      } catch (error) {
-        console.error('Error checking admin status:', error);
-        return false;
-      }
-    }
-
-    // Load users table
-    function loadUsersTable() {
-      const usersTableBody = document.getElementById('usersTableBody');
-      
-      const usersQuery = query(collection(db, 'Users'), orderBy('name'));
-      onSnapshot(usersQuery, (snapshot) => {
-        if (snapshot.empty) {
-          usersTableBody.innerHTML = `
-            <tr>
-              <td colspan="5">
-                <div class="empty-state">
-                  <i class="fas fa-users"></i>
-                  <p>No users found</p>
-                </div>
-              </td>
-            </tr>
-          `;
-          return;
-        }
-        
-        usersTableBody.innerHTML = '';
-        snapshot.forEach((docSnap) => {
-          const user = docSnap.data();
-          const row = document.createElement('tr');
-          
-          row.innerHTML = `
-            <td>${user.name || 'N/A'}</td>
-            <td>${docSnap.id}</td>
-            <td>${user.email || 'N/A'}</td>
-            <td>
-              ${user.verified ? 
-                '<span class="badge badge-success">Verified <i class="fas fa-check-circle verified-badge"></i></span>' : 
-                '<span class="badge badge-warning">Not Verified</span>'
-              }
-            </td>
-            <td>
-              ${user.verified ? 
-                `<button class="btn btn-error btn-sm" onclick="removeVerification('${docSnap.id}')">
-                  <i class="fas fa-times"></i> Remove Tick
-                </button>` : 
-                `<button class="btn btn-success btn-sm" onclick="giveVerification('${docSnap.id}')">
-                  <i class="fas fa-check"></i> Give Tick
-                </button>`
-              }
-            </td>
-          `;
-          
-          usersTableBody.appendChild(row);
-        });
-      }, (error) => {
-        console.error('Error loading users:', error);
-        usersTableBody.innerHTML = `
-          <tr>
-            <td colspan="5">
-              <div class="empty-state">
-                <i class="fas fa-exclamation-circle"></i>
-                <p>Error loading users</p>
-              </div>
-            </td>
-          </tr>
-        `;
-      });
-    }
-
-    // Load verification requests
-    function loadVerificationRequests() {
-      const requestsTableBody = document.getElementById('requestsTableBody');
-      const requestsCount = document.getElementById('requestsCount');
-      const notificationBadge = document.getElementById('notificationBadge');
-      
-      const requestsQuery = query(collection(db, 'VerificationRequests'), orderBy('timestamp', 'desc'));
-      onSnapshot(requestsQuery, (snapshot) => {
-        let pendingCount = 0;
-        
-        if (snapshot.empty) {
-          requestsTableBody.innerHTML = `
-            <tr>
-              <td colspan="6">
-                <div class="empty-state">
-                  <i class="fas fa-clipboard-list"></i>
-                  <p>No pending verification requests</p>
-                </div>
-              </td>
-            </tr>
-          `;
-          requestsCount.textContent = '0 Pending';
-          notificationBadge.style.display = 'none';
-          return;
-        }
-        
-        requestsTableBody.innerHTML = '';
-        snapshot.forEach((docSnap) => {
-          const request = docSnap.data();
-          if (request.status === 'pending') pendingCount++;
-          
-          const row = document.createElement('tr');
-          
-          row.innerHTML = `
-            <td>${request.username || 'N/A'}</td>
-            <td>${request.name || 'N/A'}</td>
-            <td>${request.mobile || 'N/A'}</td>
-            <td>
-              ${request.paymentStatus === 'completed' ? 
-                '<span class="badge badge-success">Completed</span>' : 
-                '<span class="badge badge-error">Pending</span>'
-              }
-            </td>
-            <td>${new Date(request.timestamp?.toDate?.() || request.timestamp || Date.now()).toLocaleDateString()}</td>
-            <td>
-              ${request.status === 'pending' ? 
-                `<div style="display: flex; gap: 8px;">
-                  <button class="btn btn-success btn-sm" onclick="approveRequest('${docSnap.id}', '${request.username}')">
-                    <i class="fas fa-check"></i> Approve
-                  </button>
-                  <button class="btn btn-error btn-sm" onclick="rejectRequest('${docSnap.id}')">
-                    <i class="fas fa-times"></i> Reject
-                  </button>
-                </div>` : 
-                `<span class="badge ${request.status === 'approved' ? 'badge-success' : 'badge-error'}">${request.status}</span>`
-              }
-            </td>
-          `;
-          
-          requestsTableBody.appendChild(row);
-        });
-        
-        // Update counts
-        requestsCount.textContent = `${pendingCount} Pending`;
-        if (pendingCount > 0) {
-          notificationBadge.textContent = pendingCount;
-          notificationBadge.style.display = 'flex';
-        } else {
-          notificationBadge.style.display = 'none';
-        }
-      }, (error) => {
-        console.error('Error loading verification requests:', error);
-        requestsTableBody.innerHTML = `
-          <tr>
-            <td colspan="6">
-              <div class="empty-state">
-                <i class="fas fa-exclamation-circle"></i>
-                <p>Error loading verification requests</p>
-              </div>
-            </td>
-          </tr>
-        `;
-      });
-    }
-
-    // Give verification to a user
-    window.giveVerification = async function(username) {
-      try {
-        await updateDoc(doc(db, 'Users', username), {
-          verified: true
-        });
-        console.log(`Verified user: ${username}`);
-      } catch (error) {
-        console.error('Error giving verification:', error);
-        alert('Error giving verification. Please try again.');
-      }
-    };
-
-    // Remove verification from a user
-    window.removeVerification = async function(username) {
-      try {
-        await updateDoc(doc(db, 'Users', username), {
-          verified: false
-        });
-        console.log(`Removed verification from user: ${username}`);
-      } catch (error) {
-        console.error('Error removing verification:', error);
-        alert('Error removing verification. Please try again.');
-      }
-    };
-
-    // Approve a verification request
-    window.approveRequest = async function(requestId, username) {
-      try {
-        // Update the request status
-        await updateDoc(doc(db, 'VerificationRequests', requestId), {
-          status: 'approved',
-          approvedAt: new Date().toISOString()
-        });
-        
-        // Give verification to the user
-        await updateDoc(doc(db, 'Users', username), {
-          verified: true
-        });
-        
-        console.log(`Approved verification request for: ${username}`);
-      } catch (error) {
-        console.error('Error approving request:', error);
-        alert('Error approving request. Please try again.');
-      }
-    };
-
-    // Reject a verification request
-    window.rejectRequest = async function(requestId) {
-      try {
-        // Update the request status
-        await updateDoc(doc(db, 'VerificationRequests', requestId), {
-          status: 'rejected',
-          rejectedAt: new Date().toISOString()
-        });
-        
-        console.log(`Rejected verification request: ${requestId}`);
-      } catch (error) {
-        console.error('Error rejecting request:', error);
-        alert('Error rejecting request. Please try again.');
-      }
-    };
-
-    // Initialize admin panel
+    // Auth check
     onAuthStateChanged(auth, async (user) => {
       if (!user) {
-        location.href = 'index.html';
+        alert("Please login first!");
+        location.href = "index.html";
         return;
       }
-      
-      // Check if user is admin
-      const isAdmin = await isAdminUser(user.uid);
-      if (!isAdmin) {
-        alert('Access denied. Admin privileges required.');
-        location.href = 'home.html';
+
+      if (user.email !== "jatinraomajra@gmail.com") {
+        alert("Not authorized!");
+        location.href = "home.html";
         return;
       }
-      
-      // Load data
-      loadUsersTable();
-      loadVerificationRequests();
+
+      document.getElementById("welcome").innerText = "Welcome Admin " + user.email;
+      document.getElementById("admin-content").style.display = "block";
+
+      // Load all users
+      const snap = await getDocs(collection(db, "Users"));
+      const list = document.getElementById("user-list");
+      list.innerHTML = "";
+
+      snap.forEach(d => {
+        const data = d.data();
+        const card = document.createElement("div");
+        card.className = "user-card";
+
+        card.innerHTML = `
+          <strong>Name:</strong> ${data.name || "-"} <br>
+          <strong>Username:</strong> ${d.id} <br>
+          <strong>Email:</strong> ${data.email || "-"}
+          <div class="user-actions">
+            <button class="verify">Blue Tick</button>
+            <button class="ban">Ban</button>
+            <button class="greet">Send Greeting</button>
+          </div>
+        `;
+
+        // Actions
+        card.querySelector(".verify").onclick = async () => {
+          await updateDoc(doc(db, "Users", d.id), { verified: true });
+          alert(d.id + " verified ✅");
+        };
+
+        card.querySelector(".ban").onclick = async () => {
+          await updateDoc(doc(db, "Users", d.id), { banned: true });
+          alert(d.id + " banned 🚫");
+        };
+
+        card.querySelector(".greet").onclick = async () => {
+          await setDoc(doc(db, "Greetings", d.id), {
+            message: "Hello " + (data.name || d.id) + "! 🎉",
+            time: new Date()
+          });
+          alert("Greeting sent to " + d.id + " 💬");
+        };
+
+        list.appendChild(card);
+      });
     });
+
+    function logout() {
+      signOut(auth).then(() => location.href = "index.html");
+    }
   </script>
 </body>
 </html>

@@ -757,7 +757,10 @@
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
     import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-    import { getFirestore, doc, getDoc, collection, query, where, onSnapshot, orderBy, updateDoc, setDoc, addDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+    import { 
+  getFirestore, doc, getDoc, collection, query, where, onSnapshot, orderBy, 
+  updateDoc, setDoc, addDoc, getDocs, documentId 
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
     const firebaseConfig= { apiKey: "AIzaSyAJHqq9T9d5zbHoCumvNt9AK1L2fusa8Gk", authDomain: "wbapp-ff0f2.firebaseapp.com", projectId: "wbapp-ff0f2", storageBucket: "wbapp-ff0f2.firebasestorage.app", messagingSenderId: "580773775966", appId: "1:580773775966:web:d851d41c2091257a2d42cf" };
     const app= initializeApp(firebaseConfig);
@@ -962,7 +965,27 @@
           
           // Fetch user details for name and verification status
           (async () => {
-            const userDoc = await getDoc(doc(db, 'Users', chatData.username));
+            const userRef = doc(db, "Users", user.uid);   // ya tum username ko id bana rahe ho to `user.displayName` / custom username use karo
+const userDocSnap = await getDoc(userRef);
+
+if (userDocSnap.exists()) {
+  const userData = userDocSnap.data();
+
+  // ✅ Yahi pe localStorage set karo
+  localStorage.setItem('rx_username', userRef.id);       // username = doc.id
+  localStorage.setItem('rx_name', userData.name || "");  // display name (agar stored hai)
+
+} else {
+  // Agar userDoc pehli baar ban raha hai
+  await setDoc(userRef, {
+    name: user.displayName || "",
+    email: user.email,
+    lastSeen: serverTimestamp()
+  });
+
+  localStorage.setItem('rx_username', userRef.id);
+  localStorage.setItem('rx_name', user.displayName || "");
+}
             if (userDoc.exists()) {
               const userData = userDoc.data();
               left.innerHTML = `
@@ -1087,49 +1110,57 @@
     });
     
     document.getElementById('searchUser').addEventListener('input', async (e) => {
-      const term = e.target.value.trim();
-      const resultDiv = document.getElementById('searchResult');
-      if(term.length < 3) { resultDiv.innerHTML=''; return; }
-      
-      try {
-        const q = query(collection(db, 'Users'), where('username', '>=', term), where('username', '<=', term + '\uf8ff'));
-        const snap = await getDocs(q);
-        resultDiv.innerHTML = '';
-        
-        if(snap.empty) {
-          resultDiv.innerHTML = '<p style="color:var(--text-muted); text-align:center;">No users found</p>';
-          return;
-        }
-        
-        snap.forEach(docSnap => {
-          const d = docSnap.data();
-          if(d.username === myUsername) return;
-          
-          const userDiv = document.createElement('div');
-          userDiv.className = 'chatCard';
-          userDiv.style.cursor = 'pointer';
-          
-          userDiv.innerHTML = `
-            ${generateAvatar(d.name || d.username, 44)}
-            <div class="chatInfo">
-              <div class="name">${d.name || d.username} 
-                ${d.verified ? '<span class="verified-badge"><i class="fas fa-check-circle"></i></span>' : ''}
-              </div>
-              <div class="last">@${d.username}</div>
-            </div>
-          `;
-          
-          userDiv.addEventListener('click', () => {
-            location.href = `chat.html?with=${encodeURIComponent(d.username)}`;
-          });
-          
-          resultDiv.appendChild(userDiv);
-        });
-      } catch (error) {
-        console.error('Error searching users:', error);
-        resultDiv.innerHTML = '<p style="color:var(--error); text-align:center;">Error searching users</p>';
-      }
-    });
+  const term = e.target.value.trim();
+  const resultDiv = document.getElementById('searchResult');
+
+  if (term.length < 2) { resultDiv.innerHTML = ''; return; }
+
+  // prefix search on doc IDs (usernames)
+  const usersRef = collection(db, 'Users');
+  const q = query(
+    usersRef,
+    where(documentId(), '>=', term),
+    where(documentId(), '<=', term + '\uf8ff')
+  );
+
+  const snap = await getDocs(q);
+  resultDiv.innerHTML = '';
+
+  if (snap.empty) {
+    resultDiv.innerHTML = '<div style="padding:12px;color:var(--text-sec)">No users found</div>';
+    return;
+  }
+
+  snap.forEach((docSnap) => {
+    const username = docSnap.id;
+    const d = docSnap.data() || {};
+
+    // apna aap mat dikhao
+    if (username === myUsername) return;
+
+    const userDiv = document.createElement('div');
+    userDiv.style.cssText = 'display:flex; align-items:center; gap:10px; padding:10px; cursor:pointer;';
+
+    // avatar + name line
+    userDiv.innerHTML = `
+      ${generateAvatar(d.name || username)}
+      <div style="display:flex; flex-direction:column;">
+        <div style="font-weight:600;">
+          ${d.name || username}
+          ${d.verified ? '<span class="verified-badge"><i class="fas fa-check-circle"></i></span>' : ''}
+        </div>
+        <div style="color:var(--text-sec); font-size:12px;">@${username}</div>
+      </div>
+    `;
+
+    userDiv.onclick = () => {
+  // doc.id = username, wahi bhejna hai
+  location.href = `chat.html?with=${encodeURIComponent(username)}`;
+};
+
+    resultDiv.appendChild(userDiv);
+  });
+});
   </script>
 </body>
 </html>
