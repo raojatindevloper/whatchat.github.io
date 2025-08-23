@@ -61,9 +61,6 @@
       font-family: 'Segoe UI', Roboto, -apple-system, BlinkMacSystemFont, 'Helvetica Neue', Arial, sans-serif;
       line-height: 1.5;
       transition: var(--transition);
-      height: 100vh;
-      display: flex;
-      flex-direction: column;
     }
 
     /* Header Styles */
@@ -90,64 +87,11 @@
       cursor: pointer;
       transition: var(--transition);
       background: rgba(0,0,0,0.05);
-      margin-right: 12px;
+      margin-right: 16px;
     }
 
     .backBtn:hover {
       background: rgba(0,0,0,0.1);
-    }
-
-    .chatHeader {
-      flex: 1;
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
-
-    .avatar {
-      width: 44px;
-      height: 44px;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-weight: 600;
-      color: white;
-      font-size: 18px;
-      background: linear-gradient(135deg, var(--primary), var(--primary-light));
-      position: relative;
-      flex-shrink: 0;
-    }
-
-    .avatar img {
-      width: 100%;
-      height: 100%;
-      border-radius: 50%;
-      object-fit: cover;
-    }
-
-    .avatar.online::after {
-      content: '';
-      position: absolute;
-      width: 10px;
-      height: 10px;
-      border-radius: 50%;
-      background: var(--online);
-      border: 2px solid var(--card);
-      bottom: 0;
-      right: 0;
-    }
-
-    .avatar.offline::after {
-      content: '';
-      position: absolute;
-      width: 10px;
-      height: 10px;
-      border-radius: 50%;
-      background: var(--offline);
-      border: 2px solid var(--card);
-      bottom: 0;
-      right: 0;
     }
 
     .chatInfo {
@@ -201,34 +145,36 @@
 
     /* Chat Container */
     .chatContainer {
-      flex: 1;
-      overflow-y: auto;
       padding: 16px;
+      padding-bottom: 80px;
       display: flex;
       flex-direction: column;
       gap: 8px;
+      max-height: calc(100vh - 72px);
+      overflow-y: auto;
     }
 
     .message {
       max-width: 80%;
       padding: 12px 16px;
-      border-radius: var(--radius-md);
+      border-radius: 18px;
       position: relative;
       animation: fadeIn 0.3s ease;
+      word-wrap: break-word;
     }
 
     .message.sent {
       align-self: flex-end;
-      background: linear-gradient(135deg, var(--primary), var(--primary-light));
+      background: var(--primary);
       color: white;
-      border-bottom-right-radius: var(--radius-sm);
+      border-bottom-right-radius: 4px;
     }
 
     .message.received {
       align-self: flex-start;
       background: var(--card);
       color: var(--text);
-      border-bottom-left-radius: var(--radius-sm);
+      border-bottom-left-radius: 4px;
       box-shadow: var(--shadow-sm);
     }
 
@@ -236,50 +182,47 @@
       font-size: 11px;
       margin-top: 4px;
       opacity: 0.8;
-      display: flex;
-      align-items: center;
-      gap: 4px;
+      text-align: right;
     }
 
     .messageStatus {
-      margin-left: 4px;
-    }
-
-    .single-tick {
-      color: rgba(255, 255, 255, 0.7);
-    }
-
-    .double-tick {
-      color: rgba(255, 255, 255, 0.7);
-    }
-
-    .double-tick-blue {
-      color: #8ed1fc;
+      font-size: 11px;
+      margin-top: 4px;
+      opacity: 0.8;
+      text-align: right;
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 2px;
     }
 
     /* Input Area */
     .inputArea {
-      position: sticky;
+      position: fixed;
       bottom: 0;
+      left: 0;
+      right: 0;
       background: var(--card);
       padding: 16px;
       display: flex;
       gap: 12px;
       align-items: center;
-      box-shadow: var(--shadow-sm);
-      backdrop-filter: blur(10px);
-      -webkit-backdrop-filter: blur(10px);
+      box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
+      z-index: 100;
     }
 
     .messageInput {
       flex: 1;
-      padding: 14px 16px;
-      border-radius: var(--radius-md);
+      padding: 12px 16px;
+      border-radius: 24px;
       border: 1px solid var(--border);
       background: var(--bg);
       color: var(--text);
       font-size: 16px;
       transition: var(--transition);
+      resize: none;
+      max-height: 120px;
+      overflow-y: auto;
     }
 
     .messageInput:focus {
@@ -295,29 +238,63 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      cursor: pointer;
-      background: linear-gradient(135deg, var(--primary), var(--primary-light));
+      background: var(--primary);
       color: white;
-      font-size: 18px;
+      cursor: pointer;
       transition: var(--transition);
       border: none;
     }
 
-    .sendBtn:hover {
-      transform: scale(1.05);
-      box-shadow: var(--shadow-md);
+    .sendBtn:disabled {
+      background: var(--text-muted);
+      cursor: not-allowed;
     }
 
-    .sendBtn:disabled {
-      opacity: 0.5;
-      cursor: not-allowed;
-      transform: none;
+    .sendBtn:not(:disabled):hover {
+      background: var(--primary-dark);
+      transform: scale(1.05);
     }
+
+    /* Typing Indicator */
+    .typingIndicator {
+      display: none;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 16px;
+      color: var(--text-muted);
+      font-size: 14px;
+    }
+
+    .typingIndicator.show {
+      display: flex;
+    }
+
+    .typingDots {
+      display: flex;
+      gap: 4px;
+    }
+
+    .typingDot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--text-muted);
+      animation: typingAnimation 1.4s infinite ease-in-out;
+    }
+
+    .typingDot:nth-child(1) { animation-delay: 0s; }
+    .typingDot:nth-child(2) { animation-delay: 0.2s; }
+    .typingDot:nth-child(3) { animation-delay: 0.4s; }
 
     /* Animations */
     @keyframes fadeIn {
       from { opacity: 0; transform: translateY(10px); }
       to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes typingAnimation {
+      0%, 60%, 100% { transform: translateY(0); }
+      30% { transform: translateY(-5px); }
     }
 
     /* Responsive Design */
@@ -326,18 +303,13 @@
         max-width: 85%;
       }
       
-      .avatar {
-        width: 40px;
-        height: 40px;
-        font-size: 16px;
+      .inputArea {
+        padding: 12px;
       }
       
-      .name {
-        font-size: 15px;
-      }
-      
-      .status {
-        font-size: 12px;
+      .sendBtn {
+        width: 44px;
+        height: 44px;
       }
     }
 
@@ -346,23 +318,17 @@
         max-width: 90%;
       }
       
-      .chatContainer {
-        padding: 12px;
-      }
-      
       .inputArea {
-        padding: 12px;
+        padding: 10px;
       }
       
       .messageInput {
-        padding: 12px 14px;
-        font-size: 15px;
+        padding: 10px 14px;
       }
       
       .sendBtn {
-        width: 44px;
-        height: 44px;
-        font-size: 16px;
+        width: 40px;
+        height: 40px;
       }
     }
   </style>
@@ -372,30 +338,43 @@
     <div class="backBtn" id="backBtn">
       <i class="fas fa-arrow-left"></i>
     </div>
-    <div class="chatHeader">
-      <div class="avatar" id="chatAvatar">U</div>
-      <div class="chatInfo">
-        <div class="name" id="chatName">
-          Loading...
-          <span class="verified-badge" id="verifiedBadge" style="display:none"><i class="fas fa-check-circle"></i></span>
-        </div>
-        <div class="status" id="chatStatus">...</div>
+    <div class="chatInfo">
+      <div class="name" id="headerName">
+        Loading...
+        <span class="verified-badge" id="verifiedBadge" style="display:none"><i class="fas fa-check-circle"></i></span>
       </div>
+      <div class="status" id="headerStatus">Connecting...</div>
     </div>
     <div class="headerActions">
       <div class="actionBtn" id="callBtn">
         <i class="fas fa-phone"></i>
       </div>
-      <div class="actionBtn" id="videoBtn">
-        <i class="fas fa-video"></i>
+      <div class="actionBtn" id="infoBtn">
+        <i class="fas fa-info-circle"></i>
       </div>
     </div>
   </header>
 
-  <div class="chatContainer" id="chatContainer"></div>
+  <div class="chatContainer" id="chatContainer">
+    <!-- Messages will be added here -->
+  </div>
+
+  <div class="typingIndicator" id="typingIndicator">
+    <span id="typingName">User</span> is typing
+    <div class="typingDots">
+      <div class="typingDot"></div>
+      <div class="typingDot"></div>
+      <div class="typingDot"></div>
+    </div>
+  </div>
 
   <div class="inputArea">
-    <input type="text" class="messageInput" id="messageInput" placeholder="Type a message..." />
+    <textarea 
+      class="messageInput" 
+      id="messageInput" 
+      placeholder="Type a message..." 
+      rows="1"
+    ></textarea>
     <button class="sendBtn" id="sendBtn" disabled>
       <i class="fas fa-paper-plane"></i>
     </button>
@@ -405,9 +384,9 @@
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
     import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
     import { 
-  getFirestore, doc, getDoc, collection, query, where, onSnapshot, orderBy,
-  addDoc, updateDoc, setDoc, getDocs, serverTimestamp, increment 
-} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+      getFirestore, doc, getDoc, collection, query, where, onSnapshot, orderBy, 
+      updateDoc, setDoc, addDoc, serverTimestamp, writeBatch, Timestamp
+    } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
     const firebaseConfig= { apiKey: "AIzaSyAJHqq9T9d5zbHoCumvNt9AK1L2fusa8Gk", authDomain: "wbapp-ff0f2.firebaseapp.com", projectId: "wbapp-ff0f2", storageBucket: "wbapp-ff0f2.firebasestorage.app", messagingSenderId: "580773775966", appId: "1:580773775966:web:d851d41c2091257a2d42cf" };
     const app= initializeApp(firebaseConfig);
@@ -417,12 +396,32 @@
     const urlParams = new URLSearchParams(window.location.search);
     const otherUsername = urlParams.get('with');
     let myUsername = '';
-    if (!otherUsername) {
-  alert("No user specified, please go back.");
-  window.location.href = "home.html";
-}
     let chatId = '';
-    let otherUserData = null;
+    let unsubscribeMessages = null;
+    let unsubscribePresence = null;
+    let presenceInterval = null;
+    let typingTimeout = null;
+
+    // Input validation
+    function validateMessage(text) {
+      if (!text || typeof text !== 'string') return false;
+      if (text.trim().length === 0) return false;
+      if (text.length > 1000) return false; // Max length
+      return true;
+    }
+
+    function validateUsername(username) {
+      if (!username || typeof username !== 'string') return false;
+      if (username.length < 3 || username.length > 20) return false;
+      return /^[a-zA-Z0-9_]+$/.test(username);
+    }
+
+    // Check if we have a valid username
+    if (!otherUsername || !validateUsername(otherUsername)) {
+      alert("No valid user specified, please go back.");
+      window.location.href = "home.html";
+      throw new Error("Invalid username parameter");
+    }
 
     // Theme management
     function applyTheme(){ 
@@ -437,8 +436,8 @@
     }
     applyTheme();
 
-    // Generate avatar based on name 
-    function generateAvatar(name, size = 44) {
+    // Generate avatar based on name
+    function generateAvatar(name, size = 40) {
       const colors = [
         '#00897b', '#4ebaaa', '#005b4f', '#00796b', '#004d40',
         '#d32f2f', '#c2185b', '#7b1fa2', '#512da8', '#303f9f',
@@ -466,211 +465,123 @@
       return hash;
     }
 
-    // Navigation
-    document.getElementById('backBtn').onclick = () => {
-      window.history.back();
-    };
-
-    // Load other user's data
-    async function loadOtherUserData() {
-      try {
-        const userDoc = await getDoc(doc(db, 'Users', otherUsername));
-        if (userDoc.exists()) {
-          otherUserData = userDoc.data();
-          
-          // Update chat header
-          document.getElementById('chatName').textContent = otherUserData.name || otherUsername;
-          document.getElementById('chatAvatar').innerHTML = generateAvatar(otherUserData.name || otherUsername);
-          
-          // Show verified badge if user is verified
-          if (otherUserData.verified) {
-            document.getElementById('verifiedBadge').style.display = 'inline';
-          }
-          
-          // Update status
-          const isOnline = ((Date.now() - new Date(otherUserData.lastSeen || 0).getTime()) < 60000);
-          document.getElementById('chatStatus').textContent = isOnline ? 'Online' : `Last seen ${formatTime(otherUserData.lastSeen)}`;
-          
-          // Add online/offline indicator
-          const avatar = document.getElementById('chatAvatar');
-          avatar.classList.add(isOnline ? 'online' : 'offline');
-        } else {
-          document.getElementById('chatName').textContent = otherUsername;
-          document.getElementById('chatAvatar').innerHTML = generateAvatar(otherUsername);
-          document.getElementById('chatStatus').textContent = 'User not found';
-        }
-      } catch (error) {
-        console.error('Error loading user data:', error);
-        document.getElementById('chatName').textContent = otherUsername;
-        document.getElementById('chatAvatar').innerHTML = generateAvatar(otherUsername);
-        document.getElementById('chatStatus').textContent = 'Error loading user';
-      }
-    }
-
-    function formatTime(timestamp) {
-      if (!timestamp) return 'recently';
-      
-      const date = new Date(timestamp);
-      const now = new Date();
-      const diffMs = now - date;
-      const diffMins = Math.floor(diffMs / 60000);
-      const diffHours = Math.floor(diffMs / 3600000);
-      const diffDays = Math.floor(diffMs / 86400000);
-      
-      if (diffMins < 1) return 'just now';
-      if (diffMins < 60) return `${diffMins} min ago`;
-      if (diffHours < 24) return `${diffHours} hr ago`;
-      if (diffDays < 7) return `${diffDays} day${diffDays > 1 ? 's' : ''} ago`;
-      
-      return date.toLocaleDateString();
-    }
-
     // Format message time
     function formatMessageTime(timestamp) {
       if (!timestamp) return '';
       
       const date = timestamp.toDate ? timestamp.toDate() : new Date(timestamp);
-      return date.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+      const now = new Date();
+      const diffMs = now - date;
+      const diffMins = Math.floor(diffMs / 60000);
+      const diffHours = Math.floor(diffMs / 3600000);
+      
+      if (diffMins < 1) return 'Just now';
+      if (diffMins < 60) return `${diffMins}m ago`;
+      if (diffHours < 24) return `${diffHours}h ago`;
+      
+      return date.toLocaleDateString([], {month: 'short', day: 'numeric'});
     }
 
-    // Get message status icon
-    function getMessageStatusIcon(message, isMyMessage) {
-      if (!isMyMessage) return '';
+    // Cleanup function to remove listeners
+    function cleanupListeners() {
+      if (unsubscribeMessages) unsubscribeMessages();
+      if (unsubscribePresence) unsubscribePresence();
+      if (presenceInterval) clearInterval(presenceInterval);
+      if (typingTimeout) clearTimeout(typingTimeout);
       
-      if (message.seenBy && message.seenBy[otherUsername]) {
-        return '<i class="fas fa-check-double double-tick-blue"></i>';
-      } else if (message.deliveredTo && message.deliveredTo[otherUsername]) {
-        return '<i class="fas fa-check-double double-tick"></i>';
-      } else {
-        return '<i class="fas fa-check single-tick"></i>';
+      // Update last seen before leaving
+      if (myUsername) {
+        updateDoc(doc(db,'Users', myUsername), { 
+          online: false, 
+          lastSeen: serverTimestamp() 
+        }).catch(console.error);
       }
     }
 
-    // Load messages
-    function loadMessages() {
-      // Generate chat ID (alphabetical order to ensure consistency)
-      const users = [myUsername, otherUsername].sort();
-      chatId = users.join('_');
-      
-      const messagesRef = collection(db, 'Chats', chatId, 'messages');
-      const messagesQuery = query(messagesRef, orderBy('timestamp', 'asc'));
-      
-      onSnapshot(messagesQuery, (snapshot) => {
-        const chatContainer = document.getElementById('chatContainer');
-        chatContainer.innerHTML = '';
-        
-        snapshot.forEach((docSnap) => {
-          const message = docSnap.data();
-          const isMyMessage = message.sender === myUsername;
-          
-          const messageDiv = document.createElement('div');
-          messageDiv.className = `message ${isMyMessage ? 'sent' : 'received'}`;
-          
-          // Format message time and status
-          const messageTime = formatMessageTime(message.timestamp);
-          const statusIcon = getMessageStatusIcon(message, isMyMessage);
-          
-          messageDiv.innerHTML = `
-            <div>${message.text}</div>
-            <div class="messageTime">
-              ${messageTime}
-              ${statusIcon ? `<span class="messageStatus">${statusIcon}</span>` : ''}
-            </div>
-          `;
-          
-          chatContainer.appendChild(messageDiv);
-        });
-        
-        // Scroll to bottom
-        chatContainer.scrollTop = chatContainer.scrollHeight;
-        
-        // Mark messages as seen
-        markMessagesAsSeen();
-      });
-    }
-
-    // Mark messages as seen
-    async function markMessagesAsSeen() {
-      try {
-        const messagesRef = collection(db, 'Chats', chatId, 'messages');
-        const messagesQuery = query(messagesRef, where('sender', '==', otherUsername));
-        
-        const snapshot = await getDocs(messagesQuery);
-        snapshot.forEach(async (docSnap) => {
-          const message = docSnap.data();
-          
-          // Check if message is already seen by me
-          if (!message.seenBy || !message.seenBy[myUsername]) {
-            await updateDoc(doc(db, 'Chats', chatId, 'messages', docSnap.id), {
-              [`seenBy.${myUsername}`]: true
-            });
-          }
-        });
-      } catch (error) {
-        console.error('Error marking messages as seen:', error);
-      }
-    }
-
-    // Send message
-    async function sendMessage() {
-      const messageInput = document.getElementById('messageInput');
-      const text = messageInput.value.trim();
-      
-      if (!text) return;
-      
-      messageInput.value = '';
-      document.getElementById('sendBtn').disabled = true;
+    // Send message function with atomic operations
+    async function sendMessage(messageText) {
+      if (!validateMessage(messageText)) return false;
       
       try {
-        // Add message to Firestore
-        await addDoc(collection(db, 'Chats', chatId, 'messages'), {
-          text: text,
+        // Create a batch to ensure atomic operations
+        const batch = writeBatch(db);
+        
+        // Create message document
+        const messageRef = doc(collection(db, 'Chats', chatId, 'Messages'));
+        batch.set(messageRef, {
+          text: messageText,
           sender: myUsername,
           timestamp: serverTimestamp(),
-          deliveredTo: {},
-          seenBy: {}
+          status: 'sent'
         });
         
-        // Create/Update chat summary atomically
-await setDoc(
-  doc(db, 'Chats', chatId),
-  {
-    lastMessage: text,
-    lastMessageTime: serverTimestamp(),
-    users: [myUsername, otherUsername],
-    // unread for receiver +1 (atomic)
-    [`unreadCount.${otherUsername}`]: increment(1)
-  },
-  { merge: true }
-);
+        // Update chat last message
+        const chatRef = doc(db, 'Chats', chatId);
+        batch.update(chatRef, {
+          lastMessage: messageText,
+          lastMessageTime: serverTimestamp(),
+          lastSender: myUsername
+        });
         
         // Update recent chats for both users
-        const recentChatData = {
+        const myRecentChatRef = doc(db, 'Users', myUsername, 'recentChats', otherUsername);
+        const myRecentChatData = {
           username: otherUsername,
-          lastMessage: text,
+          lastMessage: messageText,
           timestamp: serverTimestamp(),
-          unreadCount: 0
+          unreadCount: 0 // Reset unread count for sender
         };
         
-        await setDoc(doc(db, 'Users', myUsername, 'recentChats', otherUsername), recentChatData);
+        batch.set(myRecentChatRef, myRecentChatData);
         
+        const otherRecentChatRef = doc(db, 'Users', otherUsername, 'recentChats', myUsername);
         const otherRecentChatData = {
           username: myUsername,
-          lastMessage: text,
+          lastMessage: messageText,
           timestamp: serverTimestamp(),
-          unreadCount: 1
+          unreadCount: 1 // Increment unread count for receiver
         };
         
-        await setDoc(doc(db, 'Users', otherUsername, 'recentChats', myUsername), otherRecentChatData);
+        batch.set(otherRecentChatRef, otherRecentChatData);
         
+        // Commit the batch
+        await batch.commit();
+        return true;
       } catch (error) {
         console.error('Error sending message:', error);
-        alert('Error sending message. Please try again.');
+        alert('Failed to send message. Please try again.');
+        return false;
+      }
+    }
+
+    // Load user data for header
+    async function loadUserData() {
+      try {
+        const userDoc = await getDoc(doc(db, 'Users', otherUsername));
+        if (userDoc.exists()) {
+          const userData = userDoc.data();
+          document.getElementById('headerName').textContent = userData.name || otherUsername;
+          document.getElementById('headerStatus').textContent = userData.online ? 'Online' : 'Offline';
+          
+          if (userData.verified) {
+            document.getElementById('verifiedBadge').style.display = 'inline';
+          }
+        } else {
+          document.getElementById('headerName').textContent = otherUsername;
+          document.getElementById('headerStatus').textContent = 'User not found';
+        }
+      } catch (error) {
+        console.error('Error loading user data:', error);
+        document.getElementById('headerName').textContent = otherUsername;
+        document.getElementById('headerStatus').textContent = 'Error loading user';
       }
     }
 
     onAuthStateChanged(auth, async (user) => {
-      if(!user){ location.href='index.html'; return; }
+      if(!user){ 
+        location.href='index.html'; 
+        return; 
+      }
       
       // find my username
       myUsername = localStorage.getItem('rx_username');
@@ -684,51 +595,166 @@ await setDoc(
           localStorage.setItem('rx_name', snap.docs[0].data().name||''); 
         }
       }
-      if(!myUsername){ location.href='profile.html'; return; }
+      if(!myUsername){ 
+        location.href='profile.html'; 
+        return; 
+      }
       
-      if (!otherUsername) {
-        alert('No user specified');
-        window.history.back();
+      // Load user data for header
+      await loadUserData();
+      
+      // Generate chat ID (sorted usernames)
+      const users = [myUsername, otherUsername].sort();
+      chatId = users.join('_');
+      
+      // Check if chat exists, if not create it
+      try {
+        const chatDoc = await getDoc(doc(db, 'Chats', chatId));
+        if (!chatDoc.exists()) {
+          await setDoc(doc(db, 'Chats', chatId), {
+            users: users,
+            createdAt: serverTimestamp(),
+            lastMessage: '',
+            lastMessageTime: serverTimestamp(),
+            lastSender: ''
+          });
+        }
+      } catch (error) {
+        console.error('Error creating chat:', error);
+        alert('Error creating chat. Please try again.');
         return;
       }
       
-      // Load other user's data
-      await loadOtherUserData();
-      
       // Load messages
-      loadMessages();
+      const messagesRef = collection(db, 'Chats', chatId, 'Messages');
+      const messagesQ = query(messagesRef, orderBy('timestamp', 'asc'));
       
-      // Watch for user status changes
-      onSnapshot(doc(db, 'Users', otherUsername), (docSnap) => {
-        if (docSnap.exists()) {
-          const data = docSnap.data();
-          const isOnline = ((Date.now() - new Date(data.lastSeen || 0).getTime()) < 60000);
-          document.getElementById('chatStatus').textContent = isOnline ? 'Online' : `Last seen ${formatTime(data.lastSeen)}`;
+      unsubscribeMessages = onSnapshot(messagesQ, (snapshot) => {
+        const chatContainer = document.getElementById('chatContainer');
+        chatContainer.innerHTML = '';
+        
+        snapshot.forEach((docSnap) => {
+          const msg = docSnap.data();
+          const messageDiv = document.createElement('div');
+          messageDiv.className = `message ${msg.sender === myUsername ? 'sent' : 'received'}`;
           
-          // Update online indicator
-          const avatar = document.getElementById('chatAvatar');
-          avatar.classList.remove('online', 'offline');
-          avatar.classList.add(isOnline ? 'online' : 'offline');
+          messageDiv.innerHTML = `
+            <div>${msg.text}</div>
+            <div class="messageTime">${formatMessageTime(msg.timestamp)}</div>
+          `;
+          
+          if (msg.sender === myUsername) {
+            messageDiv.innerHTML += `
+              <div class="messageStatus">
+                ${msg.status === 'read' ? '<i class="fas fa-check-double" style="color: #4fc3f7;"></i> Read' : 
+                  msg.status === 'delivered' ? '<i class="fas fa-check-double"></i> Delivered' : 
+                  '<i class="fas fa-check"></i> Sent'}
+              </div>
+            `;
+          }
+          
+          chatContainer.appendChild(messageDiv);
+        });
+        
+        // Scroll to bottom
+        setTimeout(() => {
+          chatContainer.scrollTop = chatContainer.scrollHeight;
+        }, 100);
+      });
+      
+      // Watch for presence updates
+      unsubscribePresence = onSnapshot(doc(db, 'Users', otherUsername), (docSnap) => {
+        if (docSnap.exists()) {
+          const userData = docSnap.data();
+          const isOnline = userData.online || ((Date.now() - new Date(userData.lastSeen || 0).getTime()) < 60000);
+          document.getElementById('headerStatus').textContent = isOnline ? 'Online' : `Last seen ${formatMessageTime(userData.lastSeen)}`;
         }
       });
+      
+      // presence heartbeat
+      presenceInterval = setInterval(async() => {
+        try {
+          await updateDoc(doc(db,'Users', myUsername), { 
+            online: true, 
+            lastSeen: serverTimestamp() 
+          });
+        } catch (error) {
+          console.error('Error updating presence:', error);
+        }
+      }, 30000);
+      
+      // Mark messages as read
+      try {
+        // Reset unread count for this chat
+        await updateDoc(doc(db, 'Users', myUsername, 'recentChats', otherUsername), {
+          unreadCount: 0
+        });
+      } catch (error) {
+        console.error('Error marking messages as read:', error);
+      }
+      
+      window.addEventListener('beforeunload', cleanupListeners);
     });
+
+    // Back button
+    document.getElementById('backBtn').onclick = () => {
+      cleanupListeners();
+      window.history.back();
+    };
 
     // Message input handling
     const messageInput = document.getElementById('messageInput');
     const sendBtn = document.getElementById('sendBtn');
-    
+
     messageInput.addEventListener('input', () => {
-      sendBtn.disabled = messageInput.value.trim() === '';
+      sendBtn.disabled = !validateMessage(messageInput.value);
+      
+      // Auto-resize textarea
+      messageInput.style.height = 'auto';
+      messageInput.style.height = Math.min(messageInput.scrollHeight, 120) + 'px';
     });
-    
-    messageInput.addEventListener('keypress', (e) => {
+
+    messageInput.addEventListener('keydown', (e) => {
       if (e.key === 'Enter' && !e.shiftKey) {
         e.preventDefault();
-        sendMessage();
+        if (validateMessage(messageInput.value)) {
+          sendMessageHandler();
+        }
       }
     });
-    
-    sendBtn.addEventListener('click', sendMessage);
+
+    sendBtn.onclick = sendMessageHandler;
+
+    async function sendMessageHandler() {
+      const messageText = messageInput.value.trim();
+      if (!validateMessage(messageText)) return;
+      
+      // Disable input while sending
+      messageInput.disabled = true;
+      sendBtn.disabled = true;
+      
+      const success = await sendMessage(messageText);
+      
+      if (success) {
+        // Clear input and reset height
+        messageInput.value = '';
+        messageInput.style.height = 'auto';
+      }
+      
+      // Re-enable input
+      messageInput.disabled = false;
+      messageInput.focus();
+    }
+
+    // Call button functionality
+    document.getElementById('callBtn').onclick = () => {
+      alert(`Call feature coming soon! Would call ${otherUsername}`);
+    };
+
+    // Info button functionality
+    document.getElementById('infoBtn').onclick = () => {
+      alert(`User info for ${otherUsername} coming soon!`);
+    };
   </script>
 </body>
 </html>
