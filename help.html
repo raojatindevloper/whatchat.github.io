@@ -1,34 +1,525 @@
 <!DOCTYPE html>
-<html lang="en"><head><meta charset="UTF-8" /><meta name="viewport" content="width=device-width, initial-scale=1" /><title>Help — Rao’s Chat X</title>
-<style>body{margin:0;background:#0b141a;color:#e9edef;font-family:system-ui,Segoe UI,Roboto;padding:24px} a{color:#00a884} input,textarea{width:100%;padding:10px;border-radius:12px;border:1px solid #233138;background:#0e1a20;color:#e9edef}</style></head>
-<body>
-  <h1>Request Update</h1>
-  <p>Share your feedback or request a feature. A report will be created in Firestore under <code>Reports</code>.</p>
-  <div style="max-width:600px">
-    <label>Your Username</label>
-    <input id="me" placeholder="raojatin" />
-    <label>Feature / Issue</label>
-    <textarea id="reason" rows="5" placeholder="Describe your request"></textarea>
-    <button id="send" style="padding:10px 14px;border-radius:12px;border:0;background:#00a884;color:#032d23;font-weight:900;margin-top:10px">Submit</button>
-    <div id="msg" style="margin-top:10px;color:#8696a0"></div>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Help & Support — Rao's Chat X</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root {
+      --primary: #00897b;
+      --primary-light: #4ebaaa;
+      --primary-dark: #005b4f;
+      --gradient: linear-gradient(135deg, var(--primary), var(--primary-light));
+      --bg-dark: #0b141a;
+      --card-dark: #111b21;
+      --text-dark: #e9edef;
+      --muted-dark: #8696a0;
+      --bg-light: #f8f9fa;
+      --card-light: #ffffff;
+      --text-light: #212121;
+      --muted-light: #757575;
+      --success: #22c55e;
+      --error: #ff4d4f;
+      --shadow-sm: 0 4px 12px rgba(0,0,0,0.1);
+      --shadow-md: 0 8px 24px rgba(0,0,0,0.15);
+      --shadow-lg: 0 12px 36px rgba(0,0,0,0.2);
+      --radius-sm: 12px;
+      --radius-md: 16px;
+      --radius-lg: 24px;
+      --transition: all 0.3s ease;
+    }
+
+    .dark-theme {
+      --bg: var(--bg-dark);
+      --card: var(--card-dark);
+      --text: var(--text-dark);
+      --muted: var(--muted-dark);
+      --border: #2d2d2d;
+    }
+
+    .light-theme {
+      --bg: var(--bg-light);
+      --card: var(--card-light);
+      --text: var(--text-light);
+      --muted: var(--muted-light);
+      --border: #e0e0e0;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Segoe UI', Roboto, -apple-system, BlinkMacSystemFont, 'Helvetica Neue', Arial, sans-serif;
+      line-height: 1.6;
+      transition: var(--transition);
+      padding: 20px;
+      min-height: 100vh;
+    }
+
+    /* Header */
+    header {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 32px;
+      padding: 20px 0;
+    }
+
+    .logo {
+      width: 50px;
+      height: 50px;
+      border-radius: 14px;
+      background: var(--gradient);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-weight: 800;
+      font-size: 20px;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .brand-text h1 {
+      font-size: 28px;
+      font-weight: 800;
+      background: var(--gradient);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 4px;
+    }
+
+    .subtitle {
+      color: var(--muted);
+      font-size: 16px;
+    }
+
+    /* Card styling */
+    .card {
+      background: var(--card);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-lg);
+      padding: 32px;
+      margin-bottom: 24px;
+      position: relative;
+      overflow: hidden;
+      max-width: 800px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 6px;
+      background: var(--gradient);
+    }
+
+    .card h2 {
+      font-size: 24px;
+      margin-bottom: 20px;
+      color: var(--primary);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .card h2 i {
+      background: var(--gradient);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .card p {
+      margin-bottom: 16px;
+      color: var(--text);
+      line-height: 1.6;
+    }
+
+    .muted {
+      color: var(--muted);
+      font-size: 16px;
+      line-height: 1.6;
+    }
+
+    /* Form styling */
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    label {
+      display: block;
+      font-size: 14px;
+      margin-bottom: 8px;
+      color: var(--muted);
+      font-weight: 500;
+    }
+
+    input, textarea, select {
+      width: 100%;
+      padding: 14px 16px;
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--border);
+      background: var(--bg);
+      color: var(--text);
+      font-size: 16px;
+      transition: var(--transition);
+      font-family: inherit;
+    }
+
+    input:focus, textarea:focus, select:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(0,137,123,0.2);
+    }
+
+    /* Buttons */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 16px 24px;
+      border-radius: var(--radius-sm);
+      text-decoration: none;
+      font-weight: 600;
+      transition: var(--transition);
+      border: none;
+      cursor: pointer;
+      font-size: 16px;
+    }
+
+    .btn-primary {
+      background: var(--gradient);
+      color: white;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-md);
+    }
+
+    .btn-primary:active {
+      transform: translateY(0);
+    }
+
+    .btn-secondary {
+      background: transparent;
+      color: var(--primary);
+      border: 2px solid var(--primary);
+    }
+
+    .btn-secondary:hover {
+      background: var(--primary);
+      color: white;
+    }
+
+    /* Message styles */
+    .message {
+      margin-top: 16px;
+      padding: 12px 16px;
+      border-radius: var(--radius-sm);
+      font-size: 14px;
+      display: none;
+    }
+
+    .success {
+      background: rgba(34,197,94,0.1);
+      color: var(--success);
+      border: 1px solid rgba(34,197,94,0.2);
+    }
+
+    .error {
+      background: rgba(244,67,54,0.1);
+      color: var(--error);
+      border: 1px solid rgba(244,67,54,0.2);
+    }
+
+    /* Contact options */
+    .contact-options {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+      gap: 20px;
+      margin: 24px 0;
+    }
+
+    .contact-card {
+      padding: 20px;
+      background: rgba(0,0,0,0.05);
+      border-radius: var(--radius-md);
+      text-align: center;
+      transition: var(--transition);
+    }
+
+    .contact-card:hover {
+      background: rgba(0,0,0,0.08);
+      transform: translateY(-2px);
+    }
+
+    .contact-card i {
+      font-size: 32px;
+      color: var(--primary);
+      margin-bottom: 12px;
+    }
+
+    .contact-card h3 {
+      font-size: 18px;
+      margin-bottom: 8px;
+    }
+
+    .contact-card p {
+      font-size: 14px;
+      color: var(--muted);
+      margin-bottom: 12px;
+    }
+
+    /* Footer */
+    footer {
+      text-align: center;
+      margin-top: 40px;
+      padding: 20px 0;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      header {
+        flex-direction: column;
+        text-align: center;
+        gap: 12px;
+      }
+      
+      .card {
+        padding: 24px 20px;
+      }
+      
+      .card h2 {
+        font-size: 20px;
+      }
+      
+      .contact-options {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body class="dark-theme">
+  <header>
+    <div class="logo">RX</div>
+    <div class="brand-text">
+      <h1>Rao's Chat X</h1>
+      <div class="subtitle">Help & Support Center</div>
+    </div>
+  </header>
+
+  <div class="card">
+    <h2><i class="fas fa-hands-helping"></i> How Can We Help You?</h2>
+    <p class="muted">Having issues with the app or have a feature request? Let us know! Your feedback will be sent directly to our development team via Telegram.</p>
+    
+    <div class="form-group">
+      <label for="username">Your Username</label>
+      <input id="username" type="text" placeholder="Enter your username" />
+    </div>
+    
+    <div class="form-group">
+      <label for="issueType">Type of Request</label>
+      <select id="issueType">
+        <option value="">Select request type</option>
+        <option value="bug">Bug Report</option>
+        <option value="feature">Feature Request</option>
+        <option value="ui">UI/UX Suggestion</option>
+        <option value="performance">Performance Issue</option>
+        <option value="other">Other</option>
+      </select>
+    </div>
+    
+    <div class="form-group">
+      <label for="message">Describe your issue or request</label>
+      <textarea id="message" rows="5" placeholder="Please provide as much detail as possible..."></textarea>
+    </div>
+    
+    <button id="submitBtn" class="btn btn-primary">
+      <i class="fas fa-paper-plane"></i> Submit Request
+    </button>
+    
+    <div id="statusMessage" class="message"></div>
   </div>
 
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-    import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-    const firebaseConfig= { apiKey: "AIzaSyAJHqq9T9d5zbHoCumvNt9AK1L2fusa8Gk", authDomain: "wbapp-ff0f2.firebaseapp.com", projectId: "wbapp-ff0f2", storageBucket: "wbapp-ff0f2.firebasestorage.app", messagingSenderId: "580773775966", appId: "1:580773775966:web:d851d41c2091257a2d42cf" };
-    const app= initializeApp(firebaseConfig);
-    const db = getFirestore(app);
-    const me = document.getElementById('me');
-    const reason = document.getElementById('reason');
-    const msg = document.getElementById('msg');
-    document.getElementById('send').onclick = async()=>{
-      const reporter = me.value.trim(); const why = reason.value.trim(); if(!reporter||!why){ msg.textContent='Fill both fields.'; return; }
-      await addDoc(collection(db,'Reports'), { reporter, reportedUser: 'feature-request', reason: why, time: new Date().toISOString() });
-      msg.textContent='Thanks! Your request has been recorded.';
-      me.value=''; reason.value='';
-    }
-  </script>
-  <p><a href="home.html">← Back to Home</a></p>
-</body></html>
+  <div class="card">
+    <h2><i class="fas fa-info-circle"></i> Other Ways to Get Help</h2>
+    <p class="muted">If you prefer to contact us through other methods, here are additional options:</p>
+    
+    <div class="contact-options">
+      <div class="contact-card">
+        <i class="fab fa-telegram"></i>
+        <h3>Telegram Bot</h3>
+        <p>Send your issues directly to our support bot</p>
+        <a href="https://t.me/Jatindevloper" target="_blank" class="btn btn-secondary">
+          <i class="fab fa-telegram"></i> Message Bot
+        </a>
+      </div>
+      
+      <div class="contact-card">
+        <i class="fas fa-envelope"></i>
+        <h3>Email Support</h3>
+        <p>Reach out to us via email for detailed issues</p>
+        <a href="mailto:jatinhelpline89@gmail.com" class="btn btn-secondary">
+          <i class="fas fa-envelope"></i> Send Email
+        </a>
+      </div>
+      
+      <div class="contact-card">
+        <i class="fas fa-globe"></i>
+        <h3>Website</h3>
+        <p>Visit our official website for more information</p>
+        <a href="https://raojatin.xo.je" target="_blank" class="btn btn-secondary">
+          <i class="fas fa-external-link-alt"></i> Visit Site
+        </a>
+      </div>
+    </div>
+  </div>
 
+  <footer>
+    <p>Rao's Chat X &copy; 2025 | Version 1.00X</p>
+  </footer>
+
+  <script>
+    // Apply theme
+    function applyTheme() {
+      const theme = localStorage.getItem('rx_theme') || 'dark';
+      if (theme === 'light') {
+        document.body.classList.remove('dark-theme');
+        document.body.classList.add('light-theme');
+      } else {
+        document.body.classList.remove('light-theme');
+        document.body.classList.add('dark-theme');
+      }
+    }
+    applyTheme();
+
+    // Telegram bot details
+    const telegramBotToken = '8311976506:AAHCMdrwWzHbKYPVxItoiRXFg0hvppS_26c';
+    const telegramChatId = '5165964724';
+
+    document.getElementById('submitBtn').addEventListener('click', async function() {
+      const username = document.getElementById('username').value.trim();
+      const issueType = document.getElementById('issueType').value;
+      const message = document.getElementById('message').value.trim();
+      const statusMessage = document.getElementById('statusMessage');
+      
+      // Validate inputs
+      if (!username || !issueType || !message) {
+        statusMessage.textContent = 'Please fill in all fields.';
+        statusMessage.className = 'message error';
+        statusMessage.style.display = 'block';
+        return;
+      }
+      
+      // Create message for Telegram
+      const issueTypeText = {
+        'bug': 'Bug Report',
+        'feature': 'Feature Request',
+        'ui': 'UI/UX Suggestion',
+        'performance': 'Performance Issue',
+        'other': 'Other Request'
+      }[issueType] || 'Unknown Type';
+      
+      const telegramMessage = `
+🚨 *New Support Request* 🚨
+
+*Username:* ${username}
+*Type:* ${issueTypeText}
+*Message:*
+${message}
+
+*Time:* ${new Date().toLocaleString()}
+      `;
+      
+      try {
+        // Show loading state
+        const originalText = this.innerHTML;
+        this.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending...';
+        this.disabled = true;
+        
+        // Send to Telegram via proxy to avoid CORS issues
+        const response = await fetch('https://api.telegram.org/bot' + telegramBotToken + '/sendMessage', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            chat_id: telegramChatId,
+            text: telegramMessage,
+            parse_mode: 'Markdown'
+          })
+        });
+        
+        const data = await response.json();
+        
+        if (data.ok) {
+          statusMessage.textContent = 'Thank you! Your request has been sent successfully. We will get back to you soon.';
+          statusMessage.className = 'message success';
+          statusMessage.style.display = 'block';
+          
+          // Clear form
+          document.getElementById('username').value = '';
+          document.getElementById('issueType').value = '';
+          document.getElementById('message').value = '';
+        } else {
+          throw new Error('Telegram API error: ' + JSON.stringify(data));
+        }
+      } catch (error) {
+        console.error('Error sending message to Telegram:', error);
+        statusMessage.textContent = 'Sorry, there was an error sending your request. Please try again later or use one of the alternative contact methods.';
+        statusMessage.className = 'message error';
+        statusMessage.style.display = 'block';
+      } finally {
+        // Reset button state
+        this.innerHTML = '<i class="fas fa-paper-plane"></i> Submit Request';
+        this.disabled = false;
+      }
+      
+      // Also store in Firestore as backup
+      try {
+        const { initializeApp } = await import("https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js");
+        const { getFirestore, collection, addDoc } = await import("https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js");
+        
+        const firebaseConfig = { 
+          apiKey: "AIzaSyAJHqq9T9d5zbHoCumvNt9AK1L2fusa8Gk", 
+          authDomain: "wbapp-ff0f2.firebaseapp.com", 
+          projectId: "wbapp-ff0f2", 
+          storageBucket: "wbapp-ff0f2.firebasestorage.app", 
+          messagingSenderId: "580773775966", 
+          appId: "1:580773775966:web:d851d41c2091257a2d42cf" 
+        };
+        
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        
+        await addDoc(collection(db, 'Reports'), { 
+          reporter: username, 
+          reportedUser: 'support-request', 
+          type: issueType,
+          reason: message, 
+          time: new Date().toISOString() 
+        });
+      } catch (firebaseError) {
+        console.error('Error saving to Firestore:', firebaseError);
+        // Not critical, so we don't show an error to the user
+      }
+    });
+  </script>
+</body>
+</html>

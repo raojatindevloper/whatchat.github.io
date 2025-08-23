@@ -3,81 +3,381 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Rao’s Chat X — Profile Setup</title>
+  <title>Rao's Chat X — Profile Setup</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
-    :root{ --bg:#0b141a; --card:#111b21; --text:#e9edef; --muted:#8696a0; --brand:#00a884; --shadow:0 10px 25px rgba(0,0,0,.35); }
-    body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,Segoe UI,Roboto;}
-    .wrap{min-height:100dvh;display:grid;place-items:center;padding:22px}
-    .card{width:100%;max-width:680px;background:var(--card);border-radius:20px;box-shadow:var(--shadow);padding:20px}
-    h2{margin:0 0 10px}
-    .grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
-    label{font-size:13px;color:var(--muted)}
-    input,select{width:100%;padding:10px 12px;border-radius:12px;border:1px solid #233138;background:#0e1a20;color:var(--text)}
-    .row{display:flex;gap:10px;align-items:center}
-    .avatar{width:96px;height:96px;border-radius:50%;background:#0e1a20 url('') center/cover no-repeat;border:2px solid #1f2c33;display:grid;place-items:center;font-weight:800}
-    .btn{padding:12px 14px;border-radius:12px;border:0;background:var(--brand);color:#032d23;font-weight:800;cursor:pointer}
-    .muted{color:var(--muted);font-size:12px}
-    .error{margin-top:10px;padding:10px;border-radius:10px;background:#2a1215;color:#ffa39e;display:none}
-    .ok{margin-top:10px;padding:10px;border-radius:10px;background:#102a18;color:#b7eb8f;display:none}
-    @media(max-width:650px){.grid{grid-template-columns:1fr}}
-    .badge{display:inline-flex;align-items:center;gap:6px;background:#0e1a20;border:1px solid #1f2c33;padding:6px 10px;border-radius:999px;font-size:12px}
-    .tick{width:16px;height:16px;border-radius:50%;background:#1DA1F2;display:inline-grid;place-items:center;color:#fff;font-size:12px}
+    :root {
+      --primary: #00897b;
+      --primary-light: #4ebaaa;
+      --primary-dark: #005b4f;
+      --gradient: linear-gradient(135deg, var(--primary), var(--primary-light));
+      --bg-dark: #0b141a;
+      --card-dark: #111b21;
+      --text-dark: #e9edef;
+      --muted-dark: #8696a0;
+      --bg-light: #f8f9fa;
+      --card-light: #ffffff;
+      --text-light: #212121;
+      --muted-light: #757575;
+      --success: #22c55e;
+      --error: #ff4d4f;
+      --shadow-sm: 0 4px 12px rgba(0,0,0,0.1);
+      --shadow-md: 0 8px 24px rgba(0,0,0,0.15);
+      --shadow-lg: 0 12px 36px rgba(0,0,0,0.2);
+      --radius-sm: 12px;
+      --radius-md: 16px;
+      --radius-lg: 24px;
+      --transition: all 0.3s ease;
+    }
+
+    .dark-theme {
+      --bg: var(--bg-dark);
+      --card: var(--card-dark);
+      --text: var(--text-dark);
+      --muted: var(--muted-dark);
+      --border: #2d2d2d;
+    }
+
+    .light-theme {
+      --bg: var(--bg-light);
+      --card: var(--card-light);
+      --text: var(--text-light);
+      --muted: var(--muted-light);
+      --border: #e0e0e0;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Segoe UI', Roboto, -apple-system, BlinkMacSystemFont, 'Helvetica Neue', Arial, sans-serif;
+      line-height: 1.6;
+      transition: var(--transition);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .card {
+      width: 100%;
+      max-width: 700px;
+      background: var(--card);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-lg);
+      padding: 32px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 6px;
+      background: var(--gradient);
+    }
+
+    h2 {
+      font-size: 28px;
+      font-weight: 700;
+      margin-bottom: 8px;
+      background: var(--gradient);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .subtitle {
+      color: var(--muted);
+      margin-bottom: 24px;
+      font-size: 16px;
+    }
+
+    .profile-header {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      margin-bottom: 24px;
+    }
+
+    .avatar-container {
+      position: relative;
+    }
+
+    .avatar {
+      width: 100px;
+      height: 100px;
+      border-radius: 50%;
+      background: var(--bg);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: 36px;
+      color: white;
+      overflow: hidden;
+      border: 3px solid var(--primary);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .avatar img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .avatar-upload {
+      position: absolute;
+      bottom: 0;
+      right: 0;
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: var(--primary);
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(29, 161, 242, 0.1);
+      color: #1DA1F2;
+      border: 1px solid rgba(29, 161, 242, 0.2);
+      padding: 8px 16px;
+      border-radius: 20px;
+      font-size: 14px;
+      font-weight: 500;
+    }
+
+    .badge i {
+      font-size: 16px;
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 20px;
+      margin-bottom: 24px;
+    }
+
+    .form-group {
+      margin-bottom: 0;
+    }
+
+    .full-width {
+      grid-column: 1 / -1;
+    }
+
+    label {
+      display: block;
+      font-size: 14px;
+      margin-bottom: 8px;
+      color: var(--muted);
+      font-weight: 500;
+    }
+
+    input, select {
+      width: 100%;
+      padding: 14px 16px;
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--border);
+      background: var(--bg);
+      color: var(--text);
+      font-size: 16px;
+      transition: var(--transition);
+    }
+
+    input:focus, select:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(0,137,123,0.2);
+    }
+
+    input:disabled {
+      opacity: 0.7;
+      cursor: not-allowed;
+    }
+
+    .file-input {
+      display: none;
+    }
+
+    .file-label {
+      display: block;
+      padding: 14px 16px;
+      border-radius: var(--radius-sm);
+      border: 1px dashed var(--border);
+      background: var(--bg);
+      text-align: center;
+      cursor: pointer;
+      transition: var(--transition);
+    }
+
+    .file-label:hover {
+      border-color: var(--primary);
+      background: rgba(0,137,123,0.05);
+    }
+
+    .btn {
+      padding: 16px 24px;
+      border-radius: var(--radius-sm);
+      border: none;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: var(--transition);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      width: 100%;
+      background: var(--gradient);
+      color: white;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .btn:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-md);
+    }
+
+    .btn:active {
+      transform: translateY(0);
+    }
+
+    .message {
+      margin-top: 16px;
+      padding: 12px 16px;
+      border-radius: var(--radius-sm);
+      font-size: 14px;
+      display: none;
+    }
+
+    .error {
+      background: rgba(244,67,54,0.1);
+      color: var(--error);
+      border: 1px solid rgba(244,67,54,0.2);
+    }
+
+    .success {
+      background: rgba(34,197,94,0.1);
+      color: var(--success);
+      border: 1px solid rgba(34,197,94,0.2);
+    }
+
+    @media (max-width: 768px) {
+      .form-grid {
+        grid-template-columns: 1fr;
+      }
+      
+      .profile-header {
+        flex-direction: column;
+        text-align: center;
+      }
+    }
+
+    @media (max-width: 576px) {
+      .card {
+        padding: 24px 20px;
+      }
+      
+      h2 {
+        font-size: 24px;
+      }
+    }
   </style>
 </head>
-<body>
-  <div class="wrap">
-    <div class="card">
-      <h2>Create your profile</h2>
-      <p class="muted">Complete this once. You can edit later from Home → Menu.</p>
-      <div class="row" style="gap:16px;margin:10px 0 16px">
+<body class="dark-theme">
+  <div class="card">
+    <h2>Create Your Profile</h2>
+    <p class="subtitle">Complete your profile to start chatting with others</p>
+
+    <div class="profile-header">
+      <div class="avatar-container">
         <div class="avatar" id="avatarPreview">RX</div>
-        <div class="badge" id="verifyBadge" style="display:none"><span class="tick">✓</span> Verified</div>
+        <label for="avatarFile" class="avatar-upload">
+          <i class="fas fa-camera"></i>
+        </label>
       </div>
-
-      <div class="grid">
-        <div>
-          <label>Name</label>
-          <input id="name" placeholder="Your name" />
-        </div>
-        <div>
-          <label>Gender</label>
-          <select id="gender">
-            <option>Male</option>
-            <option>Female</option>
-            <option>Custom</option>
-          </select>
-        </div>
-        <div>
-          <label>Month</label>
-          <select id="dobMonth"></select>
-        </div>
-        <div>
-          <label>Day</label>
-          <select id="dobDay"></select>
-        </div>
-        <div>
-          <label>Year</label>
-          <select id="dobYear"></select>
-        </div>
-        <div>
-          <label>Age (auto)</label>
-          <input id="age" disabled />
-        </div>
-        <div style="grid-column:1 / -1">
-          <label>Username (unique, ≥4 chars)</label>
-          <input id="username" placeholder="e.g. raojatin" />
-        </div>
-        <div style="grid-column:1 / -1">
-          <label>Upload Avatar (optional if Gender=Custom)</label>
-          <input id="avatarFile" type="file" accept="image/*" />
-          <div class="muted">Default avatar will be applied based on gender if you don't upload.</div>
-        </div>
+      <div class="badge" id="verifyBadge" style="display:none">
+        <i class="fas fa-check-circle"></i> Verified Account
       </div>
-
-      <button class="btn" id="saveBtn" style="margin-top:16px">Generate Profile</button>
-      <div class="error" id="err"></div>
-      <div class="ok" id="ok"></div>
     </div>
+
+    <div class="form-grid">
+      <div class="form-group">
+        <label for="name">Full Name</label>
+        <input id="name" placeholder="Your name" />
+      </div>
+      
+      <div class="form-group">
+        <label for="gender">Gender</label>
+        <select id="gender">
+          <option>Male</option>
+          <option>Female</option>
+          <option>Custom</option>
+        </select>
+      </div>
+      
+      <div class="form-group">
+        <label for="dobMonth">Month</label>
+        <select id="dobMonth"></select>
+      </div>
+      
+      <div class="form-group">
+        <label for="dobDay">Day</label>
+        <select id="dobDay"></select>
+      </div>
+      
+      <div class="form-group">
+        <label for="dobYear">Year</label>
+        <select id="dobYear"></select>
+      </div>
+      
+      <div class="form-group">
+        <label for="age">Age (auto)</label>
+        <input id="age" disabled />
+      </div>
+      
+      <div class="form-group full-width">
+        <label for="username">Username (unique, ≥4 characters)</label>
+        <input id="username" placeholder="e.g. raojatin" />
+      </div>
+      
+      <div class="form-group full-width">
+        <label>Upload Avatar (optional if Gender=Custom)</label>
+        <input id="avatarFile" type="file" accept="image/*" class="file-input" />
+        <label for="avatarFile" class="file-label">
+          <i class="fas fa-cloud-upload-alt"></i> Choose an image file
+        </label>
+        <div style="font-size: 13px; color: var(--muted); margin-top: 8px;">
+          Default avatar will be applied based on gender if you don't upload.
+        </div>
+      </div>
+    </div>
+
+    <button class="btn" id="saveBtn">
+      <i class="fas fa-user-plus"></i> Create Profile
+    </button>
+
+    <div class="message error" id="err"></div>
+    <div class="message success" id="ok"></div>
   </div>
 
   <script type="module">
@@ -92,8 +392,19 @@
     const db = getFirestore(app);
     const storage = getStorage(app);
 
-    const err = (m)=>{ const el=document.getElementById('err'); el.textContent=m; el.style.display='block'; setTimeout(()=>el.style.display='none',5000)};
-    const ok = (m)=>{ const el=document.getElementById('ok'); el.textContent=m; el.style.display='block'; setTimeout(()=>el.style.display='none',3000)};
+    const err = (m) => {
+      const el = document.getElementById('err');
+      el.textContent = m;
+      el.style.display = 'block';
+      setTimeout(() => el.style.display = 'none', 5000);
+    };
+
+    const ok = (m) => {
+      const el = document.getElementById('ok');
+      el.textContent = m;
+      el.style.display = 'block';
+      setTimeout(() => el.style.display = 'none', 3000);
+    };
 
     const monthSel = document.getElementById('dobMonth');
     const daySel = document.getElementById('dobDay');
@@ -103,60 +414,138 @@
     const avatarPrev = document.getElementById('avatarPreview');
     const verifyBadge = document.getElementById('verifyBadge');
 
+    // Populate date dropdowns
     const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-    months.forEach((m,i)=>{ const o=document.createElement('option'); o.value=i+1;o.textContent=m; monthSel.appendChild(o) });
-    for(let y=2025;y>=1980;y--){ const o=document.createElement('option'); o.value=y;o.textContent=y; yearSel.appendChild(o) }
-    const fillDays=()=>{ const y=+yearSel.value||2025; const m=+monthSel.value||1; const days=new Date(y,m,0).getDate(); daySel.innerHTML=''; for(let d=1; d<=days; d++){ const o=document.createElement('option'); o.value=d;o.textContent=d; daySel.appendChild(o) } }; fillDays();
-    [monthSel,yearSel].forEach(el=>el.addEventListener('change',()=>{ fillDays(); updateAge(); }));
-    daySel.addEventListener('change',updateAge);
+    months.forEach((m, i) => {
+      const o = document.createElement('option');
+      o.value = i + 1;
+      o.textContent = m;
+      monthSel.appendChild(o);
+    });
+    
+    for (let y = 2025; y >= 1980; y--) {
+      const o = document.createElement('option');
+      o.value = y;
+      o.textContent = y;
+      yearSel.appendChild(o);
+    }
+    
+    const fillDays = () => {
+      const y = +yearSel.value || 2025;
+      const m = +monthSel.value || 1;
+      const days = new Date(y, m, 0).getDate();
+      daySel.innerHTML = '';
+      
+      for (let d = 1; d <= days; d++) {
+        const o = document.createElement('option');
+        o.value = d;
+        o.textContent = d;
+        daySel.appendChild(o);
+      }
+    };
+    
+    fillDays();
+    
+    [monthSel, yearSel].forEach(el => {
+      el.addEventListener('change', () => {
+        fillDays();
+        updateAge();
+      });
+    });
+    
+    daySel.addEventListener('change', updateAge);
 
-    function updateAge(){
-      const y=+yearSel.value||2025, m=(+monthSel.value||1)-1, d=+daySel.value||1; const dob=new Date(y,m,d);
-      const today=new Date(); let age=today.getFullYear()-dob.getFullYear(); const adj = (today.getMonth()<m) || (today.getMonth()===m && today.getDate()<d); if(adj) age--; ageEl.value = age>=0?age:'';
+    function updateAge() {
+      const y = +yearSel.value || 2025;
+      const m = (+monthSel.value || 1) - 1;
+      const d = +daySel.value || 1;
+      const dob = new Date(y, m, d);
+      const today = new Date();
+      let age = today.getFullYear() - dob.getFullYear();
+      const adj = (today.getMonth() < m) || (today.getMonth() === m && today.getDate() < d);
+      
+      if (adj) age--;
+      ageEl.value = age >= 0 ? age : '';
     }
 
-    document.getElementById('gender').addEventListener('change', (e)=>{
-      const g=e.target.value; if(g==='Male'){ avatarPrev.textContent='M'; } else if(g==='Female'){ avatarPrev.textContent='F'; } else { avatarPrev.textContent='RX'; }
+    document.getElementById('gender').addEventListener('change', (e) => {
+      const g = e.target.value;
+      if (g === 'Male') {
+        avatarPrev.textContent = 'M';
+        avatarPrev.style.background = 'linear-gradient(135deg, #1976d2, #64b5f6)';
+      } else if (g === 'Female') {
+        avatarPrev.textContent = 'F';
+        avatarPrev.style.background = 'linear-gradient(135deg, #c2185b, #f48fb1)';
+      } else {
+        avatarPrev.textContent = 'RX';
+        avatarPrev.style.background = 'linear-gradient(135deg, #00897b, #4ebaaa)';
+      }
     });
 
-    document.getElementById('avatarFile').addEventListener('change', (e)=>{
-      const file=e.target.files?.[0]; if(!file) return; const reader=new FileReader(); reader.onload=()=>{ avatarPrev.style.backgroundImage=`url('${reader.result}')`; avatarPrev.textContent=''; }; reader.readAsDataURL(file);
+    document.getElementById('avatarFile').addEventListener('change', (e) => {
+      const file = e.target.files?.[0];
+      if (!file) return;
+      
+      const reader = new FileReader();
+      reader.onload = () => {
+        avatarPrev.style.backgroundImage = `url('${reader.result}')`;
+        avatarPrev.textContent = '';
+      };
+      reader.readAsDataURL(file);
     });
 
-    onAuthStateChanged(auth, (user)=>{ if(!user){ location.href='index.html'; } });
+    onAuthStateChanged(auth, (user) => {
+      if (!user) {
+        location.href = 'index.html';
+      }
+    });
 
-    document.getElementById('saveBtn').addEventListener('click', async()=>{
-      const user = auth.currentUser; if(!user) return err('Not signed in');
-      const name = (document.getElementById('name').value||'').trim();
+    document.getElementById('saveBtn').addEventListener('click', async () => {
+      const user = auth.currentUser;
+      if (!user) return err('Not signed in');
+      
+      const name = (document.getElementById('name').value || '').trim();
       const gender = document.getElementById('gender').value;
-      const y=+yearSel.value, m=+monthSel.value, d=+daySel.value; const dob = `${y}-${String(m).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
-      const age = +ageEl.value||0;
-      const username = (uname.value||'').trim().toLowerCase();
-      const file = document.getElementById('avatarFile').files?.[0]||null;
+      const y = +yearSel.value;
+      const m = +monthSel.value;
+      const d = +daySel.value;
+      const dob = `${y}-${String(m).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+      const age = +ageEl.value || 0;
+      const username = (uname.value || '').trim().toLowerCase();
+      const file = document.getElementById('avatarFile').files?.[0] || null;
 
-      if(!name) return err('Enter your name');
-      if(username.length<4) return err('Username must be at least 4 characters');
+      if (!name) return err('Enter your name');
+      if (username.length < 4) return err('Username must be at least 4 characters');
 
       // Check uniqueness
-      const udoc = await getDoc(doc(db,'Users',username));
-      if(udoc.exists()) return err('Username already exists. Choose another.');
+      const udoc = await getDoc(doc(db, 'Users', username));
+      if (udoc.exists()) return err('Username already exists. Choose another.');
 
       // Avatar
       let avatarUrl = '';
-      if(file){
+      if (file) {
         const r = ref(storage, `avatars/${username}_${Date.now()}.jpg`);
         await uploadBytes(r, file);
         avatarUrl = await getDownloadURL(r);
       } else {
-        avatarUrl = gender==='Female' ? 'https://ui-avatars.com/api/?name=F&background=0e1a20&color=00a884' : (gender==='Male' ? 'https://ui-avatars.com/api/?name=M&background=0e1a20&color=00a884' : 'https://ui-avatars.com/api/?name=RX&background=0e1a20&color=00a884');
+        avatarUrl = gender === 'Female' 
+          ? 'https://ui-avatars.com/api/?name=F&background=0e1a20&color=00a884' 
+          : (gender === 'Male' 
+            ? 'https://ui-avatars.com/api/?name=M&background=0e1a20&color=00a884' 
+            : 'https://ui-avatars.com/api/?name=RX&background=0e1a20&color=00a884');
       }
 
-      const verified = username==='raojatin';
-      if(verified){ verifyBadge.style.display='inline-flex'; }
+      const verified = username === 'raojatin';
+      if (verified) {
+        verifyBadge.style.display = 'inline-flex';
+      }
 
       const payload = {
         email: user.email,
-        name, dob, age, gender,
+        name,
+        dob,
+        age,
+        gender,
         avatar: avatarUrl,
         verified,
         online: true,
@@ -164,11 +553,11 @@
         blockedUsers: []
       };
 
-      await setDoc(doc(db,'Users', username), payload);
+      await setDoc(doc(db, 'Users', username), payload);
       localStorage.setItem('rx_username', username);
       localStorage.setItem('rx_name', name);
       ok('Profile created! Redirecting…');
-      setTimeout(()=>location.href='home.html', 800);
+      setTimeout(() => location.href = 'home.html', 800);
     });
   </script>
 </body>

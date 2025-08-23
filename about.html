@@ -1,13 +1,482 @@
 <!DOCTYPE html>
-<html lang="en"><head><meta charset="UTF-8" /><meta name="viewport" content="width=device-width, initial-scale=1" /><title>About — Rao’s Chat X</title>
-<style>body{margin:0;background:#0b141a;color:#e9edef;font-family:system-ui,Segoe UI,Roboto;padding:24px} a{color:#00a884}</style></head>
-<body>
-  <h1>About Rao’s Chat X</h1>
-  <p>Rao’s Chat X is a Firebase-powered, real-time chat app with a modern WhatsApp-style interface, built for fast 1:1 conversations with typing indicators, reactions, online status and more.</p>
-  <ul>
-    <li>Version: <strong>1.00X</strong></li>
-    <li>Stack: Firebase Auth, Firestore, Storage</li>
-    <li>Creator: Rao Jatin &amp; Team</li>
-  </ul>
-  <p><a href="home.html">← Back to Home</a></p>
-</body></html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>About — Rao's Chat X</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root {
+      --primary: #00897b;
+      --primary-light: #4ebaaa;
+      --primary-dark: #005b4f;
+      --gradient: linear-gradient(135deg, var(--primary), var(--primary-light));
+      --bg-dark: #0b141a;
+      --card-dark: #111b21;
+      --text-dark: #e9edef;
+      --muted-dark: #8696a0;
+      --bg-light: #f8f9fa;
+      --card-light: #ffffff;
+      --text-light: #212121;
+      --muted-light: #757575;
+      --success: #22c55e;
+      --error: #ff4d4f;
+      --shadow-sm: 0 4px 12px rgba(0,0,0,0.1);
+      --shadow-md: 0 8px 24px rgba(0,0,0,0.15);
+      --shadow-lg: 0 12px 36px rgba(0,0,0,0.2);
+      --radius-sm: 12px;
+      --radius-md: 16px;
+      --radius-lg: 24px;
+      --transition: all 0.3s ease;
+    }
+
+    .dark-theme {
+      --bg: var(--bg-dark);
+      --card: var(--card-dark);
+      --text: var(--text-dark);
+      --muted: var(--muted-dark);
+      --border: #2d2d2d;
+    }
+
+    .light-theme {
+      --bg: var(--bg-light);
+      --card: var(--card-light);
+      --text: var(--text-light);
+      --muted: var(--muted-light);
+      --border: #e0e0e0;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Segoe UI', Roboto, -apple-system, BlinkMacSystemFont, 'Helvetica Neue', Arial, sans-serif;
+      line-height: 1.6;
+      transition: var(--transition);
+      padding: 20px;
+      min-height: 100vh;
+    }
+
+    /* Header */
+    header {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 32px;
+      padding: 20px 0;
+    }
+
+    .logo {
+      width: 50px;
+      height: 50px;
+      border-radius: 14px;
+      background: var(--gradient);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-weight: 800;
+      font-size: 20px;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .brand-text h1 {
+      font-size: 28px;
+      font-weight: 800;
+      background: var(--gradient);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 4px;
+    }
+
+    .subtitle {
+      color: var(--muted);
+      font-size: 16px;
+    }
+
+    /* Card styling */
+    .card {
+      background: var(--card);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-lg);
+      padding: 32px;
+      margin-bottom: 24px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 6px;
+      background: var(--gradient);
+    }
+
+    .card h2 {
+      font-size: 24px;
+      margin-bottom: 20px;
+      color: var(--primary);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .card h2 i {
+      background: var(--gradient);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .card p {
+      margin-bottom: 16px;
+      color: var(--text);
+      line-height: 1.6;
+    }
+
+    .muted {
+      color: var(--muted);
+      font-size: 16px;
+      line-height: 1.6;
+    }
+
+    /* Feature list */
+    .feature-list {
+      list-style: none;
+      margin: 24px 0;
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 16px;
+    }
+
+    .feature-list li {
+      padding: 16px;
+      background: rgba(0,0,0,0.05);
+      border-radius: var(--radius-sm);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      transition: var(--transition);
+    }
+
+    .feature-list li:hover {
+      background: rgba(0,0,0,0.08);
+      transform: translateY(-2px);
+    }
+
+    .feature-list i {
+      color: var(--primary);
+      font-size: 20px;
+      width: 24px;
+    }
+
+    /* Tech stack */
+    .tech-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 16px;
+      margin: 24px 0;
+    }
+
+    .tech-item {
+      padding: 20px;
+      background: rgba(0,0,0,0.05);
+      border-radius: var(--radius-sm);
+      text-align: center;
+      transition: var(--transition);
+    }
+
+    .tech-item:hover {
+      background: rgba(0,0,0,0.08);
+      transform: translateY(-2px);
+    }
+
+    .tech-item i {
+      font-size: 32px;
+      color: var(--primary);
+      margin-bottom: 12px;
+    }
+
+    .tech-item h3 {
+      font-size: 16px;
+      margin-bottom: 8px;
+    }
+
+    .tech-item p {
+      font-size: 14px;
+      color: var(--muted);
+    }
+
+    /* Creator section */
+    .creator-card {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      background: rgba(0,137,123,0.1);
+      border: 1px solid rgba(0,137,123,0.2);
+      border-radius: var(--radius-md);
+      padding: 24px;
+      margin-top: 24px;
+    }
+
+    .creator-avatar {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      background: var(--gradient);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-weight: 800;
+      font-size: 32px;
+      flex-shrink: 0;
+    }
+
+    .creator-info h3 {
+      font-size: 20px;
+      margin-bottom: 8px;
+      color: var(--primary);
+    }
+
+    .creator-info p {
+      margin-bottom: 12px;
+    }
+
+    /* Buttons */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 12px 20px;
+      border-radius: var(--radius-sm);
+      text-decoration: none;
+      font-weight: 600;
+      transition: var(--transition);
+      margin-top: 16px;
+    }
+
+    .btn-primary {
+      background: var(--gradient);
+      color: white;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-md);
+    }
+
+    .btn-primary:active {
+      transform: translateY(0);
+    }
+
+    .btn-outline {
+      background: transparent;
+      color: var(--primary);
+      border: 2px solid var(--primary);
+    }
+
+    .btn-outline:hover {
+      background: var(--primary);
+      color: white;
+    }
+
+    /* Footer */
+    footer {
+      text-align: center;
+      margin-top: 40px;
+      padding: 20px 0;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      header {
+        flex-direction: column;
+        text-align: center;
+        gap: 12px;
+      }
+      
+      .card {
+        padding: 24px 20px;
+      }
+      
+      .card h2 {
+        font-size: 20px;
+      }
+      
+      .feature-list {
+        grid-template-columns: 1fr;
+      }
+      
+      .tech-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+      
+      .creator-card {
+        flex-direction: column;
+        text-align: center;
+      }
+    }
+  </style>
+</head>
+<body class="dark-theme">
+  <header>
+    <div class="logo">RX</div>
+    <div class="brand-text">
+      <h1>Rao's Chat X</h1>
+      <div class="subtitle">About The Application</div>
+    </div>
+  </header>
+
+  <div class="card">
+    <h2><i class="fas fa-info-circle"></i> About This App</h2>
+    <p class="muted">Rao's Chat X is a Firebase-powered, real-time chat application with a modern WhatsApp-style interface. Built for fast 1:1 conversations with advanced features like typing indicators, message reactions, online status, and more.</p>
+    
+    <p class="muted">This application was created on <strong>August 20, 2025</strong> as a demonstration of modern web development techniques and real-time communication capabilities.</p>
+  </div>
+
+  <div class="card">
+    <h2><i class="fas fa-star"></i> Key Features</h2>
+    <ul class="feature-list">
+      <li>
+        <i class="fas fa-comments"></i>
+        <span>Real-time 1:1 messaging</span>
+      </li>
+      <li>
+        <i class="fas fa-bolt"></i>
+        <span>Instant typing indicators</span>
+      </li>
+      <li>
+        <i class="fas fa-smile"></i>
+        <span>Message reactions</span>
+      </li>
+      <li>
+        <i class="fas fa-circle"></i>
+        <span>Online/offline status</span>
+      </li>
+      <li>
+        <i class="fas fa-shield-alt"></i>
+        <span>User blocking system</span>
+      </li>
+      <li>
+        <i class="fas fa-user-check"></i>
+        <span>Verified accounts</span>
+      </li>
+      <li>
+        <i class="fas fa-image"></i>
+        <span>Profile avatars</span>
+      </li>
+      <li>
+        <i class="fas fa-moon"></i>
+        <span>Dark/Light theme</span>
+      </li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <h2><i class="fas fa-code"></i> Technology Stack</h2>
+    <p class="muted">Rao's Chat X is built with modern web technologies:</p>
+    
+    <div class="tech-grid">
+      <div class="tech-item">
+        <i class="fab fa-html5"></i>
+        <h3>HTML5</h3>
+        <p>Semantic markup</p>
+      </div>
+      <div class="tech-item">
+        <i class="fab fa-css3-alt"></i>
+        <h3>CSS3</h3>
+        <p>Modern styling</p>
+      </div>
+      <div class="tech-item">
+        <i class="fab fa-js"></i>
+        <h3>JavaScript</h3>
+        <p>Client-side logic</p>
+      </div>
+      <div class="tech-item">
+        <i class="fas fa-database"></i>
+        <h3>Firebase</h3>
+        <p>Backend services</p>
+      </div>
+    </div>
+    
+    <p class="muted">The application utilizes Firebase's complete suite:</p>
+    <ul class="feature-list">
+      <li>
+        <i class="fas fa-key"></i>
+        <span><strong>Firebase Authentication</strong> for user management</span>
+      </li>
+      <li>
+        <i class="fas fa-database"></i>
+        <span><strong>Cloud Firestore</strong> for real-time data storage</span>
+      </li>
+      <li>
+        <i class="fas fa-cloud-upload-alt"></i>
+        <span><strong>Firebase Storage</strong> for media files</span>
+      </li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <h2><i class="fas fa-user-tie"></i> About The Creator</h2>
+    <p class="muted">Rao's Chat X was developed by <strong>Rao Jatin</strong>, an experienced web developer specializing in modern web applications.</p>
+    
+    <div class="creator-card">
+      <div class="creator-avatar">RJ</div>
+      <div class="creator-info">
+        <h3>Rao Jatin</h3>
+        <p>Full Stack Developer with expertise in creating responsive, real-time web applications using modern technologies.</p>
+        <p>This is one of many projects in his portfolio demonstrating proficiency in frontend and backend development.</p>
+        <a href="https://raojatin.xo.je/" target="_blank" class="btn btn-outline">
+          <i class="fas fa-globe"></i> Visit Official Website
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2><i class="fas fa-mobile-alt"></i> Version Information</h2>
+    <p class="muted"><strong>Version:</strong> 1.00X</p>
+    <p class="muted"><strong>Release Date:</strong> August 20, 2025</p>
+    <p class="muted"><strong>Status:</strong> Active Development</p>
+    
+    <a href="home.html" class="btn btn-primary">
+      <i class="fas fa-arrow-left"></i> Back to Home
+    </a>
+  </div>
+
+  <footer>
+    <p>Rao's Chat X &copy; 2025 | Created with <i class="fas fa-heart" style="color: #ff4d4f;"></i> by Rao Jatin</p>
+  </footer>
+
+  <script>
+    // Theme management
+    function applyTheme() {
+      const theme = localStorage.getItem('rx_theme') || 'dark';
+      if (theme === 'light') {
+        document.body.classList.remove('dark-theme');
+        document.body.classList.add('light-theme');
+      } else {
+        document.body.classList.remove('light-theme');
+        document.body.classList.add('dark-theme');
+      }
+    }
+    
+    // Apply theme on load
+    applyTheme();
+  </script>
+</body>
+</html>

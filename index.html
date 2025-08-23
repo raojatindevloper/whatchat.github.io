@@ -3,67 +3,407 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Rao’s Chat X — Login</title>
+  <title>Rao's Chat X — Login</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
     :root {
-      --bg: #0b141a;         /* WhatsApp dark bg */
-      --card: #111b21;
-      --text: #e9edef;
-      --muted: #8696a0;
-      --brand: #00a884;      /* WhatsApp green */
-      --danger: #ff4d4f;
+      --primary: #00897b;
+      --primary-light: #4ebaaa;
+      --primary-dark: #005b4f;
+      --gradient: linear-gradient(135deg, var(--primary), var(--primary-light));
+      --bg-dark: #0b141a;
+      --card-dark: #111b21;
+      --text-dark: #e9edef;
+      --muted-dark: #8696a0;
+      --bg-light: #f8f9fa;
+      --card-light: #ffffff;
+      --text-light: #212121;
+      --muted-light: #757575;
       --success: #22c55e;
-      --shadow: 0 10px 25px rgba(0,0,0,.35);
+      --error: #ff4d4f;
+      --shadow-sm: 0 4px 12px rgba(0,0,0,0.1);
+      --shadow-md: 0 8px 24px rgba(0,0,0,0.15);
+      --shadow-lg: 0 12px 36px rgba(0,0,0,0.2);
+      --radius-sm: 12px;
+      --radius-md: 16px;
+      --radius-lg: 24px;
+      --transition: all 0.3s ease;
     }
-    * { box-sizing: border-box; }
-    body { margin: 0; font-family: system-ui, -apple-system, Segoe UI, Roboto, Noto Sans, Ubuntu, Cantarell, 'Helvetica Neue', Arial; background: var(--bg); color: var(--text); }
-    .wrap { min-height: 100dvh; display: grid; place-items: center; padding: 24px; }
-    .card { width: 100%; max-width: 420px; background: var(--card); border-radius: 20px; box-shadow: var(--shadow); padding: 28px; }
-    h1 { margin: 0 0 8px; font-size: 24px; }
-    .subtitle { color: var(--muted); margin-bottom: 18px; }
-    label { display:block; font-size: 14px; margin: 12px 0 6px; color: var(--muted); }
-    input[type=email], input[type=password] { width: 100%; padding: 12px 14px; border-radius: 12px; border: 1px solid #233138; background: #0e1a20; color: var(--text); outline: none; }
-    .row { display:flex; align-items:center; justify-content: space-between; gap: 12px; margin-top: 12px; }
-    .checkbox { display:flex; align-items:center; gap: 8px; color: var(--muted); font-size: 14px; }
-    button.primary { width: 100%; margin-top: 16px; background: var(--brand); color: #032d23; border: 0; padding: 12px 14px; border-radius: 12px; font-weight: 700; cursor: pointer; }
-    button.secondary { width: 100%; margin-top: 10px; background: #1f2c33; color: var(--text); border: 1px solid #1f2c33; padding: 12px 14px; border-radius: 12px; font-weight: 600; cursor: pointer; }
-    .tiny { font-size: 12px; color: var(--muted); margin-top: 12px; text-align: center; }
-    .error { margin-top: 10px; padding: 10px; border-radius: 10px; background: #2a1215; color: #ffa39e; display:none; }
-    .success { margin-top: 10px; padding: 10px; border-radius: 10px; background: #102a18; color: #b7eb8f; display:none; }
-    .brand { display:flex; align-items:center; gap:10px; margin-bottom: 10px; }
-    .brand .logo { width: 36px; height: 36px; border-radius: 10px; background: linear-gradient(135deg,#00a884,#0be0a8); display:grid; place-items:center; color:#063; font-weight:900; }
+
+    .dark-theme {
+      --bg: var(--bg-dark);
+      --card: var(--card-dark);
+      --text: var(--text-dark);
+      --muted: var(--muted-dark);
+      --border: #2d2d2d;
+    }
+
+    .light-theme {
+      --bg: var(--bg-light);
+      --card: var(--card-light);
+      --text: var(--text-light);
+      --muted: var(--muted-light);
+      --border: #e0e0e0;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Segoe UI', Roboto, -apple-system, BlinkMacSystemFont, 'Helvetica Neue', Arial, sans-serif;
+      line-height: 1.6;
+      transition: var(--transition);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      position: relative;
+      overflow-x: hidden;
+    }
+
+    /* Background animation */
+    .bg-animation {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: -1;
+      opacity: 0.7;
+    }
+
+    .bg-circle {
+      position: absolute;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--primary-light), transparent);
+      animation: float 15s infinite ease-in-out;
+    }
+
+    .bg-circle:nth-child(1) {
+      width: 300px;
+      height: 300px;
+      top: -100px;
+      left: -100px;
+      animation-delay: 0s;
+    }
+
+    .bg-circle:nth-child(2) {
+      width: 200px;
+      height: 200px;
+      bottom: -50px;
+      right: -50px;
+      animation-delay: -5s;
+    }
+
+    .bg-circle:nth-child(3) {
+      width: 150px;
+      height: 150px;
+      top: 50%;
+      left: 70%;
+      animation-delay: -10s;
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0) rotate(0deg); }
+      50% { transform: translateY(-20px) rotate(10deg); }
+    }
+
+    /* Card styling */
+    .card {
+      width: 100%;
+      max-width: 480px;
+      background: var(--card);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-lg);
+      padding: 40px 32px;
+      position: relative;
+      overflow: hidden;
+      z-index: 1;
+    }
+
+    .card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 6px;
+      background: var(--gradient);
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+
+    .logo {
+      width: 50px;
+      height: 50px;
+      border-radius: 14px;
+      background: var(--gradient);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-weight: 800;
+      font-size: 20px;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .brand-text h1 {
+      font-size: 28px;
+      font-weight: 800;
+      background: var(--gradient);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 4px;
+    }
+
+    .subtitle {
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    /* Form styling */
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    label {
+      display: block;
+      font-size: 14px;
+      margin-bottom: 8px;
+      color: var(--muted);
+      font-weight: 500;
+    }
+
+    .input-wrapper {
+      position: relative;
+    }
+
+    input[type="email"],
+    input[type="password"] {
+      width: 100%;
+      padding: 16px 48px 16px 16px;
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--border);
+      background: var(--bg);
+      color: var(--text);
+      font-size: 16px;
+      transition: var(--transition);
+      outline: none;
+    }
+
+    input[type="email"]:focus,
+    input[type="password"]:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(0,137,123,0.2);
+    }
+
+    .input-icon {
+      position: absolute;
+      right: 16px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--muted);
+    }
+
+    .row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin: 20px 0;
+    }
+
+    .checkbox {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .checkbox input {
+      width: 18px;
+      height: 18px;
+      accent-color: var(--primary);
+    }
+
+    .theme-toggle {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--muted);
+      font-size: 14px;
+      cursor: pointer;
+      transition: var(--transition);
+    }
+
+    .theme-toggle:hover {
+      color: var(--primary);
+    }
+
+    /* Buttons */
+    .btn {
+      width: 100%;
+      padding: 16px;
+      border-radius: var(--radius-sm);
+      border: none;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: var(--transition);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .btn-primary {
+      background: var(--gradient);
+      color: white;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-md);
+    }
+
+    .btn-primary:active {
+      transform: translateY(0);
+    }
+
+    .btn-secondary {
+      background: transparent;
+      color: var(--text);
+      border: 1px solid var(--border);
+      margin-top: 12px;
+    }
+
+    .btn-secondary:hover {
+      background: rgba(0,0,0,0.05);
+    }
+
+    /* Messages */
+    .message {
+      margin-top: 16px;
+      padding: 12px 16px;
+      border-radius: var(--radius-sm);
+      font-size: 14px;
+      display: none;
+    }
+
+    .error {
+      background: rgba(244,67,54,0.1);
+      color: var(--error);
+      border: 1px solid rgba(244,67,54,0.2);
+    }
+
+    .success {
+      background: rgba(34,197,94,0.1);
+      color: var(--success);
+      border: 1px solid rgba(34,197,94,0.2);
+    }
+
+    .version {
+      text-align: center;
+      color: var(--muted);
+      font-size: 12px;
+      margin-top: 24px;
+    }
+
+    /* Responsive */
+    @media (max-width: 576px) {
+      .card {
+        padding: 32px 24px;
+      }
+      
+      .brand {
+        flex-direction: column;
+        text-align: center;
+        gap: 12px;
+      }
+      
+      .brand-text h1 {
+        font-size: 24px;
+      }
+      
+      .row {
+        flex-direction: column;
+        gap: 12px;
+        align-items: flex-start;
+      }
+    }
   </style>
 </head>
-<body>
-  <div class="wrap">
-    <div class="card">
-      <div class="brand">
-        <div class="logo">RX</div>
-        <div>
-          <h1>Rao’s Chat X</h1>
-          <div class="subtitle">Login to continue</div>
-        </div>
+<body class="dark-theme">
+  <div class="bg-animation">
+    <div class="bg-circle"></div>
+    <div class="bg-circle"></div>
+    <div class="bg-circle"></div>
+  </div>
+
+  <div class="card">
+    <div class="brand">
+      <div class="logo">RX</div>
+      <div class="brand-text">
+        <h1>Rao's Chat X</h1>
+        <div class="subtitle">Login to continue your conversations</div>
       </div>
-
-      <label for="email">Email</label>
-      <input id="email" type="email" placeholder="you@example.com" autocomplete="email" />
-
-      <label for="password">Password</label>
-      <input id="password" type="password" placeholder="••••••••" autocomplete="current-password" />
-
-      <div class="row">
-        <label class="checkbox"><input type="checkbox" id="remember" /> Remember me</label>
-        <a href="#" id="toggleMode" class="tiny">Dark/Light</a>
-      </div>
-
-      <button class="primary" id="loginBtn">Login</button>
-      <button class="secondary" id="signupBtn">Create new account</button>
-
-      <div class="error" id="err"></div>
-      <div class="success" id="ok"></div>
-
-      <div class="tiny">Version 1.00X</div>
     </div>
+
+    <div class="form-group">
+      <label for="email">Email</label>
+      <div class="input-wrapper">
+        <input id="email" type="email" placeholder="you@example.com" autocomplete="email" />
+        <div class="input-icon"><i class="fas fa-envelope"></i></div>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label for="password">Password</label>
+      <div class="input-wrapper">
+        <input id="password" type="password" placeholder="••••••••" autocomplete="current-password" />
+        <div class="input-icon"><i class="fas fa-lock"></i></div>
+      </div>
+    </div>
+
+    <div class="row">
+      <label class="checkbox">
+        <input type="checkbox" id="remember" />
+        Remember me
+      </label>
+      <div class="theme-toggle" id="toggleMode">
+        <i class="fas fa-moon"></i>
+        <span>Dark mode</span>
+      </div>
+    </div>
+
+    <button class="btn btn-primary" id="loginBtn">
+      <i class="fas fa-sign-in-alt"></i>
+      Login
+    </button>
+    
+    <button class="btn btn-secondary" id="signupBtn">
+      <i class="fas fa-user-plus"></i>
+      Create new account
+    </button>
+
+    <div class="message error" id="err"></div>
+    <div class="message success" id="ok"></div>
+
+    <div class="version">Version 1.00X</div>
   </div>
 
   <script type="module">
@@ -78,57 +418,93 @@
     const auth = getAuth(app);
     const db = getFirestore(app);
 
-    // Theme toggle
-    const toggle = document.getElementById('toggleMode');
-    const applyTheme = () => {
-      const t = localStorage.getItem('rx_theme')||'dark';
-      if(t==='light') document.documentElement.style.setProperty('--bg','#f0f2f5'),document.documentElement.style.setProperty('--card','#ffffff'),document.documentElement.style.setProperty('--text','#111'),document.documentElement.style.setProperty('--muted','#556');
-    };
-    toggle.addEventListener('click', (e)=>{ e.preventDefault(); const t = localStorage.getItem('rx_theme')==='light'?'dark':'light'; localStorage.setItem('rx_theme',t); location.reload(); });
+    // Theme management
+    function toggleTheme() {
+      const currentTheme = localStorage.getItem('rx_theme') || 'dark';
+      const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+      localStorage.setItem('rx_theme', newTheme);
+      applyTheme();
+    }
+
+    function applyTheme() {
+      const theme = localStorage.getItem('rx_theme') || 'dark';
+      if (theme === 'light') {
+        document.body.classList.remove('dark-theme');
+        document.body.classList.add('light-theme');
+        document.getElementById('toggleMode').innerHTML = '<i class="fas fa-sun"></i><span>Light mode</span>';
+      } else {
+        document.body.classList.remove('light-theme');
+        document.body.classList.add('dark-theme');
+        document.getElementById('toggleMode').innerHTML = '<i class="fas fa-moon"></i><span>Dark mode</span>';
+      }
+    }
+
+    document.getElementById('toggleMode').addEventListener('click', toggleTheme);
     applyTheme();
 
-    const err = (m)=>{ const el=document.getElementById('err'); el.textContent=m; el.style.display='block'; setTimeout(()=>el.style.display='none',5000)};
-    const ok = (m)=>{ const el=document.getElementById('ok'); el.textContent=m; el.style.display='block'; setTimeout(()=>el.style.display='none',3000)};
+    const err = (m) => {
+      const el = document.getElementById('err');
+      el.textContent = m;
+      el.style.display = 'block';
+      setTimeout(() => el.style.display = 'none', 5000);
+    };
 
-    async function redirectPostLogin(user){
+    const ok = (m) => {
+      const el = document.getElementById('ok');
+      el.textContent = m;
+      el.style.display = 'block';
+      setTimeout(() => el.style.display = 'none', 3000);
+    };
+
+    async function redirectPostLogin(user) {
       // Find if profile exists (Users collection has doc where email == user.email)
-      const q = query(collection(db,'Users'), where('email','==', user.email));
+      const q = query(collection(db, 'Users'), where('email', '==', user.email));
       const snap = await getDocs(q);
-      if(!snap.empty){
+      if (!snap.empty) {
         const doc = snap.docs[0];
         const me = doc.data();
         localStorage.setItem('rx_username', doc.id);
-        localStorage.setItem('rx_name', me.name||'');
+        localStorage.setItem('rx_name', me.name || '');
         location.href = 'home.html';
       } else {
         location.href = 'profile.html';
       }
     }
 
-    onAuthStateChanged(auth, (user)=>{ if(user){ redirectPostLogin(user); }});
+    onAuthStateChanged(auth, (user) => {
+      if (user) {
+        redirectPostLogin(user);
+      }
+    });
 
-    document.getElementById('loginBtn').addEventListener('click', async()=>{
-      const email = (document.getElementById('email').value||'').trim();
+    document.getElementById('loginBtn').addEventListener('click', async () => {
+      const email = (document.getElementById('email').value || '').trim();
       const password = document.getElementById('password').value;
       const remember = document.getElementById('remember').checked;
-      if(!email||!password) return err('Please enter email and password.');
-      try{
-        await setPersistence(auth, remember?browserLocalPersistence:browserSessionPersistence);
+      if (!email || !password) return err('Please enter email and password.');
+      try {
+        await setPersistence(auth, remember ? browserLocalPersistence : browserSessionPersistence);
         await signInWithEmailAndPassword(auth, email, password);
         ok('Logged in! Redirecting…');
         // redirect handled by onAuthStateChanged
-      }catch(e){ err(e.message); }
+      } catch (e) {
+        err(e.message);
+      }
     });
 
-    document.getElementById('signupBtn').addEventListener('click', async()=>{
-      const email = (document.getElementById('email').value||'').trim();
-      const password = document.getElementById('password').value||Math.random().toString(36).slice(2)+"A1!";
-      if(!email){ return err('Enter an email to sign up.'); }
-      try{
+    document.getElementById('signupBtn').addEventListener('click', async () => {
+      const email = (document.getElementById('email').value || '').trim();
+      const password = document.getElementById('password').value || Math.random().toString(36).slice(2) + "A1!";
+      if (!email) {
+        return err('Enter an email to sign up.');
+      }
+      try {
         await setPersistence(auth, browserLocalPersistence);
         await createUserWithEmailAndPassword(auth, email, password);
         ok('Account created! Redirecting to profile setup…');
-      }catch(e){ err(e.message); }
+      } catch (e) {
+        err(e.message);
+      }
     });
   </script>
 </body>

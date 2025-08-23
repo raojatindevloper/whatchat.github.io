@@ -3,45 +3,431 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Rao’s Chat X — Home</title>
+  <title>Rao's Chat X — Home</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
-    :root{ --bg:#0b141a; --panel:#111b21; --text:#e9edef; --muted:#8696a0; --brand:#00a884; --good:#22c55e; --shadow:0 10px 25px rgba(0,0,0,.35)}
-    body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,Segoe UI,Roboto}
-    header{position:sticky;top:0;background:var(--panel);display:flex;align-items:center;justify-content:space-between;padding:14px 16px; z-index:5; box-shadow:0 2px 0 rgba(0,0,0,.2)}
-    .title{font-weight:800}
-    .menuBtn{width:34px;height:26px;display:grid;gap:5px;cursor:pointer}
-    .menuBtn span{height:3px;background:#cfd8dc;border-radius:6px}
-    .menu{position:fixed;right:12px;top:56px;background:var(--panel);border:1px solid #1f2c33;border-radius:14px;min-width:220px;box-shadow:var(--shadow);display:none}
-    .menu a{display:block;color:var(--text);text-decoration:none;padding:12px 14px;border-bottom:1px solid #1f2c33}
-    .menu a:last-child{border-bottom:0}
-    .fab{position:fixed;right:16px;bottom:16px;width:56px;height:56px;border-radius:50%;background:var(--brand);display:grid;place-items:center;font-size:28px;color:#032d23;font-weight:900;cursor:pointer;box-shadow:var(--shadow)}
-    .searchSheet{position:fixed;inset:0;background:rgba(0,0,0,.55);display:none;align-items:center;justify-content:center;padding:16px}
-    .sheet{background:var(--panel);border-radius:18px;padding:16px;max-width:520px;width:100%;box-shadow:var(--shadow)}
-    input[type=text]{width:100%;padding:12px;border-radius:12px;border:1px solid #233138;background:#0e1a20;color:var(--text)}
-    .list{padding:8px}
-    .chatCard{display:flex;gap:12px;align-items:center;padding:12px;border-bottom:1px solid #1f2c33;cursor:pointer}
-    .avatar{width:44px;height:44px;border-radius:50%;background:#0e1a20 center/cover no-repeat}
-    .name{font-weight:700}
-    .last{color:var(--muted);font-size:13px}
-    .right{text-align:right;margin-left:auto}
-    .dot{width:10px;height:10px;border-radius:50%;display:inline-block;margin-left:6px}
-    .section-title{padding:12px 16px;font-weight:600;color:var(--muted);font-size:14px;border-bottom:1px solid #1f2c33}
+    :root {
+      --primary: #00897b;
+      --primary-light: #4ebaaa;
+      --primary-dark: #005b4f;
+      --secondary: #f5f5f5;
+      --text-primary: #212121;
+      --text-secondary: #757575;
+      --text-on-primary: #ffffff;
+      --bg-light: #fafafa;
+      --bg-dark: #121212;
+      --card-light: #ffffff;
+      --card-dark: #1e1e1e;
+      --success: #4caf50;
+      --warning: #ff9800;
+      --error: #f44336;
+      --online: #4caf50;
+      --offline: #9e9e9e;
+      --shadow-sm: 0 2px 8px rgba(0,0,0,0.1);
+      --shadow-md: 0 4px 16px rgba(0,0,0,0.12);
+      --shadow-lg: 0 8px 24px rgba(0,0,0,0.15);
+      --radius-sm: 8px;
+      --radius-md: 12px;
+      --radius-lg: 16px;
+      --transition: all 0.3s ease;
+    }
+
+    .dark-theme {
+      --bg: var(--bg-dark);
+      --card: var(--card-dark);
+      --text: var(--text-on-primary);
+      --text-muted: #b0b0b0;
+      --border: #2d2d2d;
+    }
+
+    .light-theme {
+      --bg: var(--bg-light);
+      --card: var(--card-light);
+      --text: var(--text-primary);
+      --text-muted: var(--text-secondary);
+      --border: #e0e0e0;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Segoe UI', Roboto, -apple-system, BlinkMacSystemFont, 'Helvetica Neue', Arial, sans-serif;
+      line-height: 1.5;
+      transition: var(--transition);
+    }
+
+    /* Header Styles */
+    header {
+      position: sticky;
+      top: 0;
+      background: var(--card);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 16px;
+      z-index: 100;
+      box-shadow: var(--shadow-sm);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+    }
+
+    .title {
+      font-weight: 700;
+      font-size: 1.25rem;
+      background: linear-gradient(135deg, var(--primary), var(--primary-light));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .menuBtn {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      cursor: pointer;
+      transition: var(--transition);
+      background: rgba(0,0,0,0.05);
+    }
+
+    .menuBtn:hover {
+      background: rgba(0,0,0,0.1);
+    }
+
+    .menuBtn span {
+      height: 2px;
+      width: 20px;
+      background: var(--text);
+      border-radius: 2px;
+      margin: 2px 0;
+      transition: var(--transition);
+    }
+
+    /* Menu Styles */
+    .menu {
+      position: fixed;
+      right: 16px;
+      top: 72px;
+      background: var(--card);
+      border-radius: var(--radius-md);
+      min-width: 240px;
+      box-shadow: var(--shadow-lg);
+      display: none;
+      opacity: 0;
+      transform: translateY(-10px);
+      transition: opacity 0.3s ease, transform 0.3s ease;
+      z-index: 200;
+      overflow: hidden;
+    }
+
+    .menu.show {
+      display: block;
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .menu a {
+      display: flex;
+      align-items: center;
+      color: var(--text);
+      text-decoration: none;
+      padding: 14px 16px;
+      border-bottom: 1px solid var(--border);
+      transition: var(--transition);
+    }
+
+    .menu a i {
+      margin-right: 12px;
+      width: 20px;
+      text-align: center;
+    }
+
+    .menu a:hover {
+      background: rgba(0,0,0,0.05);
+    }
+
+    .menu a:last-child {
+      border-bottom: 0;
+    }
+
+    /* FAB Button */
+    .fab {
+      position: fixed;
+      right: 24px;
+      bottom: 24px;
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--primary), var(--primary-light));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      color: white;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: var(--shadow-lg);
+      transition: var(--transition);
+      z-index: 90;
+    }
+
+    .fab:hover {
+      transform: translateY(-4px) rotate(90deg);
+      box-shadow: 0 12px 20px rgba(0,168,132,0.3);
+    }
+
+    /* Search Sheet */
+    .searchSheet {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.7);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+      z-index: 300;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+
+    .searchSheet.show {
+      display: flex;
+      opacity: 1;
+    }
+
+    .sheet {
+      background: var(--card);
+      border-radius: var(--radius-lg);
+      padding: 24px;
+      max-width: 520px;
+      width: 100%;
+      box-shadow: var(--shadow-lg);
+      transform: scale(0.9);
+      transition: transform 0.3s ease;
+    }
+
+    .searchSheet.show .sheet {
+      transform: scale(1);
+    }
+
+    input[type=text] {
+      width: 100%;
+      padding: 14px 16px;
+      border-radius: var(--radius-md);
+      border: 1px solid var(--border);
+      background: var(--bg);
+      color: var(--text);
+      font-size: 16px;
+      transition: var(--transition);
+      margin-top: 12px;
+    }
+
+    input[type=text]:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 2px rgba(0,137,123,0.2);
+    }
+
+    /* List and Chat Cards */
+    .list {
+      padding: 8px 0;
+    }
+
+    .section-title {
+      padding: 16px 16px 8px;
+      font-weight: 600;
+      color: var(--text-muted);
+      font-size: 14px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .chatCard {
+      display: flex;
+      gap: 16px;
+      align-items: center;
+      padding: 16px;
+      border-bottom: 1px solid var(--border);
+      cursor: pointer;
+      transition: var(--transition);
+    }
+
+    .chatCard:hover {
+      background: rgba(0,0,0,0.03);
+    }
+
+    .avatar {
+      width: 52px;
+      height: 52px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 600;
+      color: white;
+      font-size: 20px;
+      background: linear-gradient(135deg, var(--primary), var(--primary-light));
+      position: relative;
+      flex-shrink: 0;
+    }
+
+    .avatar img {
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      object-fit: cover;
+    }
+
+    .avatar.online::after {
+      content: '';
+      position: absolute;
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: var(--online);
+      border: 2px solid var(--card);
+      bottom: 0;
+      right: 0;
+    }
+
+    .avatar.offline::after {
+      content: '';
+      position: absolute;
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: var(--offline);
+      border: 2px solid var(--card);
+      bottom: 0;
+      right: 0;
+    }
+
+    .chatInfo {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .name {
+      font-weight: 600;
+      margin-bottom: 4px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .last {
+      color: var(--text-muted);
+      font-size: 14px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .right {
+      text-align: right;
+      margin-left: auto;
+      flex-shrink: 0;
+    }
+
+    .time {
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-bottom: 4px;
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 2px 6px;
+      border-radius: 10px;
+      background: var(--primary);
+      color: white;
+      font-size: 11px;
+      font-weight: 600;
+    }
+
+    /* Animations */
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .chatCard {
+      animation: fadeIn 0.4s ease forwards;
+    }
+
+    /* Responsive Design */
+    @media (max-width: 768px) {
+      .title {
+        font-size: 1.1rem;
+      }
+      
+      .avatar {
+        width: 48px;
+        height: 48px;
+        font-size: 18px;
+      }
+      
+      .chatCard {
+        padding: 14px 16px;
+      }
+      
+      .fab {
+        width: 56px;
+        height: 56px;
+        right: 16px;
+        bottom: 16px;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .section-title {
+        padding: 14px 16px 6px;
+      }
+      
+      .avatar {
+        width: 44px;
+        height: 44px;
+        font-size: 16px;
+      }
+      
+      .name {
+        font-size: 15px;
+      }
+      
+      .last {
+        font-size: 13px;
+      }
+    }
   </style>
 </head>
-<body>
+<body class="light-theme">
   <header>
-    <div class="title">Rao’s Chat X</div>
-    <div class="menuBtn" id="menuBtn"><span></span><span></span><span></span></div>
+    <div class="title">Rao's Chat X</div>
+    <div class="menuBtn" id="menuBtn">
+      <span></span>
+      <span></span>
+      <span></span>
+    </div>
   </header>
 
   <div class="menu" id="menu">
-    <a href="#" id="ver">Web App Version = 1.00X</a>
-    <a href="about.html">About</a>
-    <a href="privacy.html">Privacy Policy</a>
-    <a href="help.html">Request Update</a>
-    <a href="#" id="toggleTheme">Dark/Light</a>
-    <a href="#" id="signOut">Sign out</a>
-    <a href="#" id="closeMenu">Close Menu</a>
+    <a href="#" id="ver"><i class="fas fa-code-branch"></i> Web App Version = 1.00X</a>
+    <a href="about.html"><i class="fas fa-info-circle"></i> About</a>
+    <a href="privacy.html"><i class="fas fa-shield-alt"></i> Privacy Policy</a>
+    <a href="help.html"><i class="fas fa-sync-alt"></i> Request Update</a>
+    <a href="#" id="toggleTheme"><i class="fas fa-moon"></i> Dark/Light Mode</a>
+    <a href="#" id="signOut"><i class="fas fa-sign-out-alt"></i> Sign out</a>
+    <a href="#" id="closeMenu"><i class="fas fa-times"></i> Close Menu</a>
   </div>
 
   <div class="section-title">Recent Chats</div>
@@ -50,13 +436,17 @@
   <div class="section-title">All Chats</div>
   <div class="list" id="chatList"></div>
 
-  <div class="fab" id="fab">+</div>
+  <div class="fab" id="fab">
+    <i class="fas fa-plus"></i>
+  </div>
 
   <div class="searchSheet" id="searchSheet">
     <div class="sheet">
-      <h3 style="margin-top:0">Start new chat</h3>
+      <h3 style="margin-top:0; display: flex; align-items: center; gap: 10px;">
+        <i class="fas fa-search" style="color: var(--primary);"></i> Start new chat
+      </h3>
       <input id="searchUser" type="text" placeholder="Enter username (e.g. piyush123)" />
-      <div id="searchResult" style="margin-top:12px"></div>
+      <div id="searchResult" style="margin-top:16px"></div>
     </div>
   </div>
 
@@ -76,24 +466,91 @@
     const menuBtn = document.getElementById('menuBtn');
     const searchSheet = document.getElementById('searchSheet');
 
-    function toggleTheme(){ const cur=localStorage.getItem('rx_theme')||'dark'; localStorage.setItem('rx_theme', cur==='dark'?'light':'dark'); location.reload(); }
-    function applyTheme(){ const t=localStorage.getItem('rx_theme')||'dark'; if(t==='light'){ document.documentElement.style.setProperty('--bg','#f0f2f5'); document.documentElement.style.setProperty('--panel','#ffffff'); document.documentElement.style.setProperty('--text','#111'); document.documentElement.style.setProperty('--muted','#556'); } }
+    // Theme management
+    function toggleTheme(){ 
+      const cur = localStorage.getItem('rx_theme') || 'light';
+      const newTheme = cur === 'dark' ? 'light' : 'dark';
+      localStorage.setItem('rx_theme', newTheme);
+      applyTheme();
+    }
+
+    function applyTheme(){ 
+      const t = localStorage.getItem('rx_theme') || 'light';
+      if(t === 'dark') {
+        document.body.classList.remove('light-theme');
+        document.body.classList.add('dark-theme');
+      } else {
+        document.body.classList.remove('dark-theme');
+        document.body.classList.add('light-theme');
+      }
+    }
     applyTheme();
 
-    menuBtn.onclick = ()=>{ menu.style.display = 'block'; };
-    document.getElementById('closeMenu').onclick = ()=> menu.style.display='none';
-    document.getElementById('toggleTheme').onclick = (e)=>{ e.preventDefault(); toggleTheme(); };
-    document.getElementById('signOut').onclick = async (e)=>{ e.preventDefault(); await signOut(auth); location.href='index.html'; };
+    // Generate avatar based on name
+    function generateAvatar(name, size = 52) {
+      const colors = [
+        '#00897b', '#4ebaaa', '#005b4f', '#00796b', '#004d40',
+        '#d32f2f', '#c2185b', '#7b1fa2', '#512da8', '#303f9f',
+        '#1976d2', '#0288d1', '#0097a7', '#388e3c', '#689f38'
+      ];
+      
+      const initials = name
+        .split(' ')
+        .map(word => word.charAt(0))
+        .join('')
+        .toUpperCase()
+        .substring(0, 2);
+      
+      const colorIndex = Math.abs(hashCode(name)) % colors.length;
+      const bgColor = colors[colorIndex];
+      
+      return `<div class="avatar" style="background: ${bgColor}; width: ${size}px; height: ${size}px; font-size: ${size/2.5}px">${initials}</div>`;
+    }
+    
+    function hashCode(str) {
+      let hash = 0;
+      for (let i = 0; i < str.length; i++) {
+        hash = str.charCodeAt(i) + ((hash << 5) - hash);
+      }
+      return hash;
+    }
 
-    onAuthStateChanged(auth, async (user)=>{
+    menuBtn.onclick = () => { 
+      menu.classList.toggle('show');
+      menuBtn.classList.toggle('active');
+    };
+    
+    document.getElementById('closeMenu').onclick = (e) => {
+      e.preventDefault();
+      menu.classList.remove('show');
+      menuBtn.classList.remove('active');
+    };
+    
+    document.getElementById('toggleTheme').onclick = (e) => { 
+      e.preventDefault(); 
+      toggleTheme(); 
+    };
+    
+    document.getElementById('signOut').onclick = async (e) => { 
+      e.preventDefault(); 
+      await signOut(auth); 
+      location.href='index.html'; 
+    };
+
+    onAuthStateChanged(auth, async (user) => {
       if(!user){ location.href='index.html'; return; }
+      
       // find my username
       let myUsername = localStorage.getItem('rx_username');
       if(!myUsername){
         // query Users where email==user.email
         const usersQ = query(collection(db,'Users'), where('email','==', user.email));
         const snap = await (await import('https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js')).getDocs(usersQ);
-        if(!snap.empty){ myUsername = snap.docs[0].id; localStorage.setItem('rx_username', myUsername); localStorage.setItem('rx_name', snap.docs[0].data().name||''); }
+        if(!snap.empty){ 
+          myUsername = snap.docs[0].id; 
+          localStorage.setItem('rx_username', myUsername); 
+          localStorage.setItem('rx_name', snap.docs[0].data().name||''); 
+        }
       }
       if(!myUsername){ location.href='profile.html'; return; }
 
@@ -101,22 +558,25 @@
       const recentChatsRef = collection(db, 'Users', myUsername, 'recentChats');
       onSnapshot(recentChatsRef, (snapshot) => {
         recentChatsList.innerHTML = '';
-        snapshot.forEach(docSnap => {
+        snapshot.forEach((docSnap, index) => {
           const chatData = docSnap.data();
           const li = document.createElement('div'); 
           li.className = 'chatCard';
+          li.style.animationDelay = `${index * 0.05}s`;
           
           const avatar = document.createElement('div'); 
-          avatar.className = 'avatar';
+          avatar.innerHTML = generateAvatar(chatData.username || 'User');
+          const avatarDiv = avatar.firstChild;
           
           const left = document.createElement('div');
+          left.className = 'chatInfo';
           left.innerHTML = `<div class="name">${chatData.username}</div><div class="last">${chatData.lastMessage || ''}</div>`;
           
           const right = document.createElement('div'); 
           right.className = 'right';
-          right.innerHTML = `<div class="last">${new Date(chatData.timestamp?.toDate?.() || chatData.timestamp || Date.now()).toLocaleTimeString()}</div>`;
+          right.innerHTML = `<div class="time">${new Date(chatData.timestamp?.toDate?.() || chatData.timestamp || Date.now()).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</div>`;
           
-          li.appendChild(avatar);
+          li.appendChild(avatarDiv);
           li.appendChild(left);
           li.appendChild(right);
           
@@ -125,85 +585,127 @@
           });
           
           recentChatsList.appendChild(li);
-          
-          // Fetch user profile for avatar
-          (async () => {
-            const p = await getDoc(doc(db, 'Users', chatData.username));
-            if(p.exists()) {
-              const d = p.data(); 
-              avatar.style.backgroundImage = `url('${d.avatar}')`;
-            }
-          })();
         });
       });
 
       // presence heartbeat
-      setInterval(async()=>{
+      setInterval(async() => {
         const { updateDoc } = await import('https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js');
         await updateDoc(doc(db,'Users', myUsername), { online:true, lastSeen: new Date().toISOString() });
       }, 30000);
-      window.addEventListener('beforeunload', async()=>{
+      
+      window.addEventListener('beforeunload', async() => {
         const { updateDoc } = await import('https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js');
         try{ await updateDoc(doc(db,'Users', myUsername), { online:false, lastSeen: new Date().toISOString() }); }catch{}
       });
 
       // watch chats for me
       const chatsQ = query(collection(db,'Chats'), where('users','array-contains', myUsername), orderBy('lastMessageTime','desc'));
-      onSnapshot(chatsQ, async (snapshot)=>{
+      onSnapshot(chatsQ, async (snapshot) => {
         chatList.innerHTML='';
-        snapshot.forEach(docSnap=>{
-          const c=docSnap.data();
-          const other = c.users.find(u=>u!==myUsername);
-          const li = document.createElement('div'); li.className='chatCard';
-          const avatar = document.createElement('div'); avatar.className='avatar';
+        snapshot.forEach((docSnap, index) => {
+          const c = docSnap.data();
+          const other = c.users.find(u => u !== myUsername);
+          const li = document.createElement('div'); 
+          li.className = 'chatCard';
+          li.style.animationDelay = `${index * 0.05}s`;
+          
+          const avatar = document.createElement('div'); 
+          avatar.innerHTML = generateAvatar(other || 'User');
+          const avatarDiv = avatar.firstChild;
+          
           const left = document.createElement('div');
-          const right = document.createElement('div'); right.className='right';
+          left.className = 'chatInfo';
           left.innerHTML = `<div class="name" id="nm_${docSnap.id}">${other}</div><div class="last">${c.lastMessage||''}</div>`;
-          right.innerHTML = `<div class="last">${new Date(c.lastMessageTime||Date.now()).toLocaleTimeString()}</div>`;
-          li.appendChild(avatar); li.appendChild(left); li.appendChild(right);
-          li.addEventListener('click', ()=>{ location.href=`chat.html?with=${encodeURIComponent(other)}`; });
+          
+          const right = document.createElement('div'); 
+          right.className = 'right';
+          right.innerHTML = `<div class="time">${new Date(c.lastMessageTime||Date.now()).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</div>`;
+          
+          li.appendChild(avatarDiv); 
+          li.appendChild(left); 
+          li.appendChild(right);
+          
+          li.addEventListener('click', () => { 
+            location.href = `chat.html?with=${encodeURIComponent(other)}`; 
+          });
+          
           chatList.appendChild(li);
 
           // fetch other profile for avatar + online
-          (async()=>{
+          (async() => {
             const p = await getDoc(doc(db,'Users', other));
-            if(p.exists()){
-              const d=p.data(); avatar.style.backgroundImage=`url('${d.avatar}')`;
+            if(p.exists()) {
+              const d = p.data(); 
               const nm = document.getElementById(`nm_${docSnap.id}`);
-              const dot = document.createElement('span'); dot.className='dot'; dot.style.background = ((Date.now()-new Date(d.lastSeen||0).getTime())<60000)?'#22c55e':'#6b7280'; nm.appendChild(dot);
-              nm.textContent = d.name||other; nm.appendChild(dot);
+              if (nm) {
+                nm.textContent = d.name || other;
+                
+                // Add online indicator
+                const isOnline = ((Date.now() - new Date(d.lastSeen || 0).getTime()) < 60000);
+                avatarDiv.classList.add(isOnline ? 'online' : 'offline');
+              }
             }
           })();
         });
       });
 
-      // FAB search
-      document.getElementById('fab').onclick = ()=>{ searchSheet.style.display='flex'; };
-      searchSheet.addEventListener('click', (e)=>{ if(e.target===searchSheet) searchSheet.style.display='none'; });
+          // FAB search
+      document.getElementById('fab').onclick = () => { 
+        searchSheet.classList.add('show'); 
+        document.getElementById('searchUser').focus();
+      };
+      
+      searchSheet.addEventListener('click', (e) => { 
+        if(e.target === searchSheet) {
+          searchSheet.classList.remove('show');
+        }
+      });
 
-      document.getElementById('searchUser').addEventListener('input', async (e)=>{
+      document.getElementById('searchUser').addEventListener('input', async (e) => {
         const q = e.target.value.trim().toLowerCase();
         const box = document.getElementById('searchResult');
         box.innerHTML='';
-        if(q.length<3) return;
+        if(q.length < 3) return;
+        
         const p = await getDoc(doc(db,'Users', q));
-        if(!p.exists()) { box.innerHTML = '<div class="last">No such user.</div>'; return; }
+        if(!p.exists()) { 
+          box.innerHTML = '<div style="padding: 16px; text-align: center; color: var(--text-muted)">No user found with this username.</div>'; 
+          return; 
+        }
+        
         const d = p.data();
-        const card = document.createElement('div'); card.className='chatCard';
-        card.innerHTML = `<div class="avatar" style="background-image:url('${d.avatar}')"></div>
-          <div><div class="name">${d.name} ${d.verified?'<span title="Verified" style="color:#1DA1F2">✓</span>':''}</div>
-          <div class="last">@${q} • ${d.gender} • ${d.age} yrs • ${d.dob}</div></div>
-          <div class="right"><button id="startBtn" style="padding:8px 10px;border-radius:10px;border:0;background:var(--brand);color:#032d23;font-weight:800;cursor:pointer">Start Chat</button></div>`;
+        const card = document.createElement('div'); 
+        card.className = 'chatCard';
+        
+        card.innerHTML = `
+          ${generateAvatar(d.name || q, 60)}
+          <div class="chatInfo">
+            <div class="name">${d.name} ${d.verified?'<span title="Verified" style="color:#1DA1F2"><i class="fas fa-check-circle"></i></span>':''}</div>
+            <div class="last">@${q} • ${d.gender} • ${d.age} yrs</div>
+          </div>
+          <div class="right">
+            <button id="startBtn" style="padding:10px 14px;border-radius:12px;border:0;background:linear-gradient(135deg, var(--primary), var(--primary-light));color:white;font-weight:600;cursor:pointer;transition:var(--transition)">
+              <i class="fas fa-comment"></i>
+            </button>
+          </div>`;
+        
         box.appendChild(card);
-        card.querySelector('#startBtn').addEventListener('click', async()=>{
-          const other = q; const users = [myUsername, other].sort(); const chatId = users.join('_');
+        
+        card.querySelector('#startBtn').addEventListener('click', async() => {
+          const other = q; 
+          const users = [myUsername, other].sort(); 
+          const chatId = users.join('_');
+          
           // create or update chat root
           const { setDoc, getDoc: gD } = await import('https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js');
           const chatRef = doc(db,'Chats', chatId);
           const exists = await gD(chatRef);
+          
           if(!exists.exists()){
             await setDoc(chatRef, { users, lastMessage:'', lastMessageTime: new Date().toISOString() });
           }
+          
           location.href = `chat.html?with=${encodeURIComponent(other)}`;
         });
       });

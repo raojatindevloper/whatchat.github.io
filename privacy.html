@@ -1,13 +1,351 @@
 <!DOCTYPE html>
-<html lang="en"><head><meta charset="UTF-8" /><meta name="viewport" content="width=device-width, initial-scale=1" /><title>Privacy — Rao’s Chat X</title>
-<style>body{margin:0;background:#0b141a;color:#e9edef;font-family:system-ui,Segoe UI,Roboto;padding:24px} a{color:#00a884} .muted{color:#8696a0}</style></head>
-<body>
-  <h1>Privacy Policy</h1>
-  <p class="muted">We store your profile and messages in Firebase. Your email is used for authentication. Avatars may be hosted in Firebase Storage. You can request deletion by contacting the developer.</p>
-  <ul>
-    <li>Authentication: Email/Password via Firebase Auth</li>
-    <li>Database: Firestore (Users, Chats, Reports)</li>
-    <li>Media: Firebase Storage (avatars)</li>
-  </ul>
-  <p><a href="home.html">← Back to Home</a></p>
-</body></html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Privacy Policy — Rao's Chat X</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root {
+      --primary: #00897b;
+      --primary-light: #4ebaaa;
+      --primary-dark: #005b4f;
+      --gradient: linear-gradient(135deg, var(--primary), var(--primary-light));
+      --bg-dark: #0b141a;
+      --card-dark: #111b21;
+      --text-dark: #e9edef;
+      --muted-dark: #8696a0;
+      --bg-light: #f8f9fa;
+      --card-light: #ffffff;
+      --text-light: #212121;
+      --muted-light: #757575;
+      --success: #22c55e;
+      --error: #ff4d4f;
+      --shadow-sm: 0 4px 12px rgba(0,0,0,0.1);
+      --shadow-md: 0 8px 24px rgba(0,0,0,0.15);
+      --shadow-lg: 0 12px 36px rgba(0,0,0,0.2);
+      --radius-sm: 12px;
+      --radius-md: 16px;
+      --radius-lg: 24px;
+      --transition: all 0.3s ease;
+    }
+
+    .dark-theme {
+      --bg: var(--bg-dark);
+      --card: var(--card-dark);
+      --text: var(--text-dark);
+      --muted: var(--muted-dark);
+      --border: #2d2d2d;
+    }
+
+    .light-theme {
+      --bg: var(--bg-light);
+      --card: var(--card-light);
+      --text: var(--text-light);
+      --muted: var(--muted-light);
+      --border: #e0e0e0;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Segoe UI', Roboto, -apple-system, BlinkMacSystemFont, 'Helvetica Neue', Arial, sans-serif;
+      line-height: 1.6;
+      transition: var(--transition);
+      padding: 20px;
+      min-height: 100vh;
+    }
+
+    /* Header */
+    header {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 32px;
+      padding: 20px 0;
+    }
+
+    .logo {
+      width: 50px;
+      height: 50px;
+      border-radius: 14px;
+      background: var(--gradient);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-weight: 800;
+      font-size: 20px;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .brand-text h1 {
+      font-size: 28px;
+      font-weight: 800;
+      background: var(--gradient);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 4px;
+    }
+
+    .subtitle {
+      color: var(--muted);
+      font-size: 16px;
+    }
+
+    /* Card styling */
+    .card {
+      background: var(--card);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-lg);
+      padding: 32px;
+      margin-bottom: 24px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 6px;
+      background: var(--gradient);
+    }
+
+    .card h2 {
+      font-size: 24px;
+      margin-bottom: 20px;
+      color: var(--primary);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .card h2 i {
+      background: var(--gradient);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .card p {
+      margin-bottom: 16px;
+      color: var(--text);
+    }
+
+    .muted {
+      color: var(--muted);
+      font-size: 16px;
+      line-height: 1.6;
+    }
+
+    /* Data list */
+    .data-list {
+      list-style: none;
+      margin: 24px 0;
+    }
+
+    .data-list li {
+      padding: 16px;
+      margin-bottom: 12px;
+      background: rgba(0,0,0,0.05);
+      border-radius: var(--radius-sm);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      transition: var(--transition);
+    }
+
+    .data-list li:hover {
+      background: rgba(0,0,0,0.08);
+      transform: translateX(4px);
+    }
+
+    .data-list i {
+      color: var(--primary);
+      font-size: 18px;
+      width: 24px;
+    }
+
+    /* Contact card */
+    .contact-card {
+      background: rgba(0,137,123,0.1);
+      border: 1px solid rgba(0,137,123,0.2);
+      border-radius: var(--radius-md);
+      padding: 20px;
+      margin-top: 24px;
+    }
+
+    .contact-card h3 {
+      color: var(--primary);
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    /* Buttons */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 12px 20px;
+      border-radius: var(--radius-sm);
+      text-decoration: none;
+      font-weight: 600;
+      transition: var(--transition);
+      margin-top: 16px;
+    }
+
+    .btn-primary {
+      background: var(--gradient);
+      color: white;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-md);
+    }
+
+    .btn-primary:active {
+      transform: translateY(0);
+    }
+
+    /* Footer */
+    footer {
+      text-align: center;
+      margin-top: 40px;
+      padding: 20px 0;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      header {
+        flex-direction: column;
+        text-align: center;
+        gap: 12px;
+      }
+      
+      .card {
+        padding: 24px 20px;
+      }
+      
+      .card h2 {
+        font-size: 20px;
+      }
+    }
+  </style>
+</head>
+<body class="dark-theme">
+  <header>
+    <div class="logo">RX</div>
+    <div class="brand-text">
+      <h1>Rao's Chat X</h1>
+      <div class="subtitle">Privacy Policy</div>
+    </div>
+  </header>
+
+  <div class="card">
+    <h2><i class="fas fa-shield-alt"></i> Your Privacy Matters</h2>
+    <p class="muted">At Rao's Chat X, we are committed to protecting your privacy and being transparent about how we handle your data. We store your profile information and messages securely in Firebase, and your email is used solely for authentication purposes.</p>
+    
+    <p class="muted">We want to emphasize that we <strong>do not share your personal data</strong> with any third parties. Your information is used exclusively to provide you with the best chatting experience possible.</p>
+  </div>
+
+  <div class="card">
+    <h2><i class="fas fa-database"></i> Data We Collect</h2>
+    <p class="muted">To provide our services, we collect and store the following information:</p>
+    
+    <ul class="data-list">
+      <li>
+        <i class="fas fa-user-circle"></i>
+        <span><strong>Profile Information:</strong> Your name, username, gender, age, and profile avatar</span>
+      </li>
+      <li>
+        <i class="fas fa-envelope"></i>
+        <span><strong>Authentication:</strong> Your email address for account verification and login</span>
+      </li>
+      <li>
+        <i class="fas fa-comments"></i>
+        <span><strong>Messages:</strong> Your chat conversations to enable seamless communication</span>
+      </li>
+      <li>
+        <i class="fas fa-image"></i>
+        <span><strong>Media:</strong> Profile pictures stored in Firebase Storage</span>
+      </li>
+      <li>
+        <i class="fas fa-clock"></i>
+        <span><strong>Activity Data:</strong> Online status and last seen information</span>
+      </li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <h2><i class="fas fa-lock"></i> Data Security</h2>
+    <p class="muted">We utilize industry-standard security measures to protect your information:</p>
+    
+    <ul class="data-list">
+      <li>
+        <i class="fas fa-fire"></i>
+        <span><strong>Firebase Authentication:</strong> Secure email/password authentication</span>
+      </li>
+      <li>
+        <i class="fas fa-database"></i>
+        <span><strong>Firestore Database:</strong> Encrypted storage for Users, Chats, and Reports</span>
+      </li>
+      <li>
+        <i class="fas fa-cloud"></i>
+        <span><strong>Firebase Storage:</strong> Secure media storage for avatars</span>
+      </li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <h2><i class="fas fa-user-times"></i> Data Control & Deletion</h2>
+    <p class="muted">You have full control over your data. If you wish to delete your account and all associated data, please contact the developer directly.</p>
+    
+    <div class="contact-card">
+      <h3><i class="fas fa-info-circle"></i> Contact for Account Deletion</h3>
+      <p class="muted">To request deletion of your account and all associated data, please reach out to the developer through the app's contact options. We will process your request promptly and confirm once all your data has been removed from our systems.</p>
+    </div>
+    
+    <a href="home.html" class="btn btn-primary">
+      <i class="fas fa-arrow-left"></i> Back to Home
+    </a>
+  </div>
+
+  <footer>
+    <p>Rao's Chat X &copy; 2023 | Version 1.00X</p>
+  </footer>
+
+  <script>
+    // Theme management
+    function applyTheme() {
+      const theme = localStorage.getItem('rx_theme') || 'dark';
+      if (theme === 'light') {
+        document.body.classList.remove('dark-theme');
+        document.body.classList.add('light-theme');
+      } else {
+        document.body.classList.remove('light-theme');
+        document.body.classList.add('dark-theme');
+      }
+    }
+    
+    // Apply theme on load
+    applyTheme();
+  </script>
+</body>
+</html>
