@@ -23,8 +23,6 @@
       --error: #f44336;
       --online: #4caf50;
       --offline: #9e9e9e;
-      --me-bubble: #005c4b;
-      --them-bubble: #1f2c33;
       --shadow-sm: 0 2px 8px rgba(0,0,0,0.1);
       --shadow-md: 0 4px 16px rgba(0,0,0,0.12);
       --shadow-lg: 0 8px 24px rgba(0,0,0,0.15);
@@ -40,9 +38,6 @@
       --text: var(--text-on-primary);
       --text-muted: #b0b0b0;
       --border: #2d2d2d;
-      --me-bubble: #005c4b;
-      --them-bubble: #1f2c33;
-      --composer-bg: #1e1e1e;
     }
 
     .light-theme {
@@ -51,9 +46,6 @@
       --text: var(--text-primary);
       --text-muted: var(--text-secondary);
       --border: #e0e0e0;
-      --me-bubble: #d9fdd3;
-      --them-bubble: #ffffff;
-      --composer-bg: #f0f0f0;
     }
 
     * {
@@ -81,28 +73,35 @@
       background: var(--card);
       display: flex;
       align-items: center;
-      gap: 12px;
-      padding: 12px 16px;
+      padding: 16px;
       z-index: 100;
       box-shadow: var(--shadow-sm);
       backdrop-filter: blur(10px);
       -webkit-backdrop-filter: blur(10px);
     }
 
-    .back-btn {
+    .backBtn {
       width: 40px;
       height: 40px;
       border-radius: 50%;
       display: flex;
-      justify-content: center;
       align-items: center;
+      justify-content: center;
       cursor: pointer;
       transition: var(--transition);
       background: rgba(0,0,0,0.05);
+      margin-right: 12px;
     }
 
-    .back-btn:hover {
+    .backBtn:hover {
       background: rgba(0,0,0,0.1);
+    }
+
+    .chatHeader {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      gap: 12px;
     }
 
     .avatar {
@@ -130,8 +129,8 @@
     .avatar.online::after {
       content: '';
       position: absolute;
-      width: 12px;
-      height: 12px;
+      width: 10px;
+      height: 10px;
       border-radius: 50%;
       background: var(--online);
       border: 2px solid var(--card);
@@ -142,8 +141,8 @@
     .avatar.offline::after {
       content: '';
       position: absolute;
-      width: 12px;
-      height: 12px;
+      width: 10px;
+      height: 10px;
       border-radius: 50%;
       background: var(--offline);
       border: 2px solid var(--card);
@@ -151,17 +150,24 @@
       right: 0;
     }
 
-    .chat-info {
+    .chatInfo {
       flex: 1;
       min-width: 0;
     }
 
     .name {
       font-weight: 600;
-      margin-bottom: 2px;
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .verified-badge {
+      color: #1DA1F2;
+      font-size: 14px;
     }
 
     .status {
@@ -172,248 +178,140 @@
       text-overflow: ellipsis;
     }
 
-    .header-menu {
+    .headerActions {
       display: flex;
       gap: 8px;
-      margin-left: auto;
     }
 
-    .header-btn {
+    .actionBtn {
       width: 40px;
       height: 40px;
       border-radius: 50%;
       display: flex;
-      justify-content: center;
       align-items: center;
+      justify-content: center;
       cursor: pointer;
       transition: var(--transition);
       background: rgba(0,0,0,0.05);
-      color: var(--text);
-      border: none;
     }
 
-    .header-btn:hover {
+    .actionBtn:hover {
       background: rgba(0,0,0,0.1);
     }
 
-    /* Messages Container */
-    .messages-container {
+    /* Chat Container */
+    .chatContainer {
       flex: 1;
       overflow-y: auto;
       padding: 16px;
       display: flex;
       flex-direction: column;
       gap: 8px;
-      scroll-behavior: smooth;
     }
 
     .message {
-      display: flex;
       max-width: 80%;
-      animation: fadeIn 0.3s ease forwards;
-    }
-
-    .message.them {
-      align-self: flex-start;
-    }
-
-    .message.me {
-      align-self: flex-end;
-    }
-
-    .bubble {
       padding: 12px 16px;
-      border-radius: 18px;
+      border-radius: var(--radius-md);
       position: relative;
-      box-shadow: var(--shadow-sm);
-      transition: transform 0.2s ease;
+      animation: fadeIn 0.3s ease;
     }
 
-    .bubble:active {
-      transform: scale(0.98);
+    .message.sent {
+      align-self: flex-end;
+      background: linear-gradient(135deg, var(--primary), var(--primary-light));
+      color: white;
+      border-bottom-right-radius: var(--radius-sm);
     }
 
-    .message.me .bubble {
-      background: var(--me-bubble);
-      border-bottom-right-radius: 4px;
-    }
-
-    .message.them .bubble {
-      background: var(--them-bubble);
-      border-bottom-left-radius: 4px;
-    }
-
-    .message-content {
-      margin-bottom: 4px;
-      word-break: break-word;
-    }
-
-    .message-time {
-      font-size: 11px;
-      color: var(--text-muted);
-      text-align: right;
-      margin-top: 4px;
-    }
-
-    .message.them .message-time {
-      text-align: left;
-    }
-
-    .reactions {
-      position: absolute;
-      bottom: -18px;
-      right: 8px;
+    .message.received {
+      align-self: flex-start;
       background: var(--card);
-      padding: 4px 6px;
-      border-radius: 12px;
-      font-size: 12px;
+      color: var(--text);
+      border-bottom-left-radius: var(--radius-sm);
       box-shadow: var(--shadow-sm);
     }
 
-    .typing-indicator {
+    .messageTime {
+      font-size: 11px;
+      margin-top: 4px;
+      opacity: 0.8;
       display: flex;
       align-items: center;
-      gap: 8px;
-      padding: 8px 16px;
-      color: var(--text-muted);
-      font-size: 14px;
-    }
-
-    .typing-dots {
-      display: flex;
       gap: 4px;
     }
 
-    .typing-dot {
-      width: 6px;
-      height: 6px;
-      border-radius: 50%;
-      background: var(--text-muted);
-      opacity: 0.6;
-      animation: typingAnimation 1.4s infinite ease-in-out;
+    .messageStatus {
+      margin-left: 4px;
     }
 
-    .typing-dot:nth-child(1) { animation-delay: 0s; }
-    .typing-dot:nth-child(2) { animation-delay: 0.2s; }
-    .typing-dot:nth-child(3) { animation-delay: 0.4s; }
+    .single-tick {
+      color: rgba(255, 255, 255, 0.7);
+    }
 
-    /* Composer */
-    .composer {
+    .double-tick {
+      color: rgba(255, 255, 255, 0.7);
+    }
+
+    .double-tick-blue {
+      color: #8ed1fc;
+    }
+
+    /* Input Area */
+    .inputArea {
       position: sticky;
       bottom: 0;
       background: var(--card);
-      display: flex;
-      gap: 8px;
-      align-items: center;
       padding: 16px;
-      box-shadow: 0 -2px 10px rgba(0,0,0,0.05);
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      box-shadow: var(--shadow-sm);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
     }
 
-    .composer-input {
+    .messageInput {
       flex: 1;
-      padding: 12px 16px;
-      border-radius: 24px;
+      padding: 14px 16px;
+      border-radius: var(--radius-md);
       border: 1px solid var(--border);
-      background: var(--composer-bg);
+      background: var(--bg);
       color: var(--text);
       font-size: 16px;
       transition: var(--transition);
-      resize: none;
-      max-height: 120px;
     }
 
-    .composer-input:focus {
+    .messageInput:focus {
       outline: none;
       border-color: var(--primary);
       box-shadow: 0 0 0 2px rgba(0,137,123,0.2);
     }
 
-    .send-btn {
+    .sendBtn {
       width: 48px;
       height: 48px;
       border-radius: 50%;
       display: flex;
-      justify-content: center;
       align-items: center;
+      justify-content: center;
       cursor: pointer;
       background: linear-gradient(135deg, var(--primary), var(--primary-light));
       color: white;
-      border: none;
-      transition: var(--transition);
-    }
-
-    .send-btn:hover {
-      transform: scale(1.05);
-      box-shadow: 0 4px 12px rgba(0,137,123,0.3);
-    }
-
-    .send-btn:active {
-      transform: scale(0.95);
-    }
-
-    /* Context Menu */
-    .context-menu {
-      position: fixed;
-      background: var(--card);
-      border-radius: var(--radius-md);
-      box-shadow: var(--shadow-lg);
-      z-index: 1000;
-      display: none;
-      overflow: hidden;
-      min-width: 160px;
-      transform-origin: top left;
-      animation: scaleIn 0.15s ease forwards;
-    }
-
-    .context-menu-item {
-      padding: 12px 16px;
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      cursor: pointer;
-      transition: var(--transition);
-    }
-
-    .context-menu-item:hover {
-      background: rgba(0,0,0,0.05);
-    }
-
-    .context-menu-item i {
-      width: 18px;
-      text-align: center;
-    }
-
-    /* Reaction Picker */
-    .reaction-picker {
-      position: fixed;
-      background: var(--card);
-      border-radius: 24px;
-      box-shadow: var(--shadow-lg);
-      z-index: 1000;
-      display: flex;
-      gap: 8px;
-      padding: 8px;
-      display: none;
-      animation: scaleIn 0.15s ease forwards;
-    }
-
-    .reaction-btn {
-      width: 36px;
-      height: 36px;
-      border-radius: 50%;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      cursor: pointer;
       font-size: 18px;
       transition: var(--transition);
-      background: transparent;
       border: none;
     }
 
-    .reaction-btn:hover {
-      background: rgba(0,0,0,0.05);
-      transform: scale(1.2);
+    .sendBtn:hover {
+      transform: scale(1.05);
+      box-shadow: var(--shadow-md);
+    }
+
+    .sendBtn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      transform: none;
     }
 
     /* Animations */
@@ -422,47 +320,16 @@
       to { opacity: 1; transform: translateY(0); }
     }
 
-    @keyframes scaleIn {
-      from { opacity: 0; transform: scale(0.9); }
-      to { opacity: 1; transform: scale(1); }
-    }
-
-    @keyframes typingAnimation {
-      0%, 100% { transform: translateY(0); opacity: 0.6; }
-      50% { transform: translateY(-5px); opacity: 1; }
-    }
-
     /* Responsive Design */
     @media (max-width: 768px) {
       .message {
-        max-width: 90%;
+        max-width: 85%;
       }
       
       .avatar {
         width: 40px;
         height: 40px;
         font-size: 16px;
-      }
-      
-      .composer {
-        padding: 12px;
-      }
-      
-      .send-btn {
-        width: 44px;
-        height: 44px;
-      }
-    }
-
-    @media (max-width: 480px) {
-      header {
-        padding: 10px 12px;
-      }
-      
-      .avatar {
-        width: 36px;
-        height: 36px;
-        font-size: 14px;
       }
       
       .name {
@@ -472,131 +339,85 @@
       .status {
         font-size: 12px;
       }
+    }
+
+    @media (max-width: 480px) {
+      .message {
+        max-width: 90%;
+      }
       
-      .messages-container {
+      .chatContainer {
         padding: 12px;
       }
       
-      .bubble {
-        padding: 10px 14px;
+      .inputArea {
+        padding: 12px;
       }
-    }
-
-    /* Scrollbar Styling */
-    .messages-container::-webkit-scrollbar {
-      width: 6px;
-    }
-
-    .messages-container::-webkit-scrollbar-track {
-      background: transparent;
-    }
-
-    .messages-container::-webkit-scrollbar-thumb {
-      background: rgba(0,0,0,0.2);
-      border-radius: 3px;
-    }
-
-    .messages-container::-webkit-scrollbar-thumb:hover {
-      background: rgba(0,0,0,0.3);
+      
+      .messageInput {
+        padding: 12px 14px;
+        font-size: 15px;
+      }
+      
+      .sendBtn {
+        width: 44px;
+        height: 44px;
+        font-size: 16px;
+      }
     }
   </style>
 </head>
 <body class="light-theme">
   <header>
-    <div class="back-btn" id="backBtn">
+    <div class="backBtn" id="backBtn">
       <i class="fas fa-arrow-left"></i>
     </div>
-    <div class="avatar" id="avatar">
-      <i class="fas fa-user"></i>
+    <div class="chatHeader">
+      <div class="avatar" id="chatAvatar">U</div>
+      <div class="chatInfo">
+        <div class="name" id="chatName">
+          Loading...
+          <span class="verified-badge" id="verifiedBadge" style="display:none"><i class="fas fa-check-circle"></i></span>
+        </div>
+        <div class="status" id="chatStatus">...</div>
+      </div>
     </div>
-    <div class="chat-info">
-      <div class="name" id="name">Loading...</div>
-      <div class="status" id="status">...</div>
-    </div>
-    <div class="header-menu">
-      <button class="header-btn" id="videoCallBtn">
-        <i class="fas fa-video"></i>
-      </button>
-      <button class="header-btn" id="voiceCallBtn">
+    <div class="headerActions">
+      <div class="actionBtn" id="callBtn">
         <i class="fas fa-phone"></i>
-      </button>
-      <button class="header-btn" id="menuBtn">
-        <i class="fas fa-ellipsis-vertical"></i>
-      </button>
+      </div>
+      <div class="actionBtn" id="videoBtn">
+        <i class="fas fa-video"></i>
+      </div>
     </div>
   </header>
 
-  <div class="messages-container" id="messagesContainer">
-    <!-- Messages will be inserted here by JavaScript -->
-  </div>
+  <div class="chatContainer" id="chatContainer"></div>
 
-  <div class="typing-indicator" id="typingIndicator" style="display: none;">
-    <div id="typingText">is typing</div>
-    <div class="typing-dots">
-      <div class="typing-dot"></div>
-      <div class="typing-dot"></div>
-      <div class="typing-dot"></div>
-    </div>
-  </div>
-
-  <div class="composer">
-    <textarea class="composer-input" id="messageInput" placeholder="Type a message" rows="1"></textarea>
-    <button class="send-btn" id="sendBtn">
+  <div class="inputArea">
+    <input type="text" class="messageInput" id="messageInput" placeholder="Type a message..." />
+    <button class="sendBtn" id="sendBtn" disabled>
       <i class="fas fa-paper-plane"></i>
     </button>
   </div>
 
-  <div class="context-menu" id="contextMenu">
-    <div class="context-menu-item" data-action="reply">
-      <i class="fas fa-reply"></i>
-      <span>Reply</span>
-    </div>
-    <div class="context-menu-item" data-action="react">
-      <i class="fas fa-smile"></i>
-      <span>React</span>
-    </div>
-    <div class="context-menu-item" data-action="forward">
-      <i class="fas fa-share"></i>
-      <span>Forward</span>
-    </div>
-    <div class="context-menu-item" data-action="delete">
-      <i class="fas fa-trash"></i>
-      <span>Delete</span>
-    </div>
-  </div>
-
-  <div class="reaction-picker" id="reactionPicker">
-    <button class="reaction-btn" data-reaction="❤️">❤️</button>
-    <button class="reaction-btn" data-reaction="😂">😂</button>
-    <button class="reaction-btn" data-reaction="😮">😮</button>
-    <button class="reaction-btn" data-reaction="😢">😢</button>
-    <button class="reaction-btn" data-reaction="👍">👍</button>
-    <button class="reaction-btn" data-reaction="👎">👎</button>
-  </div>
-
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-    import { getFirestore, doc, getDoc, setDoc, updateDoc, collection, addDoc, serverTimestamp, onSnapshot, query, orderBy, where } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+    import { getFirestore, doc, getDoc, collection, query, where, onSnapshot, orderBy, addDoc, updateDoc, serverTimestamp, arrayUnion } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
     const firebaseConfig= { apiKey: "AIzaSyAJHqq9T9d5zbHoCumvNt9AK1L2fusa8Gk", authDomain: "wbapp-ff0f2.firebaseapp.com", projectId: "wbapp-ff0f2", storageBucket: "wbapp-ff0f2.firebasestorage.app", messagingSenderId: "580773775966", appId: "1:580773775966:web:d851d41c2091257a2d42cf" };
     const app= initializeApp(firebaseConfig);
     const auth = getAuth(app);
     const db = getFirestore(app);
 
-    const params = new URLSearchParams(location.search);
-    let other = (params.get('with')||'').toLowerCase();
-    const myUsername = localStorage.getItem('rx_username');
-    if(!other){ alert('Missing ?with=username'); location.href='home.html'; }
+    const urlParams = new URLSearchParams(window.location.search);
+    const otherUsername = urlParams.get('with');
+    let myUsername = '';
+    let chatId = '';
+    let otherUserData = null;
 
     // Theme management
-    function toggleTheme(){ 
-      const cur = localStorage.getItem('rx_theme') || 'light';
-      const newTheme = cur === 'dark' ? 'light' : 'dark';
-      localStorage.setItem('rx_theme', newTheme);
-      applyTheme();
-    }
-
     function applyTheme(){ 
       const t = localStorage.getItem('rx_theme') || 'light';
       if(t === 'dark') {
@@ -609,22 +430,7 @@
     }
     applyTheme();
 
-    // DOM Elements
-    const backBtn = document.getElementById('backBtn');
-    const avatarEl = document.getElementById('avatar');
-    const nameEl = document.getElementById('name');
-    const statusEl = document.getElementById('status');
-    const messagesContainer = document.getElementById('messagesContainer');
-    const typingIndicator = document.getElementById('typingIndicator');
-    const messageInput = document.getElementById('messageInput');
-    const sendBtn = document.getElementById('sendBtn');
-    const contextMenu = document.getElementById('contextMenu');
-    const reactionPicker = document.getElementById('reactionPicker');
-    const videoCallBtn = document.getElementById('videoCallBtn');
-    const voiceCallBtn = document.getElementById('voiceCallBtn');
-    const menuBtn = document.getElementById('menuBtn');
-
-    // Generate avatar based on name
+    // Generate avatar based on name 
     function generateAvatar(name, size = 44) {
       const colors = [
         '#00897b', '#4ebaaa', '#005b4f', '#00796b', '#004d40',
@@ -654,53 +460,50 @@
     }
 
     // Navigation
-    backBtn.onclick = () => { history.back(); };
+    document.getElementById('backBtn').onclick = () => {
+      window.history.back();
+    };
 
-    // Notifications (when tab active)
-    if('Notification' in window && Notification.permission==='default'){ Notification.requestPermission(); }
-
-    const users = [myUsername, other].sort();
-    const chatId = users.join('_');
-    const chatRef = doc(db,'Chats', chatId);
-
-    // Ensure chat doc exists
-    (async()=>{ 
-      const c=await getDoc(chatRef); 
-      if(!c.exists()){ 
-        await setDoc(chatRef,{ 
-          users, 
-          lastMessage:'', 
-          lastMessageTime:new Date().toISOString(), 
-          typing:{} 
-        }); 
-      } 
-    })();
-
-    // Load other profile
-    (async()=>{
-      const d = await getDoc(doc(db,'Users', other));
-      if(d.exists()){
-        const u=d.data(); 
-        avatarEl.innerHTML = generateAvatar(u.name||other);
-        nameEl.innerHTML = `${u.name||other} ${u.verified?'<span title="Verified" style="color:#1DA1F2"><i class="fas fa-check-circle"></i></span>':''}`;
-        
-        // Check online status
-        const lastSeen = new Date(u.lastSeen||0);
-        const isOnline = (Date.now()-lastSeen.getTime()) < 60000;
-        
-        if (isOnline) {
-          statusEl.textContent = 'Online';
-          avatarEl.classList.add('online');
+    // Load other user's data
+    async function loadOtherUserData() {
+      try {
+        const userDoc = await getDoc(doc(db, 'Users', otherUsername));
+        if (userDoc.exists()) {
+          otherUserData = userDoc.data();
+          
+          // Update chat header
+          document.getElementById('chatName').textContent = otherUserData.name || otherUsername;
+          document.getElementById('chatAvatar').innerHTML = generateAvatar(otherUserData.name || otherUsername);
+          
+          // Show verified badge if user is verified
+          if (otherUserData.verified) {
+            document.getElementById('verifiedBadge').style.display = 'inline';
+          }
+          
+          // Update status
+          const isOnline = ((Date.now() - new Date(otherUserData.lastSeen || 0).getTime()) < 60000);
+          document.getElementById('chatStatus').textContent = isOnline ? 'Online' : `Last seen ${formatTime(otherUserData.lastSeen)}`;
+          
+          // Add online/offline indicator
+          const avatar = document.getElementById('chatAvatar');
+          avatar.classList.add(isOnline ? 'online' : 'offline');
         } else {
-          statusEl.textContent = `Last seen ${formatLastSeen(lastSeen)}`;
-          avatarEl.classList.add('offline');
+          document.getElementById('chatName').textContent = otherUsername;
+          document.getElementById('chatAvatar').innerHTML = generateAvatar(otherUsername);
+          document.getElementById('chatStatus').textContent = 'User not found';
         }
-      } else { 
-        nameEl.textContent = other; 
+      } catch (error) {
+        console.error('Error loading user data:', error);
+        document.getElementById('chatName').textContent = otherUsername;
+        document.getElementById('chatAvatar').innerHTML = generateAvatar(otherUsername);
+        document.getElementById('chatStatus').textContent = 'Error loading user';
       }
-    })();
+    }
 
-    function formatLastSeen(date) {
+    function formatTime(timestamp) {
+      if (!timestamp) return 'recently';
+      
+      const date = new Date(timestamp);
       const now = new Date();
       const diffMs = now - date;
       const diffMins = Math.floor(diffMs / 60000);
@@ -715,351 +518,205 @@
       return date.toLocaleDateString();
     }
 
-    // Header menu
-menuBtn.onclick = async() => {
-  const action = await showActionSheet([
-    'View Profile',
-    'Block User',
-    'Unblock User',   // 👈 new option
-    'Report User',
-    'Search',
-    'Dark/Light Mode'
-  ]);
-  
-  switch(action) {
-    case 'View Profile':
-      // Would navigate to profile page
-      break;
-    case 'Block User':
-      await blockUser();
-      break;
-    case 'Unblock User':   // 👈 new case
-      await unblockUser();
-      break;
-    case 'Report User':
-      await reportUser();
-      break;
-    case 'Search':
-      // Would implement search in chat
-      break;
-    case 'Dark/Light Mode':
-      toggleTheme();
-      break;
-  }
-};
-
-    async function showActionSheet(options) {
-      return new Promise((resolve) => {
-        // This would normally show a modal action sheet
-        // For simplicity, we'll use a native confirm dialog
-        const optionList = options.map((opt, i) => `${i+1}. ${opt}`).join('\n');
-        const choice = prompt(`Choose an option:\n${optionList}`);
-        resolve(options[parseInt(choice)-1] || '');
-      });
-    }
-
-    async function blockUser() {
-      const meRef = doc(db,'Users', myUsername);
-      const me = await getDoc(meRef);
-      const list = me.exists() ? (me.data().blockedUsers||[]) : [];
-      if(list.includes(other)) { alert('Already blocked'); return; }
-      list.push(other);
-      await updateDoc(meRef, { blockedUsers: list });
-      alert('User blocked');
-    }
-    
-    async function unblockUser() {
-  const meRef = doc(db,'Users', myUsername);
-  const me = await getDoc(meRef);
-  const list = me.exists() ? (me.data().blockedUsers||[]) : [];
-  if(!list.includes(other)) { 
-    alert('User is not blocked'); 
-    return; 
-  }
-  const newList = list.filter(u => u !== other);
-  await updateDoc(meRef, { blockedUsers: newList });
-  alert('User unblocked');
-}
-
-    async function reportUser() {
-      const reason = prompt('Reason for report?'); 
-      if(!reason) return;
-      await addDoc(collection(db,'Reports'), { 
-        reporter: myUsername, 
-        reportedUser: other, 
-        reason, 
-        time: new Date().toISOString() 
-      });
-      alert('Report submitted');
-    }
-
-    // Typing indicator handling
-    let typingTimer;
-    messageInput.addEventListener('input', async() => {
-      clearTimeout(typingTimer);
-      await updateDoc(chatRef, { [`typing.${myUsername}`]: true });
-      typingTimer = setTimeout(async() => { 
-        try{ 
-          await updateDoc(chatRef, { [`typing.${myUsername}`]: false }); 
-        } catch(e) {} 
-      }, 1000);
-    });
-
-    onSnapshot(chatRef, (snap) => {
-      const d = snap.data(); 
-      if(!d) return; 
+    // Format message time
+    function formatMessageTime(timestamp) {
+      if (!timestamp) return '';
       
-      const t = d.typing || {}; 
-      if (t[other]) {
-        typingIndicator.style.display = 'flex';
-        document.getElementById('typingText').textContent = `${other} is typing`;
+      const date = timestamp.toDate ? timestamp.toDate() : new Date(timestamp);
+      return date.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+    }
+
+    // Get message status icon
+    function getMessageStatusIcon(message, isMyMessage) {
+      if (!isMyMessage) return '';
+      
+      if (message.seenBy && message.seenBy[otherUsername]) {
+        return '<i class="fas fa-check-double double-tick-blue"></i>';
+      } else if (message.deliveredTo && message.deliveredTo[otherUsername]) {
+        return '<i class="fas fa-check-double double-tick"></i>';
       } else {
-        typingIndicator.style.display = 'none';
-      }
-    });
-
-    // Messages subcollection
-    const msgsQ = query(collection(db,'Chats', chatId, 'messages'), orderBy('time'));
-    onSnapshot(msgsQ, (snapshot) => {
-      messagesContainer.innerHTML = '';
-      snapshot.forEach(docSnap => {
-        const m = docSnap.data();
-        addMessageToUI(m, docSnap.id);
-      });
-      
-      // Scroll to bottom
-      messagesContainer.scrollTop = messagesContainer.scrollHeight;
-    });
-
-    function addMessageToUI(m, id) {
-      const isMe = m.sender === myUsername;
-      
-      const messageEl = document.createElement('div');
-      messageEl.className = `message ${isMe ? 'me' : 'them'}`;
-      messageEl.dataset.id = id;
-      
-      messageEl.innerHTML = `
-        <div class="bubble">
-          <div class="message-content">${m.text}</div>
-          <div class="message-time">${formatTime(m.time)}</div>
-          ${m.reactions ? `<div class="reactions">${Object.values(m.reactions).join(' ')}</div>` : ''}
-        </div>
-      `;
-      
-      // Context menu for messages
-      messageEl.addEventListener('contextmenu', (e) => {
-        e.preventDefault();
-        showContextMenu(e.pageX, e.pageY, id);
-      });
-      
-      // Long press on touch devices
-      let pressTimer;
-      messageEl.addEventListener('touchstart', (e) => {
-        pressTimer = setTimeout(() => {
-          const touch = e.touches[0];
-          showContextMenu(touch.pageX, touch.pageY, id);
-        }, 500);
-      });
-      
-      messageEl.addEventListener('touchend', () => {
-        clearTimeout(pressTimer);
-      });
-      
-      messagesContainer.appendChild(messageEl);
-      
-      // Notify when receiving new message
-      if('Notification' in window && document.hidden && !isMe){ 
-        try{ 
-          new Notification(`New message from ${other}`, { body: m.text }); 
-        } catch(e) {} 
+        return '<i class="fas fa-check single-tick"></i>';
       }
     }
 
-    function formatTime(timestamp) {
-      const date = timestamp?.toDate?.() ? timestamp.toDate() : new Date(timestamp || Date.now());
-      return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-    }
-
-    function showContextMenu(x, y, messageId) {
-      contextMenu.style.left = `${x}px`;
-      contextMenu.style.top = `${y}px`;
-      contextMenu.style.display = 'block';
-      contextMenu.dataset.messageId = messageId;
+    // Load messages
+    function loadMessages() {
+      // Generate chat ID (alphabetical order to ensure consistency)
+      const users = [myUsername, otherUsername].sort();
+      chatId = users.join('_');
       
-      // Close menu when clicking elsewhere
-      const closeMenu = (e) => {
-        if (!contextMenu.contains(e.target)) {
-          contextMenu.style.display = 'none';
-          document.removeEventListener('click', closeMenu);
-        }
-      };
+      const messagesRef = collection(db, 'Chats', chatId, 'messages');
+      const messagesQuery = query(messagesRef, orderBy('timestamp', 'asc'));
       
-      setTimeout(() => {
-        document.addEventListener('click', closeMenu);
-      }, 10);
-    }
-
-    // Context menu actions
-    contextMenu.querySelectorAll('.context-menu-item').forEach(item => {
-      item.addEventListener('click', (e) => {
-        const action = e.currentTarget.dataset.action;
-        const messageId = contextMenu.dataset.messageId;
+      onSnapshot(messagesQuery, (snapshot) => {
+        const chatContainer = document.getElementById('chatContainer');
+        chatContainer.innerHTML = '';
         
-        switch(action) {
-          case 'reply':
-            // Implement reply functionality
-            break;
-          case 'react':
-            showReactionPicker(messageId);
-            break;
-          case 'forward':
-            // Implement forward functionality
-            break;
-          case 'delete':
-            // Implement delete functionality
-            break;
-        }
+        snapshot.forEach((docSnap) => {
+          const message = docSnap.data();
+          const isMyMessage = message.sender === myUsername;
+          
+          const messageDiv = document.createElement('div');
+          messageDiv.className = `message ${isMyMessage ? 'sent' : 'received'}`;
+          
+          // Format message time and status
+          const messageTime = formatMessageTime(message.timestamp);
+          const statusIcon = getMessageStatusIcon(message, isMyMessage);
+          
+          messageDiv.innerHTML = `
+            <div>${message.text}</div>
+            <div class="messageTime">
+              ${messageTime}
+              ${statusIcon ? `<span class="messageStatus">${statusIcon}</span>` : ''}
+            </div>
+          `;
+          
+          chatContainer.appendChild(messageDiv);
+        });
         
-        contextMenu.style.display = 'none';
+        // Scroll to bottom
+        chatContainer.scrollTop = chatContainer.scrollHeight;
+        
+        // Mark messages as seen
+        markMessagesAsSeen();
       });
-    });
-
-    function showReactionPicker(messageId) {
-      // Position near the message
-      const messageEl = document.querySelector(`[data-id="${messageId}"]`);
-      if (!messageEl) return;
-      
-      const rect = messageEl.getBoundingClientRect();
-      reactionPicker.style.left = `${rect.right - 150}px`;
-      reactionPicker.style.top = `${rect.top - 50}px`;
-      reactionPicker.style.display = 'flex';
-      reactionPicker.dataset.messageId = messageId;
-      
-      // Close picker when clicking elsewhere
-      const closePicker = (e) => {
-        if (!reactionPicker.contains(e.target)) {
-          reactionPicker.style.display = 'none';
-          document.removeEventListener('click', closePicker);
-        }
-      };
-      
-      setTimeout(() => {
-        document.addEventListener('click', closePicker);
-      }, 10);
     }
 
-    // Reaction picker actions
-    reactionPicker.querySelectorAll('.reaction-btn').forEach(btn => {
-      btn.addEventListener('click', async (e) => {
-        const reaction = e.currentTarget.dataset.reaction;
-        const messageId = reactionPicker.dataset.messageId;
+    // Mark messages as seen
+    async function markMessagesAsSeen() {
+      try {
+        const messagesRef = collection(db, 'Chats', chatId, 'messages');
+        const messagesQuery = query(messagesRef, where('sender', '==', otherUsername));
         
-        if (messageId) {
-          const { updateDoc } = await import('https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js');
-          await updateDoc(doc(db,'Chats', chatId, 'messages', messageId), { 
-            [`reactions.${myUsername}`]: reaction 
-          });
-        }
-        
-        reactionPicker.style.display = 'none';
-      });
-    });
+        const snapshot = await getDocs(messagesQuery);
+        snapshot.forEach(async (docSnap) => {
+          const message = docSnap.data();
+          
+          // Check if message is already seen by me
+          if (!message.seenBy || !message.seenBy[myUsername]) {
+            await updateDoc(doc(db, 'Chats', chatId, 'messages', docSnap.id), {
+              [`seenBy.${myUsername}`]: true
+            });
+          }
+        });
+      } catch (error) {
+        console.error('Error marking messages as seen:', error);
+      }
+    }
 
     // Send message
-    sendBtn.addEventListener('click', sendMessage);
-    messageInput.addEventListener('keydown', (e) => { 
-      if(e.key === 'Enter' && !e.shiftKey) {
+    async function sendMessage() {
+      const messageInput = document.getElementById('messageInput');
+      const text = messageInput.value.trim();
+      
+      if (!text) return;
+      
+      messageInput.value = '';
+      document.getElementById('sendBtn').disabled = true;
+      
+      try {
+        // Add message to Firestore
+        await addDoc(collection(db, 'Chats', chatId, 'messages'), {
+          text: text,
+          sender: myUsername,
+          timestamp: serverTimestamp(),
+          deliveredTo: {},
+          seenBy: {}
+        });
+        
+        // Update last message in chat
+        await updateDoc(doc(db, 'Chats', chatId), {
+          lastMessage: text,
+          lastMessageTime: serverTimestamp(),
+          users: [myUsername, otherUsername],
+          [`unreadCount.${otherUsername}`]: (await getDoc(doc(db, 'Chats', chatId))).data()?.unreadCount?.[otherUsername] + 1 || 1
+        });
+        
+        // Update recent chats for both users
+        const recentChatData = {
+          username: otherUsername,
+          lastMessage: text,
+          timestamp: new Date().toISOString(),
+          unreadCount: 0
+        };
+        
+        await setDoc(doc(db, 'Users', myUsername, 'recentChats', otherUsername), recentChatData);
+        
+        const otherRecentChatData = {
+          username: myUsername,
+          lastMessage: text,
+          timestamp: new Date().toISOString(),
+          unreadCount: 1
+        };
+        
+        await setDoc(doc(db, 'Users', otherUsername, 'recentChats', myUsername), otherRecentChatData);
+        
+      } catch (error) {
+        console.error('Error sending message:', error);
+        alert('Error sending message. Please try again.');
+      }
+    }
+
+    onAuthStateChanged(auth, async (user) => {
+      if(!user){ location.href='index.html'; return; }
+      
+      // find my username
+      myUsername = localStorage.getItem('rx_username');
+      if(!myUsername){
+        // query Users where email==user.email
+        const usersQ = query(collection(db,'Users'), where('email','==', user.email));
+        const snap = await getDocs(usersQ);
+        if(!snap.empty){ 
+          myUsername = snap.docs[0].id; 
+          localStorage.setItem('rx_username', myUsername); 
+          localStorage.setItem('rx_name', snap.docs[0].data().name||''); 
+        }
+      }
+      if(!myUsername){ location.href='profile.html'; return; }
+      
+      if (!otherUsername) {
+        alert('No user specified');
+        window.history.back();
+        return;
+      }
+      
+      // Load other user's data
+      await loadOtherUserData();
+      
+      // Load messages
+      loadMessages();
+      
+      // Watch for user status changes
+      onSnapshot(doc(db, 'Users', otherUsername), (docSnap) => {
+        if (docSnap.exists()) {
+          const data = docSnap.data();
+          const isOnline = ((Date.now() - new Date(data.lastSeen || 0).getTime()) < 60000);
+          document.getElementById('chatStatus').textContent = isOnline ? 'Online' : `Last seen ${formatTime(data.lastSeen)}`;
+          
+          // Update online indicator
+          const avatar = document.getElementById('chatAvatar');
+          avatar.classList.remove('online', 'offline');
+          avatar.classList.add(isOnline ? 'online' : 'offline');
+        }
+      });
+    });
+
+    // Message input handling
+    const messageInput = document.getElementById('messageInput');
+    const sendBtn = document.getElementById('sendBtn');
+    
+    messageInput.addEventListener('input', () => {
+      sendBtn.disabled = messageInput.value.trim() === '';
+    });
+    
+    messageInput.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter' && !e.shiftKey) {
         e.preventDefault();
         sendMessage();
       }
-      
-      // Auto-resize textarea
-      setTimeout(() => {
-        messageInput.style.height = 'auto';
-        messageInput.style.height = Math.min(messageInput.scrollHeight, 120) + 'px';
-      }, 0);
     });
-
-    async function sendMessage() {
-      const text = messageInput.value.trim(); 
-      if(!text) return;
-      
-      // Block checks
-      const me = await getDoc(doc(db,'Users', myUsername));
-      const he = await getDoc(doc(db,'Users', other));
-      const myBlocked = me.exists()? (me.data().blockedUsers||[]) : [];
-      const hisBlocked = he.exists()? (he.data().blockedUsers||[]) : [];
-      
-      if(myBlocked.includes(other)) {
-        alert('You have blocked this user. Unblock from profile to send messages.');
-        return;
-      }
-      
-      if(hisBlocked.includes(myUsername)) {
-        alert('You are blocked by this user.');
-        return;
-      }
-
-      const now = serverTimestamp();
-      await addDoc(collection(db,'Chats', chatId, 'messages'), { 
-        sender: myUsername, 
-        text, 
-        time: now 
-      });
-      
-      await updateDoc(chatRef, { 
-        lastMessage: text, 
-        lastMessageTime: new Date().toISOString() 
-      });
-      
-      // Update recent chats for both users
-      const recentChatData = {
-        username: other,
-        lastMessage: text,
-        timestamp: new Date().toISOString()
-      };
-      
-      // Update sender's recent chats
-      await setDoc(doc(db, 'Users', myUsername, 'recentChats', other), recentChatData);
-      
-      // Update receiver's recent chats
-      const receiverRecentChatData = {
-        username: myUsername,
-        lastMessage: text,
-        timestamp: new Date().toISOString()
-      };
-      await setDoc(doc(db, 'Users', other, 'recentChats', myUsername), receiverRecentChatData);
-      
-      // Clear input and reset height
-      messageInput.value = '';
-      messageInput.style.height = 'auto';
-    }
-
-    // Presence heartbeat for me
-    onAuthStateChanged(auth, async(user) => {
-      if(!user){ 
-        location.href='index.html'; 
-        return; 
-      }
-      
-      setInterval(async() => { 
-        try{ 
-          await updateDoc(doc(db,'Users', myUsername), { 
-            online: true, 
-            lastSeen: new Date().toISOString() 
-          }); 
-        } catch(e) {} 
-      }, 30000);
-    });
-
-    // Call buttons (placeholder functionality)
-    videoCallBtn.addEventListener('click', () => {
-      alert('Video call functionality would be implemented here');
-    });
-
-    voiceCallBtn.addEventListener('click', () => {
-      alert('Voice call functionality would be implemented here');
-    });
+    
+    sendBtn.addEventListener('click', sendMessage);
   </script>
 </body>
 </html>

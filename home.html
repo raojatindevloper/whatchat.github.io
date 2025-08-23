@@ -160,15 +160,10 @@
       border-bottom: 0;
     }
 
-    /* FAB Button */
+    /* FAB Buttons */
     .fab {
       position: fixed;
-      right: 24px;
-      bottom: 24px;
-      width: 60px;
-      height: 60px;
       border-radius: 50%;
-      background: linear-gradient(135deg, var(--primary), var(--primary-light));
       display: flex;
       align-items: center;
       justify-content: center;
@@ -181,8 +176,24 @@
       z-index: 90;
     }
 
+    .fab.main {
+      right: 24px;
+      bottom: 24px;
+      width: 60px;
+      height: 60px;
+      background: linear-gradient(135deg, var(--primary), var(--primary-light));
+    }
+
+    .fab.profile {
+      left: 24px;
+      bottom: 24px;
+      width: 50px;
+      height: 50px;
+      background: linear-gradient(135deg, #6a11cb, #2575fc);
+    }
+
     .fab:hover {
-      transform: translateY(-4px) rotate(90deg);
+      transform: translateY(-4px);
       box-shadow: 0 12px 20px rgba(0,168,132,0.3);
     }
 
@@ -260,6 +271,7 @@
       border-bottom: 1px solid var(--border);
       cursor: pointer;
       transition: var(--transition);
+      position: relative;
     }
 
     .chatCard:hover {
@@ -323,6 +335,14 @@
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .verified-badge {
+      color: #1DA1F2;
+      font-size: 14px;
     }
 
     .last {
@@ -355,6 +375,212 @@
       font-weight: 600;
     }
 
+    /* Profile Modal */
+    .modal {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.7);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+      z-index: 400;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+
+    .modal.show {
+      display: flex;
+      opacity: 1;
+    }
+
+    .modal-content {
+      background: var(--card);
+      border-radius: var(--radius-lg);
+      padding: 24px;
+      max-width: 400px;
+      width: 100%;
+      box-shadow: var(--shadow-lg);
+      transform: scale(0.9);
+      transition: transform 0.3s ease;
+      position: relative;
+    }
+
+    .modal.show .modal-content {
+      transform: scale(1);
+    }
+
+    .close-modal {
+      position: absolute;
+      top: 16px;
+      right: 16px;
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      background: rgba(0,0,0,0.05);
+      transition: var(--transition);
+    }
+
+    .close-modal:hover {
+      background: rgba(0,0,0,0.1);
+    }
+
+    .profile-header {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 20px;
+    }
+
+    .profile-avatar {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--primary), var(--primary-light));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      color: white;
+      font-size: 32px;
+    }
+
+    .profile-details {
+      flex: 1;
+    }
+
+    .profile-name {
+      font-weight: 600;
+      font-size: 18px;
+      margin-bottom: 4px;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .profile-email {
+      color: var(--text-muted);
+      font-size: 14px;
+    }
+
+    .modal-actions {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-top: 20px;
+    }
+
+    .modal-btn {
+      padding: 12px 16px;
+      border-radius: var(--radius-sm);
+      border: none;
+      font-size: 16px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: var(--transition);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .btn-edit {
+      background: var(--primary);
+      color: white;
+    }
+
+    .btn-logout {
+      background: rgba(244,67,54,0.1);
+      color: var(--error);
+    }
+
+    /* Verification Modal */
+    .verification-modal {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.7);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+      z-index: 400;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+
+    .verification-modal.show {
+      display: flex;
+      opacity: 1;
+    }
+
+    .verification-content {
+      background: var(--card);
+      border-radius: var(--radius-lg);
+      padding: 24px;
+      max-width: 500px;
+      width: 100%;
+      box-shadow: var(--shadow-lg);
+      transform: scale(0.9);
+      transition: transform 0.3s ease;
+      position: relative;
+    }
+
+    .verification-modal.show .verification-content {
+      transform: scale(1);
+    }
+
+    .feature-list {
+      list-style: none;
+      margin: 16px 0;
+    }
+
+    .feature-list li {
+      padding: 8px 0;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .feature-list i {
+      color: var(--primary);
+    }
+
+    .payment-section {
+      background: rgba(0,0,0,0.05);
+      padding: 16px;
+      border-radius: var(--radius-sm);
+      margin: 16px 0;
+      text-align: center;
+    }
+
+    .price {
+      font-size: 24px;
+      font-weight: 700;
+      color: var(--primary);
+      margin: 8px 0;
+    }
+
+    .payment-btn {
+      width: 100%;
+      padding: 16px;
+      border-radius: var(--radius-sm);
+      border: none;
+      background: linear-gradient(135deg, #25d366, #128c7e);
+      color: white;
+      font-weight: 600;
+      cursor: pointer;
+      transition: var(--transition);
+      margin-top: 16px;
+    }
+
+    .payment-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-md);
+    }
+
     /* Animations */
     @keyframes fadeIn {
       from { opacity: 0; transform: translateY(10px); }
@@ -381,10 +607,17 @@
         padding: 14px 16px;
       }
       
-      .fab {
+      .fab.main {
         width: 56px;
         height: 56px;
         right: 16px;
+        bottom: 16px;
+      }
+      
+      .fab.profile {
+        width: 46px;
+        height: 46px;
+        left: 16px;
         bottom: 16px;
       }
     }
@@ -425,6 +658,7 @@
     <a href="about.html"><i class="fas fa-info-circle"></i> About</a>
     <a href="privacy.html"><i class="fas fa-shield-alt"></i> Privacy Policy</a>
     <a href="help.html"><i class="fas fa-sync-alt"></i> Request Update</a>
+    <a href="#" id="getVerifiedBtn"><i class="fas fa-check-circle"></i> Get Verified</a>
     <a href="#" id="toggleTheme"><i class="fas fa-moon"></i> Dark/Light Mode</a>
     <a href="#" id="signOut"><i class="fas fa-sign-out-alt"></i> Sign out</a>
     <a href="#" id="closeMenu"><i class="fas fa-times"></i> Close Menu</a>
@@ -436,8 +670,12 @@
   <div class="section-title">All Chats</div>
   <div class="list" id="chatList"></div>
 
-  <div class="fab" id="fab">
+  <div class="fab main" id="fab">
     <i class="fas fa-plus"></i>
+  </div>
+
+  <div class="fab profile" id="profileFab">
+    <i class="fas fa-user"></i>
   </div>
 
   <div class="searchSheet" id="searchSheet">
@@ -450,10 +688,76 @@
     </div>
   </div>
 
+  <!-- Profile Modal -->
+  <div class="modal" id="profileModal">
+    <div class="modal-content">
+      <div class="close-modal" id="closeProfileModal">
+        <i class="fas fa-times"></i>
+      </div>
+      <div class="profile-header">
+        <div class="profile-avatar" id="modalAvatar">RX</div>
+        <div class="profile-details">
+          <div class="profile-name" id="modalName">
+            Loading...
+            <span class="verified-badge" id="modalVerifiedBadge" style="display:none"><i class="fas fa-check-circle"></i></span>
+          </div>
+          <div class="profile-email" id="modalEmail">user@example.com</div>
+        </div>
+      </div>
+      <div class="modal-actions">
+        <button class="modal-btn btn-edit" id="editProfileBtn">
+          <i class="fas fa-edit"></i> Edit Profile
+        </button>
+        <button class="modal-btn btn-logout" id="modalLogoutBtn">
+          <i class="fas fa-sign-out-alt"></i> Logout
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Verification Modal -->
+  <div class="verification-modal" id="verificationModal">
+    <div class="verification-content">
+      <div class="close-modal" id="closeVerificationModal">
+        <i class="fas fa-times"></i>
+      </div>
+      <h2 style="margin-top:0; color: var(--primary);">Get Verified</h2>
+      <p>Upgrade to a verified account for enhanced features and credibility.</p>
+      
+      <div class="form-group">
+        <label for="verifyUsername">Username</label>
+        <input type="text" id="verifyUsername" disabled>
+      </div>
+      
+      <div class="form-group">
+        <label for="verifyMobile">Mobile Number</label>
+        <input type="tel" id="verifyMobile" placeholder="Enter your mobile number">
+      </div>
+      
+      <h3>Benefits:</h3>
+      <ul class="feature-list">
+        <li><i class="fas fa-check-circle"></i> Instant Help</li>
+        <li><i class="fas fa-shield-alt"></i> Tight Security</li>
+        <li><i class="fas fa-badge-check"></i> Verified Badge</li>
+        <li><i class="fas fa-star"></i> Priority Support</li>
+      </ul>
+      
+      <div class="payment-section">
+        <p>One-time verification fee</p>
+        <div class="price">₹9/month</div>
+        <button class="payment-btn" id="paymentBtn">
+          <i class="fas fa-lock"></i> Pay Now via UPI
+        </button>
+      </div>
+      
+      <div id="verificationStatus" style="margin-top:16px; display:none;"></div>
+    </div>
+  </div>
+
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
     import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-    import { getFirestore, doc, getDoc, collection, query, where, onSnapshot, orderBy } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+    import { getFirestore, doc, getDoc, collection, query, where, onSnapshot, orderBy, updateDoc, setDoc, addDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
     const firebaseConfig= { apiKey: "AIzaSyAJHqq9T9d5zbHoCumvNt9AK1L2fusa8Gk", authDomain: "wbapp-ff0f2.firebaseapp.com", projectId: "wbapp-ff0f2", storageBucket: "wbapp-ff0f2.firebasestorage.app", messagingSenderId: "580773775966", appId: "1:580773775966:web:d851d41c2091257a2d42cf" };
     const app= initializeApp(firebaseConfig);
@@ -465,6 +769,9 @@
     const menu = document.getElementById('menu');
     const menuBtn = document.getElementById('menuBtn');
     const searchSheet = document.getElementById('searchSheet');
+    const profileModal = document.getElementById('profileModal');
+    const verificationModal = document.getElementById('verificationModal');
+    let myUsername = '';
 
     // Theme management
     function toggleTheme(){ 
@@ -486,7 +793,7 @@
     }
     applyTheme();
 
-    // Generate avatar based on name
+        // Generate avatar based on name
     function generateAvatar(name, size = 52) {
       const colors = [
         '#00897b', '#4ebaaa', '#005b4f', '#00796b', '#004d40',
@@ -537,11 +844,72 @@
       location.href='index.html'; 
     };
 
+    // Profile modal
+    document.getElementById('profileFab').onclick = () => {
+      profileModal.classList.add('show');
+    };
+
+    document.getElementById('closeProfileModal').onclick = () => {
+      profileModal.classList.remove('show');
+    };
+
+    document.getElementById('editProfileBtn').onclick = () => {
+      location.href = 'profile.html';
+    };
+
+    document.getElementById('modalLogoutBtn').onclick = async () => {
+      await signOut(auth);
+      location.href = 'index.html';
+    };
+
+    // Verification modal
+    document.getElementById('getVerifiedBtn').onclick = (e) => {
+      e.preventDefault();
+      document.getElementById('verifyUsername').value = myUsername;
+      verificationModal.classList.add('show');
+    };
+
+    document.getElementById('closeVerificationModal').onclick = () => {
+      verificationModal.classList.remove('show');
+    };
+
+    document.getElementById('paymentBtn').onclick = async () => {
+      const mobile = document.getElementById('verifyMobile').value.trim();
+      if (!mobile || mobile.length < 10) {
+        alert('Please enter a valid mobile number');
+        return;
+      }
+
+      // Create verification request
+      try {
+        await addDoc(collection(db, 'VerificationRequests'), {
+          username: myUsername,
+          mobile: mobile,
+          status: 'pending',
+          timestamp: new Date().toISOString()
+        });
+
+        // Open UPI payment
+        window.location.href = `upi://pay?pa=piyushproof@fam&pn=Rao%20Jatin&am=9&tn=Verification%20for%20${myUsername}`;
+        
+        const statusDiv = document.getElementById('verificationStatus');
+        statusDiv.style.display = 'block';
+        statusDiv.innerHTML = `
+          <div style="background: rgba(34,197,94,0.1); padding: 12px; border-radius: 8px; color: #22c55e;">
+            <i class="fas fa-check-circle"></i> Request submitted! Complete payment and your verification will be processed.
+          </div>
+        `;
+      } catch (error) {
+        console.error('Error submitting verification request:', error);
+        alert('Error submitting request. Please try again.');
+      }
+    };
+
     onAuthStateChanged(auth, async (user) => {
       if(!user){ location.href='index.html'; return; }
       
       // find my username
-      let myUsername = localStorage.getItem('rx_username');
+      myUsername = localStorage.getItem('rx_username');
       if(!myUsername){
         // query Users where email==user.email
         const usersQ = query(collection(db,'Users'), where('email','==', user.email));
@@ -553,6 +921,27 @@
         }
       }
       if(!myUsername){ location.href='profile.html'; return; }
+
+      // Load profile data for modal
+      const myProfile = await getDoc(doc(db, 'Users', myUsername));
+      if (myProfile.exists()) {
+        const data = myProfile.data();
+        document.getElementById('modalName').textContent = data.name || myUsername;
+        document.getElementById('modalEmail').textContent = user.email;
+        
+        if (data.verified) {
+          document.getElementById('modalVerifiedBadge').style.display = 'inline';
+        }
+        
+        // Set avatar
+        const modalAvatar = document.getElementById('modalAvatar');
+        if (data.avatar && data.avatar !== '') {
+          modalAvatar.style.backgroundImage = `url('${data.avatar}')`;
+          modalAvatar.textContent = '';
+        } else {
+          modalAvatar.textContent = data.name ? data.name.charAt(0).toUpperCase() : myUsername.charAt(0).toUpperCase();
+        }
+      }
 
       // Load recent chats
       const recentChatsRef = collection(db, 'Users', myUsername, 'recentChats');
@@ -570,17 +959,41 @@
           
           const left = document.createElement('div');
           left.className = 'chatInfo';
-          left.innerHTML = `<div class="name">${chatData.username}</div><div class="last">${chatData.lastMessage || ''}</div>`;
+          
+          // Fetch user details for name and verification status
+          (async () => {
+            const userDoc = await getDoc(doc(db, 'Users', chatData.username));
+            if (userDoc.exists()) {
+              const userData = userDoc.data();
+              left.innerHTML = `
+                <div class="name">${userData.name || chatData.username} 
+                  ${userData.verified ? '<span class="verified-badge"><i class="fas fa-check-circle"></i></span>' : ''}
+                </div>
+                <div class="last">${chatData.lastMessage || ''}</div>
+              `;
+            } else {
+              left.innerHTML = `<div class="name">${chatData.username}</div><div class="last">${chatData.lastMessage || ''}</div>`;
+            }
+          })();
           
           const right = document.createElement('div'); 
           right.className = 'right';
           right.innerHTML = `<div class="time">${new Date(chatData.timestamp?.toDate?.() || chatData.timestamp || Date.now()).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</div>`;
+          
+          // Add unread badge if there are unread messages
+          if (chatData.unreadCount > 0) {
+            right.innerHTML += `<div class="badge">${chatData.unreadCount}</div>`;
+          }
           
           li.appendChild(avatarDiv);
           li.appendChild(left);
           li.appendChild(right);
           
           li.addEventListener('click', () => { 
+            // Mark as read when opening chat
+            updateDoc(doc(db, 'Users', myUsername, 'recentChats', chatData.username), {
+              unreadCount: 0
+            });
             location.href = `chat.html?with=${encodeURIComponent(chatData.username)}`; 
           });
           
@@ -616,99 +1029,106 @@
           
           const left = document.createElement('div');
           left.className = 'chatInfo';
-          left.innerHTML = `<div class="name" id="nm_${docSnap.id}">${other}</div><div class="last">${c.lastMessage||''}</div>`;
+          
+          // Fetch user details for name and verification status
+          (async() => {
+            const p = await getDoc(doc(db,'Users', other));
+            if(p.exists()) {
+              const d = p.data(); 
+              left.innerHTML = `
+                <div class="name">${d.name || other} 
+                  ${d.verified ? '<span class="verified-badge"><i class="fas fa-check-circle"></i></span>' : ''}
+                </div>
+                <div class="last">${c.lastMessage||''}</div>
+              `;
+              
+              // Add online indicator
+              const isOnline = ((Date.now() - new Date(d.lastSeen || 0).getTime()) < 60000);
+              avatarDiv.classList.add(isOnline ? 'online' : 'offline');
+            } else {
+              left.innerHTML = `<div class="name">${other}</div><div class="last">${c.lastMessage||''}</div>`;
+            }
+          })();
           
           const right = document.createElement('div'); 
           right.className = 'right';
           right.innerHTML = `<div class="time">${new Date(c.lastMessageTime||Date.now()).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</div>`;
+          
+          // Add unread badge if there are unread messages
+          if (c.unreadCount && c.unreadCount[myUsername] > 0) {
+            right.innerHTML += `<div class="badge">${c.unreadCount[myUsername]}</div>`;
+          }
           
           li.appendChild(avatarDiv); 
           li.appendChild(left); 
           li.appendChild(right);
           
           li.addEventListener('click', () => { 
+            // Mark as read when opening chat
+            updateDoc(doc(db, 'Chats', docSnap.id), {
+              [`unreadCount.${myUsername}`]: 0
+            });
             location.href = `chat.html?with=${encodeURIComponent(other)}`; 
           });
           
           chatList.appendChild(li);
-
-          // fetch other profile for avatar + online
-          (async() => {
-            const p = await getDoc(doc(db,'Users', other));
-            if(p.exists()) {
-              const d = p.data(); 
-              const nm = document.getElementById(`nm_${docSnap.id}`);
-              if (nm) {
-                nm.textContent = d.name || other;
-                
-                // Add online indicator
-                const isOnline = ((Date.now() - new Date(d.lastSeen || 0).getTime()) < 60000);
-                avatarDiv.classList.add(isOnline ? 'online' : 'offline');
-              }
-            }
-          })();
         });
       });
+    });
 
-          // FAB search
-      document.getElementById('fab').onclick = () => { 
-        searchSheet.classList.add('show'); 
-        document.getElementById('searchUser').focus();
-      };
+    // Search functionality
+    document.getElementById('fab').onclick = () => { 
+      searchSheet.classList.add('show'); 
+      document.getElementById('searchUser').focus(); 
+    };
+    
+    searchSheet.addEventListener('click', (e) => { 
+      if(e.target === searchSheet) searchSheet.classList.remove('show'); 
+    });
+    
+    document.getElementById('searchUser').addEventListener('input', async (e) => {
+      const term = e.target.value.trim();
+      const resultDiv = document.getElementById('searchResult');
+      if(term.length < 3) { resultDiv.innerHTML=''; return; }
       
-      searchSheet.addEventListener('click', (e) => { 
-        if(e.target === searchSheet) {
-          searchSheet.classList.remove('show');
-        }
-      });
-
-      document.getElementById('searchUser').addEventListener('input', async (e) => {
-        const q = e.target.value.trim().toLowerCase();
-        const box = document.getElementById('searchResult');
-        box.innerHTML='';
-        if(q.length < 3) return;
+      try {
+        const q = query(collection(db, 'Users'), where('username', '>=', term), where('username', '<=', term + '\uf8ff'));
+        const snap = await getDocs(q);
+        resultDiv.innerHTML = '';
         
-        const p = await getDoc(doc(db,'Users', q));
-        if(!p.exists()) { 
-          box.innerHTML = '<div style="padding: 16px; text-align: center; color: var(--text-muted)">No user found with this username.</div>'; 
-          return; 
+        if(snap.empty) {
+          resultDiv.innerHTML = '<p style="color:var(--text-muted); text-align:center;">No users found</p>';
+          return;
         }
         
-        const d = p.data();
-        const card = document.createElement('div'); 
-        card.className = 'chatCard';
-        
-        card.innerHTML = `
-          ${generateAvatar(d.name || q, 60)}
-          <div class="chatInfo">
-            <div class="name">${d.name} ${d.verified?'<span title="Verified" style="color:#1DA1F2"><i class="fas fa-check-circle"></i></span>':''}</div>
-            <div class="last">@${q} • ${d.gender} • ${d.age} yrs</div>
-          </div>
-          <div class="right">
-            <button id="startBtn" style="padding:10px 14px;border-radius:12px;border:0;background:linear-gradient(135deg, var(--primary), var(--primary-light));color:white;font-weight:600;cursor:pointer;transition:var(--transition)">
-              <i class="fas fa-comment"></i>
-            </button>
-          </div>`;
-        
-        box.appendChild(card);
-        
-        card.querySelector('#startBtn').addEventListener('click', async() => {
-          const other = q; 
-          const users = [myUsername, other].sort(); 
-          const chatId = users.join('_');
+        snap.forEach(docSnap => {
+          const d = docSnap.data();
+          if(d.username === myUsername) return;
           
-          // create or update chat root
-          const { setDoc, getDoc: gD } = await import('https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js');
-          const chatRef = doc(db,'Chats', chatId);
-          const exists = await gD(chatRef);
+          const userDiv = document.createElement('div');
+          userDiv.className = 'chatCard';
+          userDiv.style.cursor = 'pointer';
           
-          if(!exists.exists()){
-            await setDoc(chatRef, { users, lastMessage:'', lastMessageTime: new Date().toISOString() });
-          }
+          userDiv.innerHTML = `
+            ${generateAvatar(d.name || d.username, 44)}
+            <div class="chatInfo">
+              <div class="name">${d.name || d.username} 
+                ${d.verified ? '<span class="verified-badge"><i class="fas fa-check-circle"></i></span>' : ''}
+              </div>
+              <div class="last">@${d.username}</div>
+            </div>
+          `;
           
-          location.href = `chat.html?with=${encodeURIComponent(other)}`;
+          userDiv.addEventListener('click', () => {
+            location.href = `chat.html?with=${encodeURIComponent(d.username)}`;
+          });
+          
+          resultDiv.appendChild(userDiv);
         });
-      });
+      } catch (error) {
+        console.error('Error searching users:', error);
+        resultDiv.innerHTML = '<p style="color:var(--error); text-align:center;">Error searching users</p>';
+      }
     });
   </script>
 </body>
