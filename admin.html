@@ -53,12 +53,46 @@
       .user-card { font-size: 0.9rem; }
       .user-actions button { font-size: 0.8rem; padding: 5px 8px; }
     }
+
+    /* Secret code modal */
+    .modal {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.6);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 999;
+    }
+    .modal-content {
+      background: white;
+      padding: 20px;
+      border-radius: 10px;
+      text-align: center;
+      max-width: 300px;
+      width: 100%;
+    }
+    .modal-content input {
+      width: 100%;
+      padding: 10px;
+      margin: 10px 0;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+    }
+    .modal-content button {
+      background: #6200ea;
+      color: white;
+      border: none;
+      padding: 10px 16px;
+      border-radius: 6px;
+      cursor: pointer;
+    }
   </style>
 </head>
 <body>
   <header>
     <h1>Admin Dashboard</h1>
-    <p id="welcome">Checking admin access...</p>
+    <p id="welcome">Admin Access</p>
     <button class="logout-btn" onclick="logout()">Logout</button>
   </header>
 
@@ -67,45 +101,46 @@
     <div id="user-list"></div>
   </div>
 
+  <!-- Secret Code Modal -->
+  <div class="modal" id="secretModal">
+    <div class="modal-content">
+      <h2>Enter Secret Code</h2>
+      <input type="password" id="secretInput" placeholder="Enter Code" />
+      <button onclick="checkCode()">Submit</button>
+    </div>
+  </div>
+
   <script type="module">
     // Firebase imports
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
     import { getFirestore, collection, getDocs, doc, updateDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-    // Firebase config (Apna config daalna)
+    // Firebase config
     const firebaseConfig = {
-      apiKey: "YOUR-API-KEY",
-      authDomain: "YOUR-PROJECT.firebaseapp.com",
-      projectId: "YOUR-PROJECT-ID",
-      storageBucket: "YOUR-PROJECT.appspot.com",
-      messagingSenderId: "YOUR-SENDER-ID",
-      appId: "YOUR-APP-ID"
+      apiKey: "AIzaSyAJHqq9T9d5zbHoCumvNt9AK1L2fusa8Gk",
+      authDomain: "wbapp-ff0f2.firebaseapp.com",
+      projectId: "wbapp-ff0f2",
+      storageBucket: "wbapp-ff0f2.firebasestorage.app",
+      messagingSenderId: "580773775966",
+      appId: "1:580773775966:web:d851d41c2091257a2d42cf"
     };
 
-    // Init
     const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
     const db = getFirestore(app);
 
-    // Auth check
-    onAuthStateChanged(auth, async (user) => {
-      if (!user) {
-        alert("Please login first!");
-        location.href = "index.html";
-        return;
+    // Secret Code Access
+    window.checkCode = function() {
+      const code = document.getElementById('secretInput').value.trim();
+      if(code === "3887") {
+        document.getElementById('secretModal').style.display = "none";
+        document.getElementById('admin-content').style.display = "block";
+        loadUsers();
+      } else {
+        alert("Wrong code!");
       }
+    }
 
-      if (user.email !== "jatinraomajra@gmail.com") {
-        alert("Not authorized!");
-        location.href = "home.html";
-        return;
-      }
-
-      document.getElementById("welcome").innerText = "Welcome Admin " + user.email;
-      document.getElementById("admin-content").style.display = "block";
-
-      // Load all users
+    async function loadUsers() {
       const snap = await getDocs(collection(db, "Users"));
       const list = document.getElementById("user-list");
       list.innerHTML = "";
@@ -126,7 +161,6 @@
           </div>
         `;
 
-        // Actions
         card.querySelector(".verify").onclick = async () => {
           await updateDoc(doc(db, "Users", d.id), { verified: true });
           alert(d.id + " verified ✅");
@@ -147,10 +181,10 @@
 
         list.appendChild(card);
       });
-    });
+    }
 
     function logout() {
-      signOut(auth).then(() => location.href = "index.html");
+      location.href = "index.html";
     }
   </script>
 </body>
