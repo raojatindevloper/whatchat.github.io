@@ -581,6 +581,31 @@
       box-shadow: var(--shadow-md);
     }
 
+    /* Context menu for delete */
+    .context-menu {
+      position: fixed;
+      background: var(--card);
+      border-radius: var(--radius-sm);
+      box-shadow: var(--shadow-lg);
+      z-index: 1000;
+      display: none;
+      overflow: hidden;
+    }
+
+    .context-menu-item {
+      padding: 12px 16px;
+      cursor: pointer;
+      transition: var(--transition);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .context-menu-item:hover {
+      background: rgba(244,67,54,0.1);
+      color: var(--error);
+    }
+
     /* Animations */
     @keyframes fadeIn {
       from { opacity: 0; transform: translateY(10px); }
@@ -664,6 +689,10 @@
     <a href="#" id="closeMenu"><i class="fas fa-times"></i> Close Menu</a>
   </div>
 
+  <!-- Famous Users Section -->
+  <div class="section-title">Famous Users</div>
+  <div class="list" id="famousUsersList"></div>
+  
   <div class="section-title">Recent Chats</div>
   <div class="list" id="recentChatsList"></div>
   
@@ -685,6 +714,13 @@
       </h3>
       <input id="searchUser" type="text" placeholder="Enter username (e.g. piyush123)" />
       <div id="searchResult" style="margin-top:16px"></div>
+    </div>
+  </div>
+
+  <!-- Context Menu for Delete -->
+  <div class="context-menu" id="contextMenu">
+    <div class="context-menu-item" id="deleteChatOption">
+      <i class="fas fa-trash"></i> Delete Chat
     </div>
   </div>
 
@@ -738,7 +774,7 @@
       <ul class="feature-list">
         <li><i class="fas fa-check-circle"></i> Instant Help</li>
         <li><i class="fas fa-shield-alt"></i> Tight Security</li>
-        <li><i class="fas fa-badge-check"></i> Verified Badge</li>
+        <li><i class="fas fa-check-circle"></i> Verified Badge</li>
         <li><i class="fas fa-star"></i> Priority Support</li>
       </ul>
       
@@ -759,7 +795,7 @@
     import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
     import { 
       getFirestore, doc, getDoc, collection, query, where, onSnapshot, orderBy, 
-      updateDoc, setDoc, addDoc, getDocs, documentId, serverTimestamp 
+      updateDoc, setDoc, addDoc, getDocs, documentId, serverTimestamp, deleteDoc
     } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
     const firebaseConfig= { apiKey: "AIzaSyAJHqq9T9d5zbHoCumvNt9AK1L2fusa8Gk", authDomain: "wbapp-ff0f2.firebaseapp.com", projectId: "wbapp-ff0f2", storageBucket: "wbapp-ff0f2.firebasestorage.app", messagingSenderId: "580773775966", appId: "1:580773775966:web:d851d41c2091257a2d42cf" };
@@ -769,15 +805,20 @@
 
     const chatList = document.getElementById('chatList');
     const recentChatsList = document.getElementById('recentChatsList');
+    const famousUsersList = document.getElementById('famousUsersList');
     const menu = document.getElementById('menu');
     const menuBtn = document.getElementById('menuBtn');
     const searchSheet = document.getElementById('searchSheet');
     const profileModal = document.getElementById('profileModal');
     const verificationModal = document.getElementById('verificationModal');
+    const contextMenu = document.getElementById('contextMenu');
     let myUsername = '';
     let presenceInterval = null;
     let unsubscribeRecentChats = null;
     let unsubscribeChats = null;
+    let unsubscribeFamousUsers = null;
+    let longPressTimer = null;
+    let selectedChatUsername = null;
 
     // Theme management
     function toggleTheme(){ 
@@ -807,12 +848,12 @@
         '#1976d2', '#0288d1', '#0097a7', '#388e3c', '#689f38'
       ];
       
-      const initials = name
-        .split(' ')
-        .map(word => word.charAt(0))
-        .join('')
-        .toUpperCase()
-        .substring(0, 2);
+      const initials = (name || 'U')
+  .split(' ')
+  .map(word => word.charAt(0))
+  .join('')
+  .toUpperCase()
+  .substring(0, 2);
       
       const colorIndex = Math.abs(hashCode(name)) % colors.length;
       const bgColor = colors[colorIndex];
@@ -834,6 +875,39 @@
       if (username.length < 3 || username.length > 20) return false;
       return /^[a-zA-Z0-9_]+$/.test(username);
     }
+
+    // Context menu handling
+    function showContextMenu(e, username) {
+      e.preventDefault();
+      selectedChatUsername = username;
+      
+      contextMenu.style.display = 'block';
+      contextMenu.style.left = `${e.pageX}px`;
+      contextMenu.style.top = `${e.pageY}px`;
+    }
+
+    function hideContextMenu() {
+      contextMenu.style.display = 'none';
+      selectedChatUsername = null;
+    }
+
+    async function deleteRecentChat() {
+      if (!selectedChatUsername) return;
+      
+      if (confirm(`Delete chat with ${selectedChatUsername}?`)) {
+        try {
+          await deleteDoc(doc(db, 'Users', myUsername, 'recentChats', selectedChatUsername));
+          hideContextMenu();
+        } catch (error) {
+          console.error('Error deleting chat:', error);
+          alert('Failed to delete chat. Please try again.');
+        }
+      }
+    }
+
+    // Setup event listeners for context menu
+    document.addEventListener('click', hideContextMenu);
+    document.getElementById('deleteChatOption').addEventListener('click', deleteRecentChat);
 
     menuBtn.onclick = () => { 
       menu.classList.toggle('show');
@@ -924,6 +998,7 @@
     function cleanupListeners() {
       if (unsubscribeRecentChats) unsubscribeRecentChats();
       if (unsubscribeChats) unsubscribeChats();
+      if (unsubscribeFamousUsers) unsubscribeFamousUsers();
       if (presenceInterval) clearInterval(presenceInterval);
       
       // Update last seen before leaving
@@ -936,31 +1011,31 @@
     }
 
     // 🔥 Optimized: User data caching
-const userCache = {};
+    const userCache = {};
 
-async function loadUserDataForChatCard(username, chatData, isRecent = false) {
-  // Agar cache me pehle se hai → wahi return karo
-  if (userCache[username]) return userCache[username];
+    async function loadUserDataForChatCard(username, chatData, isRecent = false) {
+      // Agar cache me pehle se hai → wahi return karo
+      if (userCache[username]) return userCache[username];
 
-  try {
-    const userDoc = await getDoc(doc(db, 'Users', username));
-    if (userDoc.exists()) {
-      const userData = userDoc.data();
-      const data = {
-        name: userData.name || username,
-        verified: userData.verified || username === 'raojatin',
-        isOnline: ((Date.now() - new Date(userData.lastSeen || 0).getTime()) < 60000)
-      };
-      userCache[username] = data; // cache store
-      return data;
+      try {
+        const userDoc = await getDoc(doc(db, 'Users', username));
+        if (userDoc.exists()) {
+          const userData = userDoc.data();
+          const data = {
+            name: userData.name || username,
+            verified: userData.verified === true || username === 'raojatin',
+            isOnline: ((Date.now() - new Date(userData.lastSeen || 0).getTime()) < 60000)
+          };
+          userCache[username] = data; // cache store
+          return data;
+        }
+      } catch (error) {
+        console.error('Error loading user data:', error);
+      }
+
+      // Default fallback
+      return { name: username, verified: false, isOnline: false };
     }
-  } catch (error) {
-    console.error('Error loading user data:', error);
-  }
-
-  // Default fallback
-  return { name: username, verified: false, isOnline: false };
-}
 
     onAuthStateChanged(auth, async (user) => {
       if(!user){ 
@@ -1011,213 +1086,182 @@ async function loadUserDataForChatCard(username, chatData, isRecent = false) {
         console.error('Error loading profile data:', error);
       }
 
-      // Load recent chats
-      const recentChatsRef = collection(db, 'Users', myUsername, 'recentChats');
-      unsubscribeRecentChats = onSnapshot(recentChatsRef, async (snapshot) => {
-        recentChatsList.innerHTML = '';
+      // Load famous users
+      unsubscribeFamousUsers = onSnapshot(collection(db, 'FamousUsers'), async (snapshot) => {
+        famousUsersList.innerHTML = '';
         
-        const chatPromises = snapshot.docs.map(async (docSnap, index) => {
-          const chatData = docSnap.data();
-          const username = chatData.username;
+        if (snapshot.empty) {
+          famousUsersList.innerHTML = '<div style="padding: 16px; text-align: center; color: var(--text-muted);">No famous users yet</div>';
+          return;
+        }
+        
+        snapshot.docs.forEach(async (docSnap, index) => {
+          const userData = docSnap.data();
+          const username = docSnap.id;
           
-          if (!validateUsername(username)) return null;
+          if (!validateUsername(username)) return;
           
-          const userData = await loadUserDataForChatCard(username, chatData, true);
+          const userInfo = await loadUserDataForChatCard(username, userData);
           
-          const li = document.createElement('div'); 
-          li.className = 'chatCard';
-          li.style.animationDelay = `${index * 0.05}s`;
+          const chatCard = document.createElement('div');
+          chatCard.className = 'chatCard';
+          chatCard.style.animationDelay = `${index * 0.05}s`;
           
-          const avatar = document.createElement('div'); 
-          avatar.innerHTML = generateAvatar(userData.name);
-          const avatarDiv = avatar.firstChild;
-          
-          const left = document.createElement('div');
-          left.className = 'chatInfo';
-          
-          left.innerHTML = `
-            <div class="name">${userData.name} 
-              ${userData.verified ? '<span class="verified-badge"><i class="fas fa-check-circle"></i></span>' : ''}
+          chatCard.innerHTML = `
+            ${userData.avatar && userData.avatar !== '' ? 
+              `<div class="avatar ${userInfo.isOnline ? 'online' : 'offline'}"><img src="${userData.avatar}" alt="${userInfo.name}"></div>` : 
+              generateAvatar(userInfo.name)
+            }
+            <div class="chatInfo">
+              <div class="name">
+                ${userInfo.name}
+                ${userInfo.verified ? '<span class="verified-badge"><i class="fas fa-check-circle"></i></span>' : ''}
+              </div>
+              <div class="last">Famous User</div>
             </div>
-            <div class="last">${chatData.lastMessage || ''}</div>
           `;
           
-          // Add online indicator
-          avatarDiv.classList.add(userData.isOnline ? 'online' : 'offline');
+          chatCard.onclick = () => {
+            location.href = `chat.html?with=${username}`;
+          };
           
-          const right = document.createElement('div'); 
-          right.className = 'right';
-          right.innerHTML = `<div class="time">${new Date(chatData.timestamp?.toDate?.() || chatData.timestamp || Date.now()).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</div>`;
+          famousUsersList.appendChild(chatCard);
+        });
+      });
+
+      // Load recent chats
+      unsubscribeRecentChats = onSnapshot(
+        query(collection(db, 'Users', myUsername, 'recentChats'), orderBy('timestamp', 'desc')), 
+        async (snapshot) => {
+          recentChatsList.innerHTML = '';
           
-          // Add unread badge if there are unread messages
-          if (chatData.unreadCount > 0) {
-            right.innerHTML += `<div class="badge">${chatData.unreadCount}</div>`;
+          if (snapshot.empty) {
+            recentChatsList.innerHTML = '<div style="padding: 16px; text-align: center; color: var(--text-muted);">No recent chats</div>';
+            return;
           }
           
-          li.appendChild(avatarDiv);
-          li.appendChild(left);
-          li.appendChild(right);
-          
-          li.addEventListener('click', () => { 
-            // Mark as read when opening chat
-            updateDoc(doc(db, 'Users', myUsername, 'recentChats', username), {
-              unreadCount: 0
-            }).catch(console.error);
-            location.href = `chat.html?with=${encodeURIComponent(username)}`; 
+          snapshot.docs.forEach(async (docSnap, index) => {
+            const chatData = docSnap.data();
+            const username = docSnap.id;
+            
+            if (!validateUsername(username)) return;
+            
+            const userInfo = await loadUserDataForChatCard(username, chatData, true);
+            
+            const chatCard = document.createElement('div');
+            chatCard.className = 'chatCard';
+            chatCard.style.animationDelay = `${index * 0.05}s`;
+            
+            chatCard.innerHTML = `
+              ${chatData.avatar && chatData.avatar !== '' ? 
+                `<div class="avatar ${userInfo.isOnline ? 'online' : 'offline'}"><img src="${chatData.avatar}" alt="${userInfo.name}"></div>` : 
+                generateAvatar(userInfo.name)
+              }
+              <div class="chatInfo">
+                <div class="name">
+                  ${userInfo.name}
+                  ${userInfo.verified ? '<span class="verified-badge"><i class="fas fa-check-circle"></i></span>' : ''}
+                </div>
+                <div class="last">${chatData.lastMessage || 'No messages yet'}</div>
+              </div>
+              <div class="right">
+                <div class="time">${formatTime(chatData.timestamp)}</div>
+                ${chatData.unreadCount > 0 ? `<div class="badge">${chatData.unreadCount}</div>` : ''}
+              </div>
+            `;
+            
+            chatCard.onclick = () => {
+              location.href = `chat.html?with=${username}`;
+            };
+            
+            // Long press for delete
+            chatCard.addEventListener('contextmenu', (e) => {
+              showContextMenu(e, username);
+            });
+            
+            recentChatsList.appendChild(chatCard);
           });
-          
-          return li;
-        });
-        
-        snapshot.docs.forEach((docSnap, index) => {
-  const chatData = docSnap.data();
-  const username = chatData.username;
-  if (!validateUsername(username)) return;
-
-  // ---- Placeholder card banado ----
-  const li = document.createElement('div'); 
-  li.className = 'chatCard';
-  li.style.animationDelay = `${index * 0.05}s`;
-
-  li.innerHTML = `
-    <div class="avatar">?</div>
-    <div class="chatInfo">
-      <div class="name">${username}</div>
-      <div class="last">${chatData.lastMessage || ''}</div>
-    </div>
-    <div class="right">
-      <div class="time">${new Date(chatData.timestamp?.toDate?.() || Date.now()).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</div>
-      ${chatData.unreadCount > 0 ? `<div class="badge">${chatData.unreadCount}</div>` : ''}
-    </div>
-  `;
-
-  li.addEventListener('click', () => { 
-    updateDoc(doc(db, 'Users', myUsername, 'recentChats', username), {
-      unreadCount: 0
-    }).catch(console.error);
-    location.href = `chat.html?with=${encodeURIComponent(username)}`; 
-  });
-
-  recentChatsList.appendChild(li);
-
-  // ---- Async update with user details ----
-  loadUserDataForChatCard(username, chatData, true).then(userData => {
-    li.querySelector('.name').innerHTML = `
-      ${userData.name}
-      ${userData.verified ? '<span class="verified-badge"><i class="fas fa-check-circle"></i></span>' : ''}
-    `;
-    li.querySelector('.avatar').outerHTML = generateAvatar(userData.name);
-    li.querySelector('.avatar')?.classList.add(userData.isOnline ? 'online' : 'offline');
-  });
-});
-      });
-
-      // presence heartbeat
-      presenceInterval = setInterval(async() => {
-        try {
-          await updateDoc(doc(db,'Users', myUsername), { 
-            online: true, 
-            lastSeen: serverTimestamp() 
-          });
-        } catch (error) {
-          console.error('Error updating presence:', error);
         }
-      }, 30000);
-      
-      window.addEventListener('beforeunload', cleanupListeners);
+      );
 
-      // watch chats for me
-      const chatsQ = query(collection(db,'Chats'), where('users','array-contains', myUsername), orderBy('lastMessageTime','desc'));
-      unsubscribeChats = onSnapshot(chatsQ, async (snapshot) => {
-        chatList.innerHTML='';
-        
-        const chatPromises = snapshot.docs.map(async (docSnap, index) => {
-          const c = docSnap.data();
-          const other = c.users.find(u => u !== myUsername);
+      // Load all chats
+      unsubscribeChats = onSnapshot(
+        query(collection(db, 'Users', myUsername, 'chats'), orderBy('timestamp', 'desc')), 
+        async (snapshot) => {
+          chatList.innerHTML = '';
           
-          if (!validateUsername(other)) return null;
+          if (snapshot.empty) {
+            chatList.innerHTML = '<div style="padding: 16px; text-align: center; color: var(--text-muted);">No chats yet</div>';
+            return;
+          }
           
-          const userData = await loadUserDataForChatCard(other, c);
-          
-          const li = document.createElement('div'); 
-          li.className = 'chatCard';
-          li.style.animationDelay = `${index * 0.05}s`;
-          
-          const avatar = document.createElement('div'); 
-          avatar.innerHTML = generateAvatar(userData.name);
-          const avatarDiv = avatar.firstChild;
-          
-          const left = document.createElement('div');
-          left.className = 'chatInfo';
-          
-          left.innerHTML = `
-            <div class="name">${userData.name} 
-              ${userData.verified ? '<span class="verified-badge"><i class="fas fa-check-circle"></i></span>' : ''}
-            </div>
-            <div class="last">${c.lastMessage || ''}</div>
-          `;
-          
-          // Add online indicator
-          avatarDiv.classList.add(userData.isOnline ? 'online' : 'offline');
-          
-          const right = document.createElement('div'); 
-          right.className = 'right';
-          right.innerHTML = `<div class="time">${new Date(c.lastMessageTime?.toDate?.() || c.lastMessageTime || Date.now()).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</div>`;
-          
-          li.appendChild(avatarDiv);
-          li.appendChild(left);
-          li.appendChild(right);
-          
-          li.addEventListener('click', () => { 
-            location.href = `chat.html?with=${encodeURIComponent(other)}`; 
+          snapshot.docs.forEach(async (docSnap, index) => {
+            const chatData = docSnap.data();
+            const username = docSnap.id;
+            
+            if (!validateUsername(username)) return;
+            
+            const userInfo = await loadUserDataForChatCard(username, chatData);
+            
+            const chatCard = document.createElement('div');
+            chatCard.className = 'chatCard';
+            chatCard.style.animationDelay = `${index * 0.05}s`;
+            
+            chatCard.innerHTML = `
+              ${chatData.avatar && chatData.avatar !== '' ? 
+                `<div class="avatar ${userInfo.isOnline ? 'online' : 'offline'}"><img src="${chatData.avatar}" alt="${userInfo.name}"></div>` : 
+                generateAvatar(userInfo.name)
+              }
+              <div class="chatInfo">
+                <div class="name">
+                  ${userInfo.name}
+                  ${userInfo.verified ? '<span class="verified-badge"><i class="fas fa-check-circle"></i></span>' : ''}
+                </div>
+                <div class="last">${chatData.lastMessage || 'No messages yet'}</div>
+              </div>
+              <div class="right">
+                <div class="time">${formatTime(chatData.timestamp)}</div>
+                ${chatData.unreadCount > 0 ? `<div class="badge">${chatData.unreadCount}</div>` : ''}
+              </div>
+            `;
+            
+            chatCard.onclick = () => {
+              location.href = `chat.html?with=${username}`;
+            };
+            
+            chatList.appendChild(chatCard);
           });
-          
-          return li;
-        });
-        
-        snapshot.docs.forEach((docSnap, index) => {
-  const chatData = docSnap.data();
-  const username = chatData.username;
-  if (!validateUsername(username)) return;
+        }
+      );
 
-  // ---- Placeholder card banado ----
-  const li = document.createElement('div'); 
-  li.className = 'chatCard';
-  li.style.animationDelay = `${index * 0.05}s`;
-
-  li.innerHTML = `
-    <div class="avatar">?</div>
-    <div class="chatInfo">
-      <div class="name">${username}</div>
-      <div class="last">${chatData.lastMessage || ''}</div>
-    </div>
-    <div class="right">
-      <div class="time">${new Date(chatData.timestamp?.toDate?.() || Date.now()).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</div>
-      ${chatData.unreadCount > 0 ? `<div class="badge">${chatData.unreadCount}</div>` : ''}
-    </div>
-  `;
-
-  li.addEventListener('click', () => { 
-    updateDoc(doc(db, 'Users', myUsername, 'recentChats', username), {
-      unreadCount: 0
-    }).catch(console.error);
-    location.href = `chat.html?with=${encodeURIComponent(username)}`; 
-  });
-
-  recentChatsList.appendChild(li);
-
-  // ---- Async update with user details ----
-  loadUserDataForChatCard(username, chatData, true).then(userData => {
-    li.querySelector('.name').innerHTML = `
-      ${userData.name}
-      ${userData.verified ? '<span class="verified-badge"><i class="fas fa-check-circle"></i></span>' : ''}
-    `;
-    li.querySelector('.avatar').outerHTML = generateAvatar(userData.name);
-    li.querySelector('.avatar')?.classList.add(userData.isOnline ? 'online' : 'offline');
-  });
-});
+      // Update online status
+      await updateDoc(doc(db, 'Users', myUsername), { 
+        online: true, 
+        lastSeen: serverTimestamp() 
       });
+
+      // Set up periodic presence update
+      presenceInterval = setInterval(() => {
+        updateDoc(doc(db, 'Users', myUsername), { 
+          online: true, 
+          lastSeen: serverTimestamp() 
+        }).catch(console.error);
+      }, 30000);
     });
+
+    // Format time function
+    function formatTime(timestamp) {
+      if (!timestamp) return '';
+      
+      const date = timestamp.toDate();
+      const now = new Date();
+      const diff = now.getTime() - date.getTime();
+      
+      if (diff < 60000) return 'now';
+      if (diff < 3600000) return `${Math.floor(diff/60000)}m`;
+      if (diff < 86400000) return `${Math.floor(diff/3600000)}h`;
+      return `${Math.floor(diff/86400000)}d`;
+    }
 
     // Search functionality
     document.getElementById('fab').onclick = () => {
@@ -1225,59 +1269,81 @@ async function loadUserDataForChatCard(username, chatData, isRecent = false) {
       document.getElementById('searchUser').focus();
     };
 
-    searchSheet.addEventListener('click', (e) => {
+    document.getElementById('searchSheet').onclick = (e) => {
       if (e.target === searchSheet) {
         searchSheet.classList.remove('show');
       }
-    });
+    };
 
-    document.getElementById('searchUser').addEventListener('input', async (e) => {
-      const searchTerm = e.target.value.trim();
+    document.getElementById('searchUser').oninput = debounce(async (e) => {
+      const username = e.target.value.trim();
       const resultDiv = document.getElementById('searchResult');
       
-      if (!searchTerm) {
+      if (!username) {
         resultDiv.innerHTML = '';
         return;
       }
       
-      if (!validateUsername(searchTerm)) {
-        resultDiv.innerHTML = '<div style="padding: 16px; text-align: center; color: var(--text-muted);">Username must be 3-20 characters and contain only letters, numbers, and underscores</div>';
+      if (!validateUsername(username)) {
+        resultDiv.innerHTML = '<div style="padding: 16px; text-align: center; color: var(--text-muted);">Invalid username format</div>';
         return;
       }
       
       try {
-        const userDoc = await getDoc(doc(db, 'Users', searchTerm));
+        const userDoc = await getDoc(doc(db, 'Users', username));
         
-        if (userDoc.exists()) {
-          const userData = userDoc.data();
-          const isOnline = ((Date.now() - new Date(userData.lastSeen || 0).getTime()) < 60000);
-          
-          resultDiv.innerHTML = `
-            <div class="chatCard" style="cursor: pointer; margin-bottom: 16px;">
-              ${generateAvatar(userData.name || searchTerm)}
-              <div class="chatInfo">
-                <div class="name">${userData.name || searchTerm} 
-                  ${userData.verified ? '<span class="verified-badge"><i class="fas fa-check-circle"></i></span>' : ''}
-                </div>
-                <div class="last">${isOnline ? 'Online' : 'Offline'}</div>
-              </div>
-            </div>
-            <button id="startChatBtn" style="width: 100%; padding: 12px; background: var(--primary); color: white; border: none; border-radius: var(--radius-sm); font-weight: 600; cursor: pointer;">
-              Start Chat
-            </button>
-          `;
-          
-          document.getElementById('startChatBtn').onclick = () => {
-            location.href = `chat.html?with=${encodeURIComponent(searchTerm)}`;
-          };
-        } else {
+        if (!userDoc.exists()) {
           resultDiv.innerHTML = '<div style="padding: 16px; text-align: center; color: var(--text-muted);">User not found</div>';
+          return;
         }
+        
+        const userData = userDoc.data();
+        const name = userData.name || username;
+        const avatar = userData.avatar || '';
+        const verified = userData.verified || false;
+        
+        resultDiv.innerHTML = `
+          <div class="chatCard" style="animation-delay: 0s;">
+            ${avatar ? 
+              `<div class="avatar"><img src="${avatar}" alt="${name}"></div>` : 
+              generateAvatar(name)
+            }
+            <div class="chatInfo">
+              <div class="name">
+                ${name}
+                ${verified ? '<span class="verified-badge"><i class="fas fa-check-circle"></i></span>' : ''}
+              </div>
+              <div class="last">${userData.email || username}</div>
+            </div>
+            <button style="background: var(--primary); color: white; border: none; padding: 8px 16px; border-radius: 20px; cursor: pointer;" id="startChatBtn">
+              Chat
+            </button>
+          </div>
+        `;
+        
+        document.getElementById('startChatBtn').onclick = () => {
+          location.href = `chat.html?with=${username}`;
+        };
       } catch (error) {
         console.error('Error searching user:', error);
-        resultDiv.innerHTML = '<div style="padding: 16px; text-align: center; color: var(--error);">Error searching for user</div>';
+        resultDiv.innerHTML = '<div style="padding: 16px; text-align: center; color: var(--text-muted);">Error searching user</div>';
       }
-    });
+    }, 500);
+
+    function debounce(func, wait) {
+      let timeout;
+      return function executedFunction(...args) {
+        const later = () => {
+          clearTimeout(timeout);
+          func(...args);
+        };
+        clearTimeout(timeout);
+        timeout = setTimeout(later, wait);
+      };
+    }
+
+    // Cleanup on page unload
+    window.addEventListener('beforeunload', cleanupListeners);
   </script>
 </body>
 </html>

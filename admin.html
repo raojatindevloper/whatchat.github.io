@@ -1,625 +1,343 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Admin Panel - Chat X</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <!--
+    Rao's Chat X — ADMIN PANEL (Single-file, A→Z working)
+    - Fully mobile responsive (mobile-first tweaks)
+    - Access gate with code 3887
+    - Live users (Firestore: Users)
+    - Search + filters + bulk actions
+    - Per-user actions: Message, Verify/Unverify, Ban/Unban, Tick
+    - Messaging: in-app (Firestore Chats) + Telegram (via Bot API)
+    - Settings saved to localStorage
+    - Drop-in: replace firebaseConfig if needed
+    - Keep this file as a single deployable admin.html
+  -->
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Rao's Chat X — Admin</title>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <style>
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
-    
-    body {
-      font-family: 'Segoe UI', Roboto, Arial, sans-serif;
-      background: #f0f2f5;
-      color: #333;
-      line-height: 1.6;
-    }
-    
-    .container {
-      max-width: 1200px;
-      margin: 0 auto;
-      padding: 20px;
-    }
-    
-    header {
-      background: linear-gradient(135deg, #00897b, #005b4f);
-      color: white;
-      padding: 1rem;
-      border-radius: 10px;
-      margin-bottom: 20px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-    
-    .header-content {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      width: 100%;
-    }
-    
-    .admin-info {
-      display: flex;
-      align-items: center;
-      gap: 15px;
-    }
-    
-    .admin-avatar {
-      width: 50px;
-      height: 50px;
-      border-radius: 50%;
-      background: rgba(255,255,255,0.2);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 20px;
-    }
-    
-    .logout-btn {
-      background: rgba(255,255,255,0.2);
-      color: white;
-      border: none;
-      padding: 10px 15px;
-      border-radius: 6px;
-      cursor: pointer;
-      transition: all 0.3s;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-    
-    .logout-btn:hover {
-      background: rgba(255,255,255,0.3);
-    }
-    
-    .stats-cards {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-      gap: 20px;
-      margin-bottom: 20px;
-    }
-    
-    .stat-card {
-      background: white;
-      padding: 20px;
-      border-radius: 10px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-      text-align: center;
-    }
-    
-    .stat-number {
-      font-size: 2rem;
-      font-weight: 700;
-      color: #00897b;
-      margin: 10px 0;
-    }
-    
-    .stat-label {
-      color: #666;
-      font-size: 0.9rem;
-    }
-    
-    .search-bar {
-      background: white;
-      padding: 15px;
-      border-radius: 10px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-      margin-bottom: 20px;
-      display: flex;
-      gap: 15px;
-    }
-    
-    .search-bar input {
-      flex: 1;
-      padding: 12px 15px;
-      border: 1px solid #ddd;
-      border-radius: 6px;
-      font-size: 16px;
-    }
-    
-    .search-bar button {
-      background: #00897b;
-      color: white;
-      border: none;
-      padding: 12px 20px;
-      border-radius: 6px;
-      cursor: pointer;
-    }
-    
-    .user-list {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-      gap: 20px;
-    }
-    
-    .user-card {
-      background: white;
-      border-radius: 10px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-      overflow: hidden;
-      transition: transform 0.3s;
-    }
-    
-    .user-card:hover {
-      transform: translateY(-5px);
-      box-shadow: 0 6px 12px rgba(0,0,0,0.15);
-    }
-    
-    .user-header {
-      background: linear-gradient(135deg, #00897b, #005b4f);
-      color: white;
-      padding: 15px;
-      display: flex;
-      align-items: center;
-      gap: 15px;
-    }
-    
-    .user-avatar {
-      width: 50px;
-      height: 50px;
-      border-radius: 50%;
-      background: rgba(255,255,255,0.2);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-weight: bold;
-      font-size: 18px;
-    }
-    
-    .user-info {
-      flex: 1;
-    }
-    
-    .user-name {
-      font-weight: 600;
-      margin-bottom: 5px;
-      display: flex;
-      align-items: center;
-      gap: 5px;
-    }
-    
-    .verified-badge {
-      color: #1DA1F2;
-      font-size: 14px;
-    }
-    
-    .user-details {
-      padding: 15px;
-    }
-    
-    .user-detail {
-      display: flex;
-      justify-content: space-between;
-      margin-bottom: 10px;
-      padding-bottom: 10px;
-      border-bottom: 1px solid #eee;
-    }
-    
-    .user-detail:last-child {
-      border-bottom: none;
-      margin-bottom: 0;
-      padding-bottom: 0;
-    }
-    
-    .user-actions {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 10px;
-      padding: 15px;
-      border-top: 1px solid #eee;
-    }
-    
-    .action-btn {
-      padding: 8px 12px;
-      border: none;
-      border-radius: 6px;
-      cursor: pointer;
-      font-size: 0.9rem;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 5px;
-      transition: all 0.3s;
-    }
-    
-    .verify-btn {
-      background: #03a9f4;
-      color: white;
-    }
-    
-    .ban-btn {
-      background: #f44336;
-      color: white;
-    }
-    
-    .message-btn {
-      background: #4caf50;
-      color: white;
-    }
-    
-    .view-btn {
-      background: #9e9e9e;
-      color: white;
-    }
-    
-    .action-btn:hover {
-      opacity: 0.9;
-    }
-    
-    /* Modal Styles */
-    .modal {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(0,0,0,0.7);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      z-index: 1000;
-      opacity: 0;
-      visibility: hidden;
-      transition: all 0.3s;
-    }
-    
-    .modal.show {
-      opacity: 1;
-      visibility: visible;
-    }
-    
-    .modal-content {
-      background: white;
-      border-radius: 10px;
-      width: 90%;
-      max-width: 500px;
-      box-shadow: 0 10px 25px rgba(0,0,0,0.2);
-      transform: translateY(-20px);
-      transition: transform 0.3s;
-    }
-    
-    .modal.show .modal-content {
-      transform: translateY(0);
-    }
-    
-    .modal-header {
-      padding: 15px 20px;
-      border-bottom: 1px solid #eee;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-    
-    .modal-header h2 {
-      color: #00897b;
-    }
-    
-    .close-modal {
-      background: none;
-      border: none;
-      font-size: 1.5rem;
-      cursor: pointer;
-      color: #999;
-    }
-    
-    .modal-body {
-      padding: 20px;
-    }
-    
-    .form-group {
-      margin-bottom: 15px;
-    }
-    
-    .form-group label {
-      display: block;
-      margin-bottom: 5px;
-      font-weight: 500;
-    }
-    
-    .form-group input,
-    .form-group textarea {
-      width: 100%;
-      padding: 12px 15px;
-      border: 1px solid #ddd;
-      border-radius: 6px;
-      font-size: 16px;
-    }
-    
-    .form-group textarea {
-      min-height: 100px;
-      resize: vertical;
-    }
-    
-    .modal-footer {
-      padding: 15px 20px;
-      border-top: 1px solid #eee;
-      display: flex;
-      justify-content: flex-end;
-      gap: 10px;
-    }
-    
-    .modal-btn {
-      padding: 10px 20px;
-      border: none;
-      border-radius: 6px;
-      cursor: pointer;
-      font-size: 1rem;
-    }
-    
-    .cancel-btn {
-      background: #f5f5f5;
-      color: #333;
-    }
-    
-    .send-btn {
-      background: #00897b;
-      color: white;
-    }
-    
-    /* Secret code modal */
-    .secret-modal {
-      position: fixed;
-      inset: 0;
-      background: rgba(0,0,0,0.8);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      z-index: 9999;
-    }
-    
-    .secret-content {
-      background: white;
-      padding: 30px;
-      border-radius: 10px;
-      text-align: center;
-      max-width: 400px;
-      width: 90%;
-      box-shadow: 0 10px 25px rgba(0,0,0,0.3);
-    }
-    
-    .secret-content h2 {
-      margin-bottom: 20px;
-      color: #00897b;
-    }
-    
-    .secret-content input {
-      width: 100%;
-      padding: 15px;
-      margin: 15px 0;
-      border-radius: 6px;
-      border: 2px solid #ddd;
-      font-size: 18px;
-      text-align: center;
-      letter-spacing: 3px;
-    }
-    
-    .secret-content button {
-      background: #00897b;
-      color: white;
-      border: none;
-      padding: 12px 25px;
-      border-radius: 6px;
-      cursor: pointer;
-      font-size: 16px;
-      font-weight: 600;
-    }
-    
-    /* Bot message styles */
-    .bot-message-modal .modal-body {
-      padding: 0;
-    }
-    
-    .bot-preview {
-      background: #f9f9f9;
-      padding: 20px;
-      border-radius: 8px;
-      margin-bottom: 20px;
-    }
-    
-    .bot-message {
-      background: white;
-      border-radius: 18px;
-      padding: 12px 16px;
-      max-width: 80%;
-      width: fit-content;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-      margin-bottom: 15px;
-      position: relative;
-    }
-    
-    .bot-header {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      margin-bottom: 8px;
-    }
-    
-    .bot-avatar {
-      width: 30px;
-      height: 30px;
-      border-radius: 50%;
-      background: #00897b;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: white;
-    }
-    
-    .bot-name {
-      font-weight: 600;
-      color: #00897b;
-    }
-    
-    .quick-replies {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-      margin-top: 15px;
-    }
-    
-    .quick-reply {
-      background: #f0f2f5;
-      padding: 8px 12px;
-      border-radius: 18px;
-      font-size: 14px;
-      cursor: pointer;
-      transition: all 0.2s;
-    }
-    
-    .quick-reply:hover {
-      background: #e4e6e9;
-    }
-    
-    /* Responsive design */
-    @media (max-width: 768px) {
-      .user-list {
-        grid-template-columns: 1fr;
-      }
-      
-      .stats-cards {
-        grid-template-columns: 1fr;
-      }
-      
-      .search-bar {
-        flex-direction: column;
-      }
-    }
+    :root{
+      --bg:#0b1020; --bg-2:#0f1530; --card:#0f1b3d;
+      --text:#e9ecf7; --muted:#a7b3d1; --border:rgba(255,255,255,.08);
+      --primary:#6a8dff; --primary2:#7af0ff;
+      --success:#33d69f; --danger:#ff5e6b; --warn:#ffc861;
+      --glass:rgba(255,255,255,.06); --glass2:rgba(255,255,255,.09);
+      --shadow:0 12px 40px rgba(0,0,0,.45);
+      --r:14px; --r-lg:20px;
+      --grad:radial-gradient(90% 120% at 0% 0%, rgba(106,141,255,.18), transparent 60%),
+              radial-gradient(85% 100% at 100% 0%, rgba(122,240,255,.12), transparent 60%),
+              radial-gradient(110% 110% at 50% 120%, rgba(106,141,255,.08), transparent 60%);
+    }
+
+    /* Reset + base */
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0; background:var(--bg); color:var(--text);
+      background-image:var(--grad); font-family:Inter,system-ui,Segoe UI,Roboto,Arial;
+      -webkit-font-smoothing:antialiased; -moz-osx-font-smoothing:grayscale;
+      -webkit-touch-callout:none; -webkit-user-select:none;
+    }
+    a{text-decoration:none;color:inherit}
+    button{font-family:inherit}
+
+    /* APP BAR */
+    .appbar{
+      position:sticky; top:0; z-index:60;
+      background:linear-gradient(180deg, rgba(15,21,48,.92), rgba(15,21,48,.65));
+      border-bottom:1px solid var(--border); backdrop-filter:blur(8px);
+    }
+    .appbar-inner{
+      max-width:1200px; margin:auto; display:flex; align-items:center; gap:12px; padding:12px 16px; flex-wrap:wrap;
+    }
+    .logo{
+      display:flex; align-items:center; gap:12px; font-weight:800; font-size:15px;
+    }
+    .logo-badge{
+      width:40px;height:40px;border-radius:12px;display:grid;place-items:center;
+      background:conic-gradient(from 220deg, var(--primary), var(--primary2), #8a7aff, var(--primary));
+      box-shadow:0 6px 18px rgba(122,240,255,.18), inset 0 1px 0 rgba(255,255,255,.18)
+    }
+
+    .app-controls{display:flex; align-items:center; gap:10px; margin-left:auto; flex-wrap:wrap;}
+    .mobile-toggle{
+      display:inline-flex; align-items:center; gap:8px; padding:8px 10px; border-radius:10px; border:1px solid var(--border);
+      background:rgba(255,255,255,.02); cursor:pointer;
+    }
+
+    .search{
+      display:flex; align-items:center; gap:10px; background:var(--glass); border:1px solid var(--border);
+      border-radius:999px; padding:8px 12px; transition:.18s; min-width:180px; flex:1 1 auto;
+    }
+    .search:focus-within{box-shadow:0 0 0 6px rgba(122,240,255,.06)}
+    .search i{opacity:.9}
+    .search input{flex:1; background:transparent; border:0; outline:none; color:var(--text); font-size:14px}
+    .kbd{font-size:12px; padding:6px 8px; border:1px solid var(--border); border-radius:8px; opacity:.9}
+
+    .toolbar{display:flex; align-items:center; gap:8px; flex-wrap:wrap}
+
+    .btn{
+      display:inline-flex; align-items:center; gap:8px; cursor:pointer; user-select:none;
+      padding:8px 12px; border-radius:10px; border:1px solid var(--border);
+      background:linear-gradient(180deg, var(--glass2), rgba(255,255,255,.02)); color:var(--text); transition:.15s; font-size:14px;
+    }
+    .btn:hover{transform:translateY(-2px)}
+    .btn-pri{background:linear-gradient(180deg, rgba(106,141,255,.32), rgba(122,240,255,.12)); border-color:rgba(122,240,255,.28)}
+    .btn-danger{background:linear-gradient(180deg, rgba(255,94,107,.28), rgba(255,255,255,.02)); border-color:rgba(255,94,107,.32)}
+    .pill{padding:6px 10px; border-radius:999px; border:1px solid var(--border); background:rgba(255,255,255,.03); font-size:13px}
+
+    /* LAYOUT */
+    .container{max-width:1200px; margin:18px auto; padding:0 14px}
+    .wrap{display:grid; grid-template-columns:320px 1fr; gap:16px; align-items:start}
+    @media (max-width:1000px){ .wrap{grid-template-columns:1fr} }
+
+    /* SIDEBAR */
+    .side{
+      background:var(--glass); border:1px solid var(--border); border-radius:var(--r); padding:14px; box-shadow:var(--shadow);
+      position:sticky; top:74px; height:fit-content;
+    }
+    @media (max-width:1000px){
+      .side{position:relative; top:auto; order:2}
+      .side.hidden-mobile{display:none}
+    }
+    .sidetitle{font-size:12px; opacity:.85; margin:6px 0 8px}
+    .toggle{
+      display:flex; align-items:center; justify-content:space-between; padding:8px 10px; background:rgba(255,255,255,.03);
+      border:1px solid var(--border); border-radius:12px; margin-bottom:8px; font-size:13px;
+    }
+    .toggle input{appearance:none; width:40px; height:22px; background:#2a3356; border-radius:999px; position:relative; outline:none; cursor:pointer; transition:.2s}
+    .toggle input:checked{background:linear-gradient(90deg, var(--primary), var(--primary2))}
+    .toggle input::after{content:""; position:absolute; top:3px; left:4px; width:16px; height:16px; background:#fff; border-radius:999px; transition:.18s}
+    .toggle input:checked::after{transform:translateX(18px)}
+
+    .actions{display:flex; align-items:center; gap:8px; flex-wrap:wrap}
+    .stat{display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:8px}
+    @media (max-width:500px){ .stat{grid-template-columns:1fr} }
+    .stat .card{background:linear-gradient(180deg, rgba(106,141,255,.12), rgba(122,240,255,.06)); border:1px solid rgba(122,240,255,.22); border-radius:12px; padding:10px}
+    .stat .card h4{margin:0 0 6px; font-size:12px; opacity:.85}
+    .stat .card .num{font-size:20px; font-weight:800}
+
+    /* MAIN PANEL */
+    .panel{display:flex; flex-direction:column; gap:14px}
+    .cards{background:var(--glass); border:1px solid var(--border); border-radius:var(--r); padding:12px; box-shadow:var(--shadow)}
+    .cards-h{display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap; margin-bottom:10px}
+    .cards-title{font-weight:800; letter-spacing:.3px}
+
+    .grid{display:grid; grid-template-columns:repeat(3,1fr); gap:12px}
+    @media (max-width:1100px){ .grid{grid-template-columns:repeat(2,1fr)} }
+    @media (max-width:680px){ .grid{grid-template-columns:1fr} }
+
+    /* USER CARD */
+    .user{
+      position:relative; overflow:hidden; border:1px solid var(--border); border-radius:12px;
+      padding:12px; background:linear-gradient(180deg, rgba(255,255,255,.03), rgba(255,255,255,.012));
+      display:flex; gap:12px; align-items:flex-start; transition:.18s; flex-wrap:wrap;
+    }
+    .user:hover{transform:translateY(-4px)}
+    .av{width:52px;height:52px;border-radius:12px;display:grid;place-items:center;font-weight:800;background:linear-gradient(135deg,#26335f,#33417a); border:1px solid var(--border); font-size:15px}
+    .meta{flex:1; min-width:0}
+    .name{display:flex; align-items:center; gap:8px; font-weight:700; flex-wrap:wrap}
+    .badge{font-size:11px; padding:4px 8px; border-radius:999px; border:1px solid var(--border); opacity:.95}
+    .dot{width:8px;height:8px;border-radius:999px; display:inline-block; margin-right:6px}
+    .online{background:var(--success)} .offline{background:#586189}
+    .muted{color:var(--muted); font-size:13px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
+    .user .btn{padding:8px 10px; font-size:13px}
+
+    /* Checkbox in top-right */
+    .user .sel{
+      position:absolute; top:10px; right:10px; width:18px; height:18px;
+    }
+
+    /* MODALS */
+    .modal{position:fixed; inset:0; display:none; align-items:center; justify-content:center; padding:16px; background:rgba(8,10,22,.65); backdrop-filter: blur(8px); z-index:120}
+    .modal.show{display:flex}
+    .sheet{width:min(620px,96vw); border-radius:14px; border:1px solid var(--border); background:linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.03)); box-shadow:var(--shadow)}
+    .sheet .hd{display:flex; align-items:center; justify-content:space-between; gap:10px; padding:14px 16px 0}
+    .sheet .bd{padding:14px}
+    .field{display:flex; flex-direction:column; gap:8px; margin-bottom:12px}
+    .label{font-size:13px; opacity:.85}
+    .input, textarea.input{width:100%; padding:10px 12px; border-radius:10px; border:1px solid var(--border); background:rgba(255,255,255,.03); color:var(--text); outline:none; font-size:14px}
+    textarea.input{resize:vertical; min-height:110px}
+
+    /* TOASTS */
+    .toast{position:fixed; right:12px; bottom:12px; display:grid; gap:8px; z-index:150}
+    .toast .t{padding:10px 12px; border-radius:10px; border:1px solid var(--border); background:linear-gradient(180deg, rgba(122,240,255,.08), rgba(106,141,255,.08)); box-shadow:var(--shadow)}
+
+    /* Small screens: modals full-screen sheet */
+    @media (max-width:480px){
+      .sheet{width:100%; height:100%; border-radius:12px 12px 0 0; display:flex; flex-direction:column}
+      .sheet .bd{overflow:auto; flex:1}
+      .search{padding:10px}
+      .logo span{display:none}
+      .logo-badge{width:38px;height:38px}
+      .appbar-inner{padding:10px}
+      .user{padding:10px}
+      .av{width:48px;height:48px}
+      .btn{padding:8px 10px; font-size:13px}
+    }
+
+    /* Utilities */
+    .muted-quiet{color:var(--muted); font-size:13px}
+    .hidden{display:none}
+    .center{display:grid; place-items:center}
   </style>
 </head>
 <body>
-  <!-- Secret Code Modal -->
-  <div class="secret-modal" id="secretModal">
-    <div class="secret-content">
-      <h2><i class="fas fa-lock"></i> Admin Authentication</h2>
-      <p>Enter security code to access admin panel</p>
-      <input type="password" id="secretInput" placeholder="Enter Code" maxlength="4" />
-      <button onclick="checkCode()">Submit</button>
-    </div>
-  </div>
-
-  <div class="container" id="adminPanel" style="display: none;">
-    <header>
-      <div class="header-content">
-        <div class="admin-info">
-          <div class="admin-avatar">
-            <i class="fas fa-user-shield"></i>
-          </div>
-          <div>
-            <h1>Chat X Admin Panel</h1>
-            <p>Manage users and send official messages</p>
-          </div>
+  <!-- App Bar -->
+  <header class="appbar">
+    <div class="appbar-inner">
+      <div style="display:flex; align-items:center; gap:12px;">
+        <div class="logo">
+          <div class="logo-badge"><i class="fa-solid fa-shield"></i></div>
+          <span>Rao's Chat X — Admin</span>
         </div>
-        <button class="logout-btn" onclick="logout()">
-          <i class="fas fa-sign-out-alt"></i> Logout
+        <!-- Mobile filter toggle -->
+        <button class="mobile-toggle" id="mobileFilterToggle" title="Toggle Filters (mobile)">
+          <i class="fa-solid fa-sliders"></i>
+          <span class="muted-quiet" style="font-size:13px">Filters</span>
         </button>
       </div>
-    </header>
 
-    <div class="stats-cards">
-      <div class="stat-card">
-        <div class="stat-label">Total Users</div>
-        <div class="stat-number" id="totalUsers">0</div>
-        <div class="stat-label">Registered</div>
+      <div class="search" id="searchBar" style="margin-left:12px;">
+        <i class="fa-solid fa-magnifying-glass"></i>
+        <input id="searchInput" placeholder="Search by username, name, email..." />
+        <div class="kbd">/</div>
       </div>
-      <div class="stat-card">
-        <div class="stat-label">Verified Users</div>
-        <div class="stat-number" id="verifiedUsers">0</div>
-        <div class="stat-label">Blue Tick</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-label">Online Now</div>
-        <div class="stat-number" id="onlineUsers">0</div>
-        <div class="stat-label">Active</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-label">Messages Sent</div>
-        <div class="stat-number" id="totalMessages">0</div>
-        <div class="stat-label">Today</div>
-      </div>
-    </div>
 
-    <div class="search-bar">
-      <input type="text" id="searchInput" placeholder="Search users by name, username or email" />
-      <button onclick="searchUsers()"><i class="fas fa-search"></i> Search</button>
-    </div>
-
-    <div class="user-list" id="userList">
-      <!-- Users will be loaded here -->
-    </div>
-  </div>
-
-  <!-- Verification Modal -->
-  <div class="modal" id="verificationModal">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h2>Verification Status</h2>
-        <button class="close-modal" onclick="closeModal('verificationModal')">&times;</button>
-      </div>
-      <div class="modal-body">
-        <p>Update verification status for <strong id="verifyUserName">username</strong></p>
-        <div class="form-group">
-          <label>Verification Status</label>
-          <select id="verificationStatus" class="form-control">
-            <option value="verified">Verified (Blue Tick)</option>
-            <option value="unverified">Unverified</option>
-          </select>
+      <div class="app-controls" style="margin-left:auto;">
+        <div class="toolbar">
+          <button class="btn" id="refreshBtn"><i class="fa-solid fa-rotate"></i> <span class="hidden-mobile">Refresh</span></button>
+          <button class="btn btn-pri" id="openSettings"><i class="fa-solid fa-gear"></i> <span class="hidden-mobile">Settings</span></button>
         </div>
       </div>
-      <div class="modal-footer">
-        <button class="modal-btn cancel-btn" onclick="closeModal('verificationModal')">Cancel</button>
-        <button class="modal-btn send-btn" onclick="updateVerification()">Update</button>
-      </div>
     </div>
-  </div>
+  </header>
 
-  <!-- Bot Message Modal -->
-  <div class="modal bot-message-modal" id="botMessageModal">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h2>Send Bot Message</h2>
-        <button class="close-modal" onclick="closeModal('botMessageModal')">&times;</button>
-      </div>
-      <div class="modal-body">
-        <div class="bot-preview">
-          <div class="bot-message">
-            <div class="bot-header">
-              <div class="bot-avatar">🤖</div>
-              <div class="bot-name">Chat X Bot</div>
-            </div>
-            <div id="messagePreview">Your message will appear here...</div>
-            <div class="quick-replies">
-              <div class="quick-reply">Okay</div>
-              <div class="quick-reply">Thanks</div>
-              <div class="quick-reply">Yeah!</div>
+  <main class="container">
+    <div class="wrap">
+      <!-- Sidebar -->
+      <aside class="side" id="sidebar">
+        <div class="sidetitle">Filters</div>
+        <div class="toggle"><span>Show only verified</span> <input type="checkbox" id="fltVerified"></div>
+        <div class="toggle"><span>Show only online</span> <input type="checkbox" id="fltOnline"></div>
+        <div class="toggle"><span>Show banned</span> <input type="checkbox" id="fltBanned"></div>
+
+        <div class="sidetitle" style="margin-top:8px">Quick Actions</div>
+        <div class="actions" style="margin-bottom:8px">
+          <button class="btn" id="bulkVerify"><i class="fa-solid fa-badge-check"></i> Verify</button>
+          <button class="btn" id="bulkUnverify"><i class="fa-regular fa-circle-xmark"></i> Unverify</button>
+        </div>
+        <div class="actions" style="margin-bottom:8px">
+          <button class="btn btn-danger" id="bulkBan"><i class="fa-solid fa-user-slash"></i> Ban</button>
+          <button class="btn" id="bulkUnban"><i class="fa-solid fa-user-check"></i> Unban</button>
+        </div>
+
+        <div class="sidetitle" style="margin-top:12px">Stats (live)</div>
+        <div class="stat">
+          <div class="card"><h4>Total Users</h4><div class="num" id="statTotal">—</div></div>
+          <div class="card"><h4>Online</h4><div class="num" id="statOnline">—</div></div>
+          <div class="card"><h4>Verified</h4><div class="num" id="statVerified">—</div></div>
+          <div class="card"><h4>Banned</h4><div class="num" id="statBanned">—</div></div>
+        </div>
+      </aside>
+
+      <!-- Main Panel -->
+      <section class="panel">
+        <div class="cards">
+          <div class="cards-h">
+            <div class="cards-title">Users</div>
+            <div class="actions" style="align-items:center;">
+              <span class="pill" id="selCount">0 selected</span>
+              <button class="btn" id="clearSel"><i class="fa-solid fa-xmark"></i> Clear</button>
             </div>
           </div>
+
+          <div class="grid" id="usersGrid" aria-live="polite"></div>
         </div>
-        <div style="padding: 0 20px 20px;">
-          <div class="form-group">
-            <label for="botMessage">Message Content</label>
-            <textarea id="botMessage" placeholder="Type your official message here..."></textarea>
-          </div>
-        </div>
+      </section>
+    </div>
+  </main>
+
+  <!-- Access Modal -->
+  <div class="modal" id="accessModal" role="dialog" aria-modal="true" aria-labelledby="accessTitle">
+    <div class="sheet" role="document">
+      <div class="hd">
+        <h3 id="accessTitle" style="margin:0;padding:12px 16px 0">Admin Access</h3>
+        <button class="btn" id="closeAccess" title="Show access modal (can't close without code)"><i class="fa-solid fa-xmark"></i></button>
       </div>
-      <div class="modal-footer">
-        <button class="modal-btn cancel-btn" onclick="closeModal('botMessageModal')">Cancel</button>
-        <button class="modal-btn send-btn" onclick="sendBotMessage()">Send Message</button>
+      <div class="bd">
+        <div class="field">
+          <div class="label">Enter access code (required)</div>
+          <input id="accessCode" class="input" type="password" placeholder="••••" />
+        </div>
+        <div class="actions">
+          <button class="btn btn-pri" id="unlockBtn"><i class="fa-solid fa-lock-open"></i> Unlock</button>
+        </div>
+        <div class="muted" style="margin-top:8px">Hint: Ask owner if you forgot the code.</div>
       </div>
     </div>
   </div>
 
+  <!-- Message Modal -->
+  <div class="modal" id="messageModal" role="dialog" aria-modal="true" aria-labelledby="msgTitle">
+    <div class="sheet">
+      <div class="hd">
+        <h3 id="msgTitle" style="margin:0;padding:12px 16px 0">Send Message</h3>
+        <button class="btn" id="closeMsg"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <div class="bd">
+        <div class="muted" id="msgTarget">To: —</div>
+        <div class="field"><div class="label">Message text</div><textarea id="msgText" rows="4" class="input" placeholder="Type your message..."></textarea></div>
+        <div class="actions" style="gap:12px; flex-wrap:wrap; margin-bottom:6px;">
+          <label class="toggle" style="flex:1; min-width:200px"><span>Send in-app (Chats)</span><input type="checkbox" id="optInapp" checked></label>
+          <label class="toggle" style="flex:1; min-width:200px"><span>Send via Telegram Bot</span><input type="checkbox" id="optTg"></label>
+        </div>
+        <div id="tgWarn" class="muted" style="display:none;margin:6px 2px 0">To use Telegram, set a Bot Token in Settings and ensure user has <code>telegramId</code> in Firestore.</div>
+        <div class="actions" style="margin-top:10px">
+          <button class="btn btn-pri" id="sendMsgBtn"><i class="fa-solid fa-paper-plane"></i> Send</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Settings Modal -->
+  <div class="modal" id="settingsModal" role="dialog" aria-modal="true" aria-labelledby="settingsTitle">
+    <div class="sheet">
+      <div class="hd">
+        <h3 id="settingsTitle" style="margin:0;padding:12px 16px 0">Admin Settings</h3>
+        <button class="btn" id="closeSettings"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <div class="bd">
+        <div class="field"><div class="label">Admin username (for in-app messages)</div><input id="adminUsername" class="input" placeholder="admin"></div>
+        <div class="field"><div class="label">Admin display name</div><input id="adminName" class="input" placeholder="Admin"></div>
+        <div class="actions" style="gap:10px; flex-wrap:wrap">
+          <div class="field" style="flex:1; min-width:240px"><div class="label">Telegram Bot Token</div><input id="botToken" class="input" placeholder="123456:ABC..." /></div>
+          <div class="field" style="flex:1; min-width:240px"><div class="label">Default Telegram chat_id (optional)</div><input id="botDefaultChat" class="input" placeholder="Numeric ID" /></div>
+        </div>
+        <div class="actions" style="margin-top:10px">
+          <button class="btn" id="saveSettings"><i class="fa-solid fa-floppy-disk"></i> Save</button>
+          <button class="btn btn-danger" id="resetSettings"><i class="fa-solid fa-eraser"></i> Reset</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toasts -->
+  <div class="toast" id="toast" aria-live="polite"></div>
+
+  <!-- Firebase + Logic -->
   <script type="module">
-    // Firebase imports
+    /* ========================= Firebase v10 (CDN) ========================= */
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-    import { getFirestore, collection, getDocs, doc, updateDoc, setDoc, query, where, orderBy } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+    import {
+      getFirestore, collection, query, orderBy, onSnapshot,
+      doc, getDoc, setDoc, updateDoc, serverTimestamp, addDoc, increment
+    } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-    // Firebase config
+    // ---- Your config (as provided) ----
     const firebaseConfig = {
       apiKey: "AIzaSyAJHqq9T9d5zbHoCumvNt9AK1L2fusa8Gk",
       authDomain: "wbapp-ff0f2.firebaseapp.com",
@@ -628,262 +346,307 @@
       messagingSenderId: "580773775966",
       appId: "1:580773775966:web:d851d41c2091257a2d42cf"
     };
-
     const app = initializeApp(firebaseConfig);
-    const db = getFirestore(app);
-    
-    let allUsers = [];
-    let currentUserId = '';
+    const db  = getFirestore(app);
 
-    // Secret Code Access
-    window.checkCode = function() {
-      const code = document.getElementById('secretInput').value.trim();
-      if(code === "3887") {
-        document.getElementById('secretModal').style.display = "none";
-        document.getElementById('adminPanel').style.display = "block";
-        loadUsers();
-      } else {
-        alert("Wrong code! Access denied.");
-        document.getElementById('secretInput').value = '';
-      }
-    }
+    /* ========================= Tiny Helpers ========================= */
+    const $ = s=>document.querySelector(s);
+    const $$ = s=>Array.from(document.querySelectorAll(s));
+    const toast = (msg)=>{
+      const t = document.createElement('div'); t.className='t'; t.textContent = msg;
+      $('#toast').appendChild(t); setTimeout(()=>t.remove(), 3200);
+    };
+    const initials = n => (n||'?').split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();
+    const tsToDate = ts => ts?.toDate?.() || (ts?.seconds ? new Date(ts.seconds*1000) : null);
+    const fmtLastSeen = ts => { const d = tsToDate(ts); return d ? d.toLocaleString() : '—'; };
 
-    // Load users from Firestore
-    async function loadUsers() {
-      try {
-        const querySnapshot = await getDocs(collection(db, "Users"));
-        allUsers = [];
-        
-        querySnapshot.forEach((doc) => {
-          const userData = doc.data();
-          allUsers.push({
-            id: doc.id,
-            ...userData
-          });
-        });
-        
-        displayUsers(allUsers);
-        updateStats(allUsers);
-      } catch (error) {
-        console.error("Error loading users:", error);
-        alert("Error loading users. Check console for details.");
-      }
+    /* ========================= Access Gate ========================= */
+    const ACCESS_KEY = 'rx_admin_unlocked';
+    const REQUIRED_CODE = '3887';
+    const accessModal = $('#accessModal');
+    const showAccess = ()=> accessModal.classList.add('show');
+    const hideAccess = ()=> accessModal.classList.remove('show');
+    if (sessionStorage.getItem(ACCESS_KEY)!=='1') showAccess();
+
+    $('#unlockBtn').onclick = ()=>{
+      const v = $('#accessCode').value.trim();
+      if(v===REQUIRED_CODE){
+        sessionStorage.setItem(ACCESS_KEY,'1');
+        hideAccess(); toast('Admin unlocked'); loadUsers();
+      } else { toast('Wrong code'); }
+    };
+    // Keep showing the access modal when clicking the close X (security)
+    $('#closeAccess').onclick = ()=> showAccess();
+
+    /* ========================= Settings (local) ========================= */
+    const settings = {
+      get adminUsername(){ return localStorage.getItem('rx_admin_username') || 'admin' },
+      set adminUsername(v){ localStorage.setItem('rx_admin_username', v||'admin') },
+      get adminName(){ return localStorage.getItem('rx_admin_name') || 'Admin' },
+      set adminName(v){ localStorage.setItem('rx_admin_name', v||'Admin') },
+      get botToken(){ return localStorage.getItem('rx_bot_token') || '' },
+      set botToken(v){ localStorage.setItem('rx_bot_token', v||'') },
+      get botDefaultChat(){ return localStorage.getItem('rx_bot_chat') || '' },
+      set botDefaultChat(v){ localStorage.setItem('rx_bot_chat', v||'') },
+    };
+    function applySettingsUI(){
+      $('#adminUsername').value = settings.adminUsername;
+      $('#adminName').value = settings.adminName;
+      $('#botToken').value = settings.botToken;
+      $('#botDefaultChat').value = settings.botDefaultChat;
     }
-    
-    // Display users in the UI
-    function displayUsers(users) {
-      const userList = document.getElementById('userList');
-      userList.innerHTML = '';
-      
-      if (users.length === 0) {
-        userList.innerHTML = '<div class="no-users">No users found</div>';
-        return;
-      }
-      
-      users.forEach(user => {
-        const userCard = document.createElement("div");
-        userCard.className = "user-card";
-        
-        // Get initials for avatar
-        const initials = user.name ? user.name.split(' ').map(n => n[0]).join('').toUpperCase() : user.id.substring(0, 2).toUpperCase();
-        
-        userCard.innerHTML = `
-          <div class="user-header">
-            <div class="user-avatar">${initials}</div>
-            <div class="user-info">
-              <div class="user-name">
-                ${user.name || user.id}
-                ${user.verified ? '<span class="verified-badge"><i class="fas fa-check-circle"></i></span>' : ''}
+    $('#openSettings').onclick = ()=>{ applySettingsUI(); $('#settingsModal').classList.add('show'); };
+    $('#closeSettings').onclick = ()=> $('#settingsModal').classList.remove('show');
+    $('#saveSettings').onclick = ()=>{
+      settings.adminUsername = $('#adminUsername').value;
+      settings.adminName     = $('#adminName').value;
+      settings.botToken      = $('#botToken').value;
+      settings.botDefaultChat= $('#botDefaultChat').value;
+      toast('Settings saved'); $('#settingsModal').classList.remove('show');
+    };
+    $('#resetSettings').onclick = ()=>{
+      ['rx_admin_username','rx_admin_name','rx_bot_token','rx_bot_chat'].forEach(k=>localStorage.removeItem(k));
+      applySettingsUI(); toast('Settings reset');
+    };
+
+    /* ========================= Users Live View ========================= */
+    const usersGrid = $('#usersGrid');
+    let usersCache = [];          // [{id, data}]
+    let selection  = new Set();   // usernames
+
+    function renderUsers(){
+      const qtxt = $('#searchInput').value.trim().toLowerCase();
+      const onlyV = $('#fltVerified').checked;
+      const onlyOn= $('#fltOnline').checked;
+      const showB = $('#fltBanned').checked;
+
+      usersGrid.innerHTML = '';
+      let online = 0;
+
+      usersCache
+        .filter(u=>{
+          const d = u.data||{};
+          const blob = (u.id+' '+(d.name||'')+' '+(d.email||'')).toLowerCase();
+          if(qtxt && !blob.includes(qtxt)) return false;
+          if(onlyV && !d.verified) return false;
+          if(onlyOn){
+            const last = tsToDate(d.lastSeen) || new Date(0);
+            const isOn = d.online || (Date.now() - last.getTime() < 60_000);
+            if(!isOn) return false;
+          }
+          if(!showB && d.banned) return false;
+          return true;
+        })
+        .forEach(u=>{
+          const d = u.data||{};
+          const last = tsToDate(d.lastSeen) || new Date(0);
+          const isOn = d.online || (Date.now() - last.getTime() < 60_000);
+          if(isOn) online++;
+
+          const card = document.createElement('div'); card.className = 'user';
+          card.innerHTML = `
+            <input type="checkbox" class="sel" ${selection.has(u.id)?'checked':''} title="Select user">
+            <div class="av" aria-hidden="true">${initials(d.name||u.id)}</div>
+            <div class="meta">
+              <div class="name">
+                <span>${d.name || u.id}</span>
+                ${d.verified?'<span class="badge" title="Verified"><i class="fa-solid fa-circle-check" style="color:var(--primary)"></i> Verified</span>':''}
+                ${d.banned?'<span class="badge" style="border-color:rgba(255,94,107,.35);color:#ff9aa3" title="Banned"><i class="fa-solid fa-ban"></i> Banned</span>':''}
               </div>
-              <div>@${user.id}</div>
-            </div>
-          </div>
-          <div class="user-details">
-            <div class="user-detail">
-              <span>Email:</span>
-              <span>${user.email || 'Not provided'}</span>
-            </div>
-            <div class="user-detail">
-              <span>Status:</span>
-              <span>${user.online ? '<span style="color:green">Online</span>' : '<span style="color:gray">Offline</span>'}</span>
-            </div>
-            <div class="user-detail">
-              <span>Last Seen:</span>
-              <span>${formatDate(user.lastSeen)}</span>
-            </div>
-          </div>
-          <div class="user-actions">
-            <button class="action-btn verify-btn" onclick="openVerificationModal('${user.id}')">
-              <i class="fas fa-badge-check"></i> ${user.verified ? 'Remove Tick' : 'Verify'}
-            </button>
-            <button class="action-btn message-btn" onclick="openBotMessageModal('${user.id}')">
-              <i class="fas fa-robot"></i> Send Message
-            </button>
-          </div>
-        `;
-        
-        userList.appendChild(userCard);
-      });
-    }
-    
-    // Update statistics
-    function updateStats(users) {
-      const totalUsers = users.length;
-      const verifiedUsers = users.filter(user => user.verified).length;
-      const onlineUsers = users.filter(user => user.online).length;
-      
-      document.getElementById('totalUsers').textContent = totalUsers;
-      document.getElementById('verifiedUsers').textContent = verifiedUsers;
-      document.getElementById('onlineUsers').textContent = onlineUsers;
-      document.getElementById('totalMessages').textContent = '0'; // You can implement message counting if needed
-    }
-    
-    // Format date for display
-    function formatDate(timestamp) {
-      if (!timestamp) return 'Never';
-      
-      const date = timestamp.toDate ? timestamp.toDate() : new Date(timestamp);
-      return date.toLocaleDateString() + ' ' + date.toLocaleTimeString();
-    }
-    
-    // Search users
-    window.searchUsers = function() {
-      const searchTerm = document.getElementById('searchInput').value.toLowerCase();
-      
-      if (!searchTerm) {
-        displayUsers(allUsers);
-        return;
-      }
-      
-      const filteredUsers = allUsers.filter(user => {
-        return (
-          (user.name && user.name.toLowerCase().includes(searchTerm)) ||
-          user.id.toLowerCase().includes(searchTerm) ||
-          (user.email && user.email.toLowerCase().includes(searchTerm))
-        );
-      });
-      
-      displayUsers(filteredUsers);
-    }
-    
-     // Open verification modal
-    window.openVerificationModal = function(userId) {
-      currentUserId = userId;
-      const user = allUsers.find(u => u.id === userId);
-      
-      if (user) {
-        document.getElementById('verifyUserName').textContent = user.name || user.id;
-        document.getElementById('verificationStatus').value = user.verified ? 'verified' : 'unverified';
-        openModal('verificationModal');
-      }
-    }
-    
-    // Update verification status
-    window.updateVerification = async function() {
-      const status = document.getElementById('verificationStatus').value;
-      const verified = status === 'verified';
-      
-      try {
-        await updateDoc(doc(db, "Users", currentUserId), { 
-          verified: verified 
+              <div class="muted" style="margin-top:6px;">
+                <span class="dot ${isOn?'online':'offline'}"></span>${isOn?'Online':'Last seen '+fmtLastSeen(d.lastSeen)}
+              </div>
+              <div class="muted" style="margin-top:6px">@${u.id} · ${d.email||'no-email'} ${d.telegramId?('· tg:'+d.telegramId):''}</div>
+              <div class="actions" style="margin-top:10px">
+                <button class="btn" data-act="msg"    data-id="${u.id}"><i class="fa-solid fa-paper-plane"></i> Message</button>
+                <button class="btn" data-act="verify" data-id="${u.id}"><i class="fa-solid fa-badge-check"></i> ${d.verified?'Unverify':'Verify'}</button>
+                <button class="btn ${d.banned?'':'btn-danger'}" data-act="ban" data-id="${u.id}"><i class="fa-solid fa-user-slash"></i> ${d.banned?'Unban':'Ban'}</button>
+                <button class="btn" data-act="tick"   data-id="${u.id}"><i class="fa-solid fa-circle-check"></i> ${d.verified?'Remove Blue Tick':'Give Blue Tick'}</button>
+              </div>
+            </div>`;
+          // Keep raw reference for easier event lookups
+          usersGrid.appendChild(card);
         });
-        
-        alert(`User ${currentUserId} has been ${verified ? 'verified' : 'unverified'} successfully!`);
-        closeModal('verificationModal');
-        loadUsers(); // Refresh the user list
-      } catch (error) {
-        console.error("Error updating verification status:", error);
-        alert("Error updating verification status. Check console for details.");
-      }
-    }
-    
-    // Open bot message modal
-    window.openBotMessageModal = function(userId) {
-      currentUserId = userId;
-      const user = allUsers.find(u => u.id === userId);
-      
-      if (user) {
-        document.getElementById('botMessage').value = '';
-        document.getElementById('messagePreview').textContent = 'Your message will appear here...';
-        openModal('botMessageModal');
-      }
-    }
-    
-    // Update message preview
-    document.getElementById('botMessage').addEventListener('input', function() {
-      document.getElementById('messagePreview').textContent = this.value || 'Your message will appear here...';
-    });
-    
-    // Send bot message
-    window.sendBotMessage = async function() {
-      const message = document.getElementById('botMessage').value.trim();
-      
-      if (!message) {
-        alert("Please enter a message to send.");
-        return;
-      }
-      
-      try {
-        // Create a message from the bot to the user
-        const chatId = ['chatxbot', currentUserId].sort().join('_');
-        
-        // First, ensure the chat exists
-        await setDoc(doc(db, 'Chats', chatId), {
-          users: ['chatxbot', currentUserId],
-          lastMessage: message,
-          lastMessageTime: new Date().toISOString(),
-          lastSender: 'chatxbot'
-        }, { merge: true });
-        
-        // Add the message to the chat
-        await addDoc(collection(db, 'Chats', chatId, 'Messages'), {
-          text: message,
-          sender: 'chatxbot',
-          timestamp: new Date().toISOString(),
-          isBotMessage: true
-        });
-        
-        // Update recent chats for the user
-        await setDoc(doc(db, 'Users', currentUserId, 'recentChats', 'chatxbot'), {
-          username: 'chatxbot',
-          lastMessage: message,
-          timestamp: new Date().toISOString(),
-          unreadCount: 1
-        });
-        
-        alert(`Message sent to ${currentUserId} successfully!`);
-        closeModal('botMessageModal');
-      } catch (error) {
-        console.error("Error sending bot message:", error);
-        alert("Error sending message. Check console for details.");
-      }
-    }
-    
-    // Modal control functions
-    function openModal(modalId) {
-      document.getElementById(modalId).classList.add('show');
-    }
-    
-    window.closeModal = function(modalId) {
-      document.getElementById(modalId).classList.remove('show');
-    }
-    
-    // Logout function
-    window.logout = function() {
-      if (confirm("Are you sure you want to logout?")) {
-        window.location.href = "index.html";
-      }
+
+      // Stats
+      $('#statTotal').textContent    = usersCache.length;
+      $('#statOnline').textContent   = online;
+      $('#statVerified').textContent = usersCache.filter(u=>u.data?.verified).length;
+      $('#statBanned').textContent   = usersCache.filter(u=>u.data?.banned).length;
+      $('#selCount').textContent     = `${selection.size} selected`;
     }
 
-    // Close modals when clicking outside
-    window.addEventListener('click', function(event) {
-      const modals = document.querySelectorAll('.modal');
-      modals.forEach(modal => {
-        if (event.target === modal) {
-          modal.classList.remove('show');
+    function loadUsers(){
+      // Real-time snapshot
+      const qUsers = query(collection(db,'Users'), orderBy('lastSeen','desc'));
+      onSnapshot(qUsers, snap=>{
+        usersCache = snap.docs.map(d=>({id:d.id, data:d.data()}));
+        renderUsers();
+      });
+    }
+
+    // Search & filters
+    $('#searchInput').addEventListener('input', renderUsers);
+    $('#fltVerified').onchange = renderUsers;
+    $('#fltOnline').onchange = renderUsers;
+    $('#fltBanned').onchange = renderUsers;
+    document.addEventListener('keydown',(e)=>{ if(e.key==='/' && document.activeElement.tagName!=='INPUT' && document.activeElement.tagName!=='TEXTAREA'){ e.preventDefault(); $('#searchInput').focus(); }});
+    $('#refreshBtn').onclick = ()=> renderUsers();
+
+    // Mobile sidebar toggle
+    $('#mobileFilterToggle').addEventListener('click', ()=>{
+      const sb = $('#sidebar');
+      sb.classList.toggle('hidden-mobile');
+      if(!sb.classList.contains('hidden-mobile')) sb.scrollIntoView({behavior:'smooth'});
+    });
+
+    // Selection handling
+    usersGrid.addEventListener('change', (e)=>{
+      if(!e.target.classList.contains('sel')) return;
+      const card = e.target.closest('.user');
+      // find data-id from one of action buttons inside card
+      const id = card.querySelector('[data-id]')?.getAttribute('data-id');
+      if(!id) return;
+      if(e.target.checked) selection.add(id); else selection.delete(id);
+      $('#selCount').textContent = `${selection.size} selected`;
+    });
+    $('#clearSel').onclick = ()=>{
+      selection.clear(); $$('.sel').forEach(cb=>cb.checked=false); $('#selCount').textContent='0 selected';
+    };
+
+    // Per-user actions
+    usersGrid.addEventListener('click', async (e)=>{
+      const btn = e.target.closest('button.btn'); if(!btn) return;
+      const id  = btn.getAttribute('data-id'); const act = btn.getAttribute('data-act');
+      const u   = usersCache.find(x=>x.id===id); if(!u) return;
+
+      if(act==='msg')  return openMessage(id, u.data);
+
+      if(act==='verify' || act==='tick'){
+        const newVal = !u.data?.verified;
+        try{
+          await updateDoc(doc(db,'Users',id), { verified:newVal });
+          toast(newVal?`@${id} verified`:`@${id} unverified`);
+        }catch(err){ console.error(err); toast('Failed to update'); }
+      }
+
+      if(act==='ban'){
+        const newVal = !u.data?.banned;
+        try{
+          await updateDoc(doc(db,'Users',id), { banned:newVal, online: newVal? false : (u.data?.online||false) });
+          toast(newVal?`@${id} banned`:`@${id} unbanned`);
+        }catch(err){ console.error(err); toast('Failed to update'); }
+      }
+    });
+
+    // Bulk actions
+    const idsSel = ()=> Array.from(selection);
+    const bulk = async (patchFn)=>{
+      const ids = idsSel(); if(!ids.length) return toast('No users selected');
+      try{
+        await Promise.all(ids.map(uid=> updateDoc(doc(db,'Users',uid), patchFn(uid)) ));
+        toast('Bulk action applied');
+      }catch(err){ console.error(err); toast('Bulk action failed'); }
+    };
+    $('#bulkVerify').onclick   = ()=> bulk(()=>({verified:true}));
+    $('#bulkUnverify').onclick = ()=> bulk(()=>({verified:false}));
+    $('#bulkBan').onclick      = ()=> bulk(()=>({banned:true, online:false}));
+    $('#bulkUnban').onclick    = ()=> bulk(()=>({banned:false}));
+
+    /* ========================= Messaging ========================= */
+    const msgModal = $('#messageModal');
+    let msgTargetUser = null, msgTargetData = null;
+
+    function openMessage(uid, data){
+      msgTargetUser = uid; msgTargetData = data||{};
+      $('#msgTarget').textContent = `To: ${data?.name||uid} (@${uid})`;
+      $('#msgText').value = '';
+      $('#tgWarn').style.display = settings.botToken ? 'none' : 'block';
+      $('#optTg').checked = false;
+      msgModal.classList.add('show');
+    }
+    $('#closeMsg').onclick = ()=> msgModal.classList.remove('show');
+
+    $('#sendMsgBtn').onclick = async ()=>{
+      const text = $('#msgText').value.trim(); if(!text) return toast('Type a message');
+      const useIn  = $('#optInapp').checked; const useTg = $('#optTg').checked;
+      if(!useIn && !useTg) return toast('Select a delivery method');
+
+      try{
+        if(useIn) await sendInAppMessage(msgTargetUser, text);
+        if(useTg) await sendTelegram(msgTargetUser, msgTargetData, text);
+        toast('Message sent'); msgModal.classList.remove('show');
+      }catch(err){ console.error(err); toast('Failed to send message'); }
+    };
+
+    async function sendInAppMessage(toUser, text){
+      const fromUser = settings.adminUsername || 'admin';
+      const chatId = [fromUser, toUser].sort().join('_');
+
+      // Add message to chat
+      await addDoc(collection(db,'Chats', chatId, 'messages'), {
+        text, sender: fromUser, timestamp: serverTimestamp()
+      });
+
+      // Update chat lists (merge-friendly)
+      const chatData = { lastMessage: text, timestamp: serverTimestamp() };
+      await setDoc(doc(db,'Users', fromUser, 'chats', toUser), { ...chatData, unreadCount:0 }, { merge:true });
+      await setDoc(doc(db,'Users', toUser, 'chats', fromUser), { ...chatData, unreadCount: increment(1) }, { merge:true });
+
+      // Recent chats
+      await setDoc(doc(db,'Users', fromUser, 'recentChats', toUser), chatData, { merge:true });
+      await setDoc(doc(db,'Users', toUser, 'recentChats', fromUser), chatData, { merge:true });
+
+      // Ensure admin user profile exists (minimal)
+      await setDoc(doc(db,'Users', fromUser), { name: settings.adminName||'Admin', verified:true }, { merge:true });
+    }
+
+    async function sendTelegram(uid, data, text){
+      if(!settings.botToken) throw new Error('No bot token');
+      const chatId = (data && data.telegramId) || settings.botDefaultChat;
+      if(!chatId) throw new Error('No chat_id for Telegram');
+      const url = `https://api.telegram.org/bot${settings.botToken}/sendMessage`;
+      const payload = { chat_id: chatId, text: `Message from Admin to @${uid}:\n\n${text}` };
+      const res = await fetch(url, { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(payload) });
+      if(!res.ok) throw new Error('Telegram API failed');
+    }
+
+    // Telegram toggle warn
+    $('#optTg').addEventListener('change', ()=>{
+      $('#tgWarn').style.display = $('#optTg').checked && !settings.botToken ? 'block' : 'none';
+    });
+
+    /* ========================= Misc / Boot ========================= */
+    $('#openSettings').addEventListener('click', applySettingsUI);
+    $('#searchInput').placeholder = 'Search by username, name, email...';
+    $('#refreshBtn').addEventListener('click', renderUsers);
+
+    // Close modals on Escape
+    document.addEventListener('keydown', (e)=>{
+      if(e.key==='Escape'){
+        $$('.modal.show').forEach(m=>m.classList.remove('show'));
+      }
+    });
+
+    // Accessible: clicking outside sheet closes modal (except accessModal)
+    $$('.modal').forEach(mod=>{
+      mod.addEventListener('click', (ev)=>{
+        if(ev.target === mod){
+          if(mod.id === 'accessModal') { /* don't close */ return; }
+          mod.classList.remove('show');
         }
       });
     });
+
+    // Load users only after unlock. If already unlocked (page reload), do it now.
+    if (sessionStorage.getItem(ACCESS_KEY)==='1') loadUsers();
+
+    // Small initialization UI tweaks
+    (function init(){
+      applySettingsUI();
+      // ensure sidebar visible on desktop
+      if(window.innerWidth > 1000) $('#sidebar').classList.remove('hidden-mobile');
+    })();
   </script>
 </body>
 </html>
