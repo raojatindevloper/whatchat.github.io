@@ -798,7 +798,14 @@
       updateDoc, setDoc, addDoc, getDocs, documentId, serverTimestamp, deleteDoc
     } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-    const firebaseConfig= { apiKey: "AIzaSyAJHqq9T9d5zbHoCumvNt9AK1L2fusa8Gk", authDomain: "wbapp-ff0f2.firebaseapp.com", projectId: "wbapp-ff0f2", storageBucket: "wbapp-ff0f2.firebasestorage.app", messagingSenderId: "580773775966", appId: "1:580773775966:web:d851d41c2091257a2d42cf" };
+    const firebaseConfig = {
+  apiKey: "AIzaSyAJHqq9T9d5zbHoCumvNt9AK1L2fusa8Gk",
+  authDomain: "wbapp-ff0f2.firebaseapp.com",
+  projectId: "wbapp-ff0f2",
+  storageBucket: "wbapp-ff0f2.appspot.com",
+  messagingSenderId: "580773775966",
+  appId: "1:580773775966:web:d851d41c2091257a2d42cf"
+};
     const app= initializeApp(firebaseConfig);
     const auth = getAuth(app);
     const db = getFirestore(app);
@@ -926,12 +933,11 @@
     };
     
     document.getElementById('signOut').onclick = async (e) => { 
-      e.preventDefault(); 
-      cleanupListeners();
-      await signOut(auth); 
-      location.href='index.html'; 
-    };
-
+  e.preventDefault(); 
+  cleanupListeners();
+  await signOut(auth); 
+  location.href = 'index.html';
+};
     // Profile modal
     document.getElementById('profileFab').onclick = () => {
       profileModal.classList.add('show');
@@ -1074,13 +1080,15 @@
           
           // Set avatar
           const modalAvatar = document.getElementById('modalAvatar');
-          if (data.avatar && data.avatar !== '') {
-            modalAvatar.style.backgroundImage = `url('${data.avatar}')`;
-            modalAvatar.style.backgroundSize = 'cover';
-            modalAvatar.textContent = '';
-          } else {
-            modalAvatar.textContent = data.name ? data.name.charAt(0).toUpperCase() : myUsername.charAt(0).toUpperCase();
-          }
+          if (data.avatar && data.avatar.trim() !== '') {
+  modalAvatar.style.backgroundImage = `url('${data.avatar}')`;
+  modalAvatar.style.backgroundSize = 'cover';
+  modalAvatar.style.backgroundPosition = 'center';
+  modalAvatar.textContent = '';
+} else {
+  modalAvatar.style.backgroundImage = 'none';
+  modalAvatar.textContent = (data.name || myUsername).charAt(0).toUpperCase();
+}
         }
       } catch (error) {
         console.error('Error loading profile data:', error);
@@ -1099,7 +1107,10 @@
           const userData = docSnap.data();
           const username = docSnap.id;
           
-          if (!validateUsername(username)) return;
+          if (!username || !validateUsername(username)) {
+  console.warn("Invalid username found:", username);
+  return;
+}
           
           const userInfo = await loadUserDataForChatCard(username, userData);
           
@@ -1144,7 +1155,10 @@
             const chatData = docSnap.data();
             const username = docSnap.id;
             
-            if (!validateUsername(username)) return;
+            if (!username || !validateUsername(username)) {
+  console.warn("Invalid username found:", username);
+  return;
+}
             
             const userInfo = await loadUserDataForChatCard(username, chatData, true);
             
@@ -1199,7 +1213,10 @@
             const chatData = docSnap.data();
             const username = docSnap.id;
             
-            if (!validateUsername(username)) return;
+            if (!username || !validateUsername(username)) {
+  console.warn("Invalid username found:", username);
+  return;
+}
             
             const userInfo = await loadUserDataForChatCard(username, chatData);
             
