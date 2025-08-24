@@ -664,7 +664,14 @@
       updateDoc, setDoc, addDoc, serverTimestamp, deleteField
     } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-    const firebaseConfig= { apiKey: "AIzaSyAJHqq9T9d5zbHoCumvNt9AK1L2fusa8Gk", authDomain: "wbapp-ff0f2.firebaseapp.com", projectId: "wbapp-ff0f2", storageBucket: "wbapp-ff0f2.firebasestorage.app", messagingSenderId: "580773775966", appId: "1:580773775966:web:d851d41c2091257a2d42cf" };
+    const firebaseConfig= { 
+  apiKey: "...", 
+  authDomain: "wbapp-ff0f2.firebaseapp.com", 
+  projectId: "wbapp-ff0f2", 
+  storageBucket: "wbapp-ff0f2.appspot.com",   // ✅ सही
+  messagingSenderId: "580773775966", 
+  appId: "1:580773775966:web:d851d41c2091257a2d42cf" 
+};
     const app= initializeApp(firebaseConfig);
     const auth = getAuth(app);
     const db = getFirestore(app);
@@ -727,11 +734,10 @@
 
     // Format time function
     function formatTime(timestamp) {
-      if (!timestamp) return '';
-      
-      const date = timestamp.toDate();
-      return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-    }
+  if (!timestamp || !timestamp.toDate) return '';
+  const date = timestamp.toDate();
+  return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+}
 
     // Show call popup with animation
     function showCallPopup(isOutgoing = false) {
@@ -774,9 +780,9 @@
         
         await setDoc(doc(db, 'Users', myUsername, 'chats', otherUsername), chatData);
         await setDoc(doc(db, 'Users', otherUsername, 'chats', myUsername), {
-          ...chatData,
-          unreadCount: (otherUserData?.unreadCount || 0) + 1
-        });
+  ...chatData,
+  unreadCount: ((otherUserData && otherUserData.unreadCount) ? otherUserData.unreadCount : 0) + 1
+});
         
         // Update recent chats
         await setDoc(doc(db, 'Users', myUsername, 'recentChats', otherUsername), {
@@ -823,8 +829,8 @@
               ${message.text}
               <div class="messageTime">${formatTime(message.timestamp)}</div>
               ${message.sender === myUsername ? 
-                `<div class="messageStatus">${message.read ? 'Read' : 'Sent'}</div>` : ''
-              }
+  `<div class="messageStatus">${message.read === true ? 'Read' : 'Sent'}</div>` : ''
+}
             `;
             
             chatArea.appendChild(messageElement);
@@ -881,14 +887,13 @@
     function endCall() {
       hideCallPopup();
       
-      if (isCaller) {
-        // Send call declined message
-        addDoc(collection(db, 'Chats', getChatId(), 'messages'), {
-          text: `Call declined by ${otherUserData?.name || otherUsername}`,
-          system: true,
-          timestamp: serverTimestamp()
-        }).catch(console.error);
-      }
+      if (!isCaller) {
+  addDoc(collection(db, 'Chats', getChatId(), 'messages'), {
+    text: `Call ended`,
+    system: true,
+    timestamp: serverTimestamp()
+  }).catch(console.error);
+}
       
       isCaller = false;
     }
@@ -944,12 +949,12 @@
         unsubscribePresence = onSnapshot(doc(db, 'Users', otherUsername), (docSnap) => {
           if (docSnap.exists()) {
             const data = docSnap.data();
-            const lastSeenDate = data.lastSeen?.toDate ? data.lastSeen.toDate() : new Date(0);
+            const lastSeenDate = data.lastSeen?.toDate ? data.lastSeen.toDate() : null;
 const isOnline = data.online || ((Date.now() - lastSeenDate.getTime()) < 60000);
 
 document.getElementById('chatStatus').textContent = isOnline 
   ? 'Online' 
-  : `Last seen ${lastSeenDate.toLocaleString()}`;
+  : (lastSeenDate ? `Last seen ${lastSeenDate.toLocaleString()}` : 'Offline');
             
             // Update avatar status
             if (isOnline) {
@@ -1016,9 +1021,11 @@ document.getElementById('chatStatus').textContent = isOnline
       // Set avatar
       const userInfoAvatar = document.getElementById('userInfoAvatar');
       if (otherUserData?.avatar && otherUserData.avatar !== '') {
-        userInfoAvatar.style.backgroundImage = `url('${otherUserData.avatar}')`;
-        userInfoAvatar.style.backgroundSize = 'cover';
-        userInfoAvatar.textContent = '';
+        if (otherUserData?.avatar && otherUserData.avatar !== '') {
+  userInfoAvatar.innerHTML = `<img src="${otherUserData.avatar}" style="width:100%;height:100%;border-radius:50%">`;
+} else {
+  userInfoAvatar.textContent = otherUserData?.name ? otherUserData.name.charAt(0).toUpperCase() : otherUsername.charAt(0).toUpperCase();
+}
       } else {
         userInfoAvatar.textContent = otherUserData?.name ? otherUserData.name.charAt(0).toUpperCase() : otherUsername.charAt(0).toUpperCase();
       }
