@@ -935,28 +935,32 @@
       }
     }
 
-    // Load user data for chat card
-    async function loadUserDataForChatCard(username, chatData, isRecent = false) {
-      try {
-        const userDoc = await getDoc(doc(db, 'Users', username));
-        if (userDoc.exists()) {
-          const userData = userDoc.data();
-          return {
-            name: userData.name || username,
-            verified: userData.verified || username === 'raojatin',
-            isOnline: ((Date.now() - new Date(userData.lastSeen || 0).getTime()) < 60000)
-          };
-        }
-      } catch (error) {
-        console.error('Error loading user data:', error);
-      }
-      
-      return {
-        name: username,
-        verified: false,
-        isOnline: false
+    // 🔥 Optimized: User data caching
+const userCache = {};
+
+async function loadUserDataForChatCard(username, chatData, isRecent = false) {
+  // Agar cache me pehle se hai → wahi return karo
+  if (userCache[username]) return userCache[username];
+
+  try {
+    const userDoc = await getDoc(doc(db, 'Users', username));
+    if (userDoc.exists()) {
+      const userData = userDoc.data();
+      const data = {
+        name: userData.name || username,
+        verified: userData.verified || username === 'raojatin',
+        isOnline: ((Date.now() - new Date(userData.lastSeen || 0).getTime()) < 60000)
       };
+      userCache[username] = data; // cache store
+      return data;
     }
+  } catch (error) {
+    console.error('Error loading user data:', error);
+  }
+
+  // Default fallback
+  return { name: username, verified: false, isOnline: false };
+}
 
     onAuthStateChanged(auth, async (user) => {
       if(!user){ 
@@ -1065,13 +1069,47 @@
           return li;
         });
         
-        // Wait for all promises to resolve
-        const chatElements = await Promise.all(chatPromises);
-        
-        // Filter out null values and append to DOM
-        chatElements.filter(el => el !== null).forEach(el => {
-          recentChatsList.appendChild(el);
-        });
+        snapshot.docs.forEach((docSnap, index) => {
+  const chatData = docSnap.data();
+  const username = chatData.username;
+  if (!validateUsername(username)) return;
+
+  // ---- Placeholder card banado ----
+  const li = document.createElement('div'); 
+  li.className = 'chatCard';
+  li.style.animationDelay = `${index * 0.05}s`;
+
+  li.innerHTML = `
+    <div class="avatar">?</div>
+    <div class="chatInfo">
+      <div class="name">${username}</div>
+      <div class="last">${chatData.lastMessage || ''}</div>
+    </div>
+    <div class="right">
+      <div class="time">${new Date(chatData.timestamp?.toDate?.() || Date.now()).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</div>
+      ${chatData.unreadCount > 0 ? `<div class="badge">${chatData.unreadCount}</div>` : ''}
+    </div>
+  `;
+
+  li.addEventListener('click', () => { 
+    updateDoc(doc(db, 'Users', myUsername, 'recentChats', username), {
+      unreadCount: 0
+    }).catch(console.error);
+    location.href = `chat.html?with=${encodeURIComponent(username)}`; 
+  });
+
+  recentChatsList.appendChild(li);
+
+  // ---- Async update with user details ----
+  loadUserDataForChatCard(username, chatData, true).then(userData => {
+    li.querySelector('.name').innerHTML = `
+      ${userData.name}
+      ${userData.verified ? '<span class="verified-badge"><i class="fas fa-check-circle"></i></span>' : ''}
+    `;
+    li.querySelector('.avatar').outerHTML = generateAvatar(userData.name);
+    li.querySelector('.avatar')?.classList.add(userData.isOnline ? 'online' : 'offline');
+  });
+});
       });
 
       // presence heartbeat
@@ -1137,13 +1175,47 @@
           return li;
         });
         
-        // Wait for all promises to resolve 
-        const chatElements = await Promise.all(chatPromises);
-        
-        // Filter out null values and append to DOM
-        chatElements.filter(el => el !== null).forEach(el => {
-          chatList.appendChild(el);
-        });
+        snapshot.docs.forEach((docSnap, index) => {
+  const chatData = docSnap.data();
+  const username = chatData.username;
+  if (!validateUsername(username)) return;
+
+  // ---- Placeholder card banado ----
+  const li = document.createElement('div'); 
+  li.className = 'chatCard';
+  li.style.animationDelay = `${index * 0.05}s`;
+
+  li.innerHTML = `
+    <div class="avatar">?</div>
+    <div class="chatInfo">
+      <div class="name">${username}</div>
+      <div class="last">${chatData.lastMessage || ''}</div>
+    </div>
+    <div class="right">
+      <div class="time">${new Date(chatData.timestamp?.toDate?.() || Date.now()).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</div>
+      ${chatData.unreadCount > 0 ? `<div class="badge">${chatData.unreadCount}</div>` : ''}
+    </div>
+  `;
+
+  li.addEventListener('click', () => { 
+    updateDoc(doc(db, 'Users', myUsername, 'recentChats', username), {
+      unreadCount: 0
+    }).catch(console.error);
+    location.href = `chat.html?with=${encodeURIComponent(username)}`; 
+  });
+
+  recentChatsList.appendChild(li);
+
+  // ---- Async update with user details ----
+  loadUserDataForChatCard(username, chatData, true).then(userData => {
+    li.querySelector('.name').innerHTML = `
+      ${userData.name}
+      ${userData.verified ? '<span class="verified-badge"><i class="fas fa-check-circle"></i></span>' : ''}
+    `;
+    li.querySelector('.avatar').outerHTML = generateAvatar(userData.name);
+    li.querySelector('.avatar')?.classList.add(userData.isOnline ? 'online' : 'offline');
+  });
+});
       });
     });
 

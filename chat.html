@@ -286,6 +286,190 @@
     .typingDot:nth-child(2) { animation-delay: 0.2s; }
     .typingDot:nth-child(3) { animation-delay: 0.4s; }
 
+    /* New styles for call popup and info modal */
+    .call-popup {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.7);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s ease;
+    }
+    
+    .call-popup.show {
+      opacity: 1;
+      pointer-events: auto;
+    }
+    
+    .popup-box {
+      background: var(--card);
+      border-radius: var(--radius-lg);
+      padding: 24px;
+      text-align: center;
+      box-shadow: var(--shadow-lg);
+      max-width: 320px;
+      width: 90%;
+      animation: scaleIn 0.3s ease;
+    }
+    
+    .popup-box h3 {
+      margin-bottom: 16px;
+      color: var(--text);
+    }
+    
+    .caller-name {
+      font-weight: 600;
+      color: var(--primary);
+    }
+    
+    .call-buttons {
+      display: flex;
+      gap: 12px;
+      justify-content: center;
+      margin-top: 20px;
+    }
+    
+    .call-btn {
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      border: none;
+      cursor: pointer;
+      transition: var(--transition);
+    }
+    
+    .accept-call {
+      background: var(--success);
+      color: white;
+    }
+    
+    .decline-call {
+      background: var(--error);
+      color: white;
+    }
+    
+    .call-btn:hover {
+      transform: scale(1.1);
+    }
+    
+    /* Info modal styles */
+    .info-modal {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.7);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s ease;
+    }
+    
+    .info-modal.show {
+      opacity: 1;
+      pointer-events: auto;
+    }
+    
+    .info-content {
+      background: var(--card);
+      border-radius: var(--radius-lg);
+      padding: 24px;
+      max-width: 400px;
+      width: 90%;
+      box-shadow: var(--shadow-lg);
+      animation: scaleIn 0.3s ease;
+      position: relative;
+    }
+    
+    .close-info {
+      position: absolute;
+      top: 16px;
+      right: 16px;
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      background: rgba(0,0,0,0.05);
+      transition: var(--transition);
+    }
+    
+    .close-info:hover {
+      background: rgba(0,0,0,0.1);
+    }
+    
+    .user-details {
+      margin-top: 16px;
+    }
+    
+    .detail-row {
+      display: flex;
+      margin-bottom: 12px;
+    }
+    
+    .detail-label {
+      font-weight: 600;
+      width: 100px;
+      color: var(--text-muted);
+    }
+    
+    .detail-value {
+      flex: 1;
+    }
+    
+    .info-actions {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-top: 20px;
+    }
+    
+    .info-btn {
+      padding: 12px 16px;
+      border-radius: var(--radius-sm);
+      border: none;
+      font-size: 16px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: var(--transition);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+    
+    .block-btn {
+      background: rgba(244,67,54,0.1);
+      color: var(--error);
+    }
+    
+    .unblock-btn {
+      background: rgba(76,175,80,0.1);
+      color: var(--success);
+    }
+    
+    .report-btn {
+      background: rgba(255,152,0,0.1);
+      color: var(--warning);
+    }
+    
     /* Animations */
     @keyframes fadeIn {
       from { opacity: 0; transform: translateY(10px); }
@@ -296,7 +480,12 @@
       0%, 60%, 100% { transform: translateY(0); }
       30% { transform: translateY(-5px); }
     }
-
+    
+    @keyframes scaleIn {
+      from { transform: scale(0.9); opacity: 0; }
+      to { transform: scale(1); opacity: 1; }
+    }
+    
     /* Responsive Design */
     @media (max-width: 768px) {
       .message {
@@ -380,12 +569,43 @@
     </button>
   </div>
 
+  <!-- Incoming call popup -->
+  <div class="call-popup" id="incomingCallPopup">
+    <div class="popup-box">
+      <h3><span id="callerName"></span> is calling you</h3>
+      <div class="call-buttons">
+        <button class="call-btn accept-call" id="acceptCallBtn">
+          <i class="fas fa-phone"></i>
+        </button>
+        <button class="call-btn decline-call" id="declineCallBtn">
+          <i class="fas fa-phone-slash"></i>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- User info modal -->
+  <div class="info-modal" id="infoModal">
+    <div class="info-content">
+      <div class="close-info" id="closeInfoModal">
+        <i class="fas fa-times"></i>
+      </div>
+      <h2>User Information</h2>
+      <div class="user-details" id="userDetails">
+        <!-- User details will be populated here -->
+      </div>
+      <div class="info-actions" id="infoActions">
+        <!-- Action buttons will be populated here -->
+      </div>
+    </div>
+  </div>
+
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
     import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
     import { 
       getFirestore, doc, getDoc, collection, query, where, onSnapshot, orderBy, 
-      updateDoc, setDoc, addDoc, serverTimestamp, writeBatch, Timestamp
+      updateDoc, setDoc, addDoc, serverTimestamp, writeBatch, Timestamp, arrayUnion, arrayRemove
     } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
     const firebaseConfig= { apiKey: "AIzaSyAJHqq9T9d5zbHoCumvNt9AK1L2fusa8Gk", authDomain: "wbapp-ff0f2.firebaseapp.com", projectId: "wbapp-ff0f2", storageBucket: "wbapp-ff0f2.firebasestorage.app", messagingSenderId: "580773775966", appId: "1:580773775966:web:d851d41c2091257a2d42cf" };
@@ -399,8 +619,10 @@
     let chatId = '';
     let unsubscribeMessages = null;
     let unsubscribePresence = null;
+    let unsubscribeCalls = null;
     let presenceInterval = null;
     let typingTimeout = null;
+    let currentCallId = null;
 
     // Input validation
     function validateMessage(text) {
@@ -482,10 +704,207 @@
       return date.toLocaleDateString([], {month: 'short', day: 'numeric'});
     }
 
+    // Call functionality
+    async function initiateCall() {
+      try {
+        const callRef = doc(collection(db, 'Calls'));
+        currentCallId = callRef.id;
+        
+        const callData = {
+          caller: myUsername,
+          receiver: otherUsername,
+          status: 'ringing',
+          timestamp: serverTimestamp()
+        };
+        
+        await setDoc(callRef, callData);
+        
+        // Listen for call response
+        unsubscribeCalls = onSnapshot(callRef, (docSnap) => {
+          if (docSnap.exists()) {
+            const callData = docSnap.data();
+            
+            if (callData.status === 'accepted') {
+              alert(`${otherUsername} accepted your call`);
+              unsubscribeCalls();
+            } else if (callData.status === 'declined') {
+              alert(`${otherUsername} declined your call`);
+              unsubscribeCalls();
+            }
+          }
+        });
+      } catch (error) {
+        console.error('Error initiating call:', error);
+        alert('Failed to initiate call. Please try again.');
+      }
+    }
+
+    // Listen for incoming calls
+    function setupCallListener() {
+      const callsQuery = query(
+        collection(db, 'Calls'),
+        where('receiver', '==', myUsername),
+        where('status', '==', 'ringing')
+      );
+      
+      return onSnapshot(callsQuery, (snapshot) => {
+        snapshot.docChanges().forEach((change) => {
+          if (change.type === 'added') {
+            const callData = change.doc.data();
+            currentCallId = change.doc.id;
+            
+            // Show incoming call popup
+            document.getElementById('callerName').textContent = callData.caller;
+            document.getElementById('incomingCallPopup').classList.add('show');
+          }
+        });
+      });
+    }
+
+    // Handle call response
+    async function respondToCall(accepted) {
+      if (!currentCallId) return;
+      
+      try {
+        await updateDoc(doc(db, 'Calls', currentCallId), {
+          status: accepted ? 'accepted' : 'declined',
+          respondedAt: serverTimestamp()
+        });
+        
+        document.getElementById('incomingCallPopup').classList.remove('show');
+        
+        if (accepted) {
+          // Redirect to chat with caller
+          const callData = (await getDoc(doc(db, 'Calls', currentCallId))).data();
+          window.location.href = `chat.html?with=${encodeURIComponent(callData.caller)}&call=active`;
+        }
+        
+        currentCallId = null;
+      } catch (error) {
+        console.error('Error responding to call:', error);
+      }
+    }
+
+     // Load user info for modal
+    async function loadUserInfo() {
+      try {
+        const userDoc = await getDoc(doc(db, 'Users', otherUsername));
+        if (userDoc.exists()) {
+          const userData = userDoc.data();
+          const isOnline = userData.online || ((Date.now() - new Date(userData.lastSeen || 0).getTime()) < 60000);
+          
+          // Populate user details
+          document.getElementById('userDetails').innerHTML = `
+            <div class="detail-row">
+              <div class="detail-label">Name:</div>
+              <div class="detail-value">${userData.name || otherUsername}</div>
+            </div>
+            <div class="detail-row">
+              <div class="detail-label">Username:</div>
+              <div class="detail-value">${otherUsername}</div>
+            </div>
+            <div class="detail-row">
+              <div class="detail-label">Status:</div>
+              <div class="detail-value">${isOnline ? 'Online' : `Last seen ${formatMessageTime(userData.lastSeen)}`}</div>
+            </div>
+            ${userData.bio ? `
+            <div class="detail-row">
+              <div class="detail-label">Bio:</div>
+              <div class="detail-value">${userData.bio}</div>
+            </div>
+            ` : ''}
+            ${userData.email ? `
+            <div class="detail-row">
+              <div class="detail-label">Email:</div>
+              <div class="detail-value">${userData.email}</div>
+            </div>
+            ` : ''}
+          `;
+          
+          // Check if user is blocked
+          const myProfile = await getDoc(doc(db, 'Users', myUsername));
+          const blockedUsers = myProfile.data()?.blocked || [];
+          const isBlocked = blockedUsers.includes(otherUsername);
+          
+          // Populate action buttons
+          document.getElementById('infoActions').innerHTML = `
+            ${isBlocked ? `
+            <button class="info-btn unblock-btn" id="unblockBtn">
+              <i class="fas fa-unlock"></i> Unblock
+            </button>
+            ` : `
+            <button class="info-btn block-btn" id="blockBtn">
+              <i class="fas fa-ban"></i> Block
+            </button>
+            `}
+            <button class="info-btn report-btn" id="reportBtn">
+              <i class="fas fa-flag"></i> Report
+            </button>
+          `;
+          
+          // Add event listeners
+          if (isBlocked) {
+            document.getElementById('unblockBtn').onclick = () => unblockUser();
+          } else {
+            document.getElementById('blockBtn').onclick = () => blockUser();
+          }
+          document.getElementById('reportBtn').onclick = () => reportUser();
+        }
+      } catch (error) {
+        console.error('Error loading user info:', error);
+      }
+    }
+
+    // Block user function
+    async function blockUser() {
+      try {
+        await updateDoc(doc(db, 'Users', myUsername), {
+          blocked: arrayUnion(otherUsername)
+        });
+        alert(`${otherUsername} has been blocked.`);
+        document.getElementById('infoModal').classList.remove('show');
+      } catch (error) {
+        console.error('Error blocking user:', error);
+        alert('Failed to block user. Please try again.');
+      }
+    }
+
+    // Unblock user function
+    async function unblockUser() {
+      try {
+        await updateDoc(doc(db, 'Users', myUsername), {
+          blocked: arrayRemove(otherUsername)
+        });
+        alert(`${otherUsername} has been unblocked.`);
+        document.getElementById('infoModal').classList.remove('show');
+      } catch (error) {
+        console.error('Error unblocking user:', error);
+        alert('Failed to unblock user. Please try again.');
+      }
+    }
+
+    // Report user function
+    async function reportUser() {
+      try {
+        await addDoc(collection(db, 'Reports'), {
+          reporter: myUsername,
+          reported: otherUsername,
+          timestamp: serverTimestamp(),
+          status: 'pending'
+        });
+        alert(`${otherUsername} has been reported. Thank you for keeping our community safe.`);
+        document.getElementById('infoModal').classList.remove('show');
+      } catch (error) {
+        console.error('Error reporting user:', error);
+        alert('Failed to report user. Please try again.');
+      }
+    }
+
     // Cleanup function to remove listeners
     function cleanupListeners() {
       if (unsubscribeMessages) unsubscribeMessages();
       if (unsubscribePresence) unsubscribePresence();
+      if (unsubscribeCalls) unsubscribeCalls();
       if (presenceInterval) clearInterval(presenceInterval);
       if (typingTimeout) clearTimeout(typingTimeout);
       
@@ -625,35 +1044,39 @@
         return;
       }
       
-      // Load messages
+      // Setup call listener after auth
+      unsubscribeCalls = setupCallListener();
+      
+      // Performance optimization: Use docChanges for messages
       const messagesRef = collection(db, 'Chats', chatId, 'Messages');
       const messagesQ = query(messagesRef, orderBy('timestamp', 'asc'));
       
       unsubscribeMessages = onSnapshot(messagesQ, (snapshot) => {
         const chatContainer = document.getElementById('chatContainer');
-        chatContainer.innerHTML = '';
         
-        snapshot.forEach((docSnap) => {
-          const msg = docSnap.data();
-          const messageDiv = document.createElement('div');
-          messageDiv.className = `message ${msg.sender === myUsername ? 'sent' : 'received'}`;
-          
-          messageDiv.innerHTML = `
-            <div>${msg.text}</div>
-            <div class="messageTime">${formatMessageTime(msg.timestamp)}</div>
-          `;
-          
-          if (msg.sender === myUsername) {
-            messageDiv.innerHTML += `
-              <div class="messageStatus">
-                ${msg.status === 'read' ? '<i class="fas fa-check-double" style="color: #4fc3f7;"></i> Read' : 
-                  msg.status === 'delivered' ? '<i class="fas fa-check-double"></i> Delivered' : 
-                  '<i class="fas fa-check"></i> Sent'}
-              </div>
+        snapshot.docChanges().forEach((change) => {
+          if (change.type === 'added') {
+            const msg = change.doc.data();
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${msg.sender === myUsername ? 'sent' : 'received'}`;
+            
+            messageDiv.innerHTML = `
+              <div>${msg.text}</div>
+              <div class="messageTime">${formatMessageTime(msg.timestamp)}</div>
             `;
+            
+            if (msg.sender === myUsername) {
+              messageDiv.innerHTML += `
+                <div class="messageStatus">
+                  ${msg.status === 'read' ? '<i class="fas fa-check-double" style="color: #4fc3f7;"></i> Read' : 
+                    msg.status === 'delivered' ? '<i class="fas fa-check-double"></i> Delivered' : 
+                    '<i class="fas fa-check"></i> Sent'}
+                </div>
+              `;
+            }
+            
+            chatContainer.appendChild(messageDiv);
           }
-          
-          chatContainer.appendChild(messageDiv);
         });
         
         // Scroll to bottom
@@ -682,30 +1105,39 @@
           console.error('Error updating presence:', error);
         }
       }, 30000);
-      
-      // Mark messages as read
-      try {
-        // Reset unread count for this chat
-        await updateDoc(doc(db, 'Users', myUsername, 'recentChats', otherUsername), {
-          unreadCount: 0
-        });
-      } catch (error) {
-        console.error('Error marking messages as read:', error);
-      }
-      
-      window.addEventListener('beforeunload', cleanupListeners);
     });
 
-    // Back button
-    document.getElementById('backBtn').onclick = () => {
+    // Event Listeners
+    document.getElementById('backBtn').addEventListener('click', () => {
       cleanupListeners();
-      window.history.back();
-    };
+      history.back();
+    });
+
+    document.getElementById('callBtn').addEventListener('click', () => {
+      initiateCall();
+    });
+
+    document.getElementById('infoBtn').addEventListener('click', () => {
+      loadUserInfo();
+      document.getElementById('infoModal').classList.add('show');
+    });
+
+    document.getElementById('closeInfoModal').addEventListener('click', () => {
+      document.getElementById('infoModal').classList.remove('show');
+    });
+
+    document.getElementById('acceptCallBtn').addEventListener('click', () => {
+      respondToCall(true);
+    });
+
+    document.getElementById('declineCallBtn').addEventListener('click', () => {
+      respondToCall(false);
+    });
 
     // Message input handling
     const messageInput = document.getElementById('messageInput');
     const sendBtn = document.getElementById('sendBtn');
-
+    
     messageInput.addEventListener('input', () => {
       sendBtn.disabled = !validateMessage(messageInput.value);
       
@@ -713,48 +1145,30 @@
       messageInput.style.height = 'auto';
       messageInput.style.height = Math.min(messageInput.scrollHeight, 120) + 'px';
     });
-
+    
     messageInput.addEventListener('keydown', (e) => {
       if (e.key === 'Enter' && !e.shiftKey) {
         e.preventDefault();
         if (validateMessage(messageInput.value)) {
-          sendMessageHandler();
+          sendMessage(messageInput.value);
+          messageInput.value = '';
+          messageInput.style.height = 'auto';
+          sendBtn.disabled = true;
         }
       }
     });
-
-    sendBtn.onclick = sendMessageHandler;
-
-    async function sendMessageHandler() {
-      const messageText = messageInput.value.trim();
-      if (!validateMessage(messageText)) return;
-      
-      // Disable input while sending
-      messageInput.disabled = true;
-      sendBtn.disabled = true;
-      
-      const success = await sendMessage(messageText);
-      
-      if (success) {
-        // Clear input and reset height
+    
+    sendBtn.addEventListener('click', () => {
+      if (validateMessage(messageInput.value)) {
+        sendMessage(messageInput.value);
         messageInput.value = '';
         messageInput.style.height = 'auto';
+        sendBtn.disabled = true;
       }
-      
-      // Re-enable input
-      messageInput.disabled = false;
-      messageInput.focus();
-    }
-
-    // Call button functionality
-    document.getElementById('callBtn').onclick = () => {
-      alert(`Call feature coming soon! Would call ${otherUsername}`);
-    };
-
-    // Info button functionality
-    document.getElementById('infoBtn').onclick = () => {
-      alert(`User info for ${otherUsername} coming soon!`);
-    };
+    });
+    
+    // Cleanup on page unload
+    window.addEventListener('beforeunload', cleanupListeners);
   </script>
 </body>
 </html>
