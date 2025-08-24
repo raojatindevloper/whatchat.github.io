@@ -677,28 +677,27 @@
     import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
     import { 
       getFirestore, doc, getDoc, collection, query, where, onSnapshot, orderBy, 
-      updateDoc, setDoc, addDoc, serverTimestamp, deleteField
+      updateDoc, setDoc, addDoc, serverTimestamp
     } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-    // Firebase Configuration - Replace with your actual Firebase config
+    // Firebase Configuration (kept identical to your project setup)
     const firebaseConfig = {
-  apiKey: "AIzaSyAJHqq9T9d5zbHoCumvNt9AK1L2fusa8Gk",
-  authDomain: "wbapp-ff0f2.firebaseapp.com",
-  projectId: "wbapp-ff0f2",
-  storageBucket: "wbapp-ff0f2.appspot.com",
-  messagingSenderId: "580773775966",
-  appId: "1:580773775966:web:d851d41c2091257a2d42cf"
-};
+      apiKey: "AIzaSyAJHqq9T9d5zbHoCumvNt9AK1L2fusa8Gk",
+      authDomain: "wbapp-ff0f2.firebaseapp.com",
+      projectId: "wbapp-ff0f2",
+      storageBucket: "wbapp-ff0f2.appspot.com",
+      messagingSenderId: "580773775966",
+      appId: "1:580773775966:web:d851d41c2091257a2d42cf"
+    };
 
-const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
-const db = getFirestore(app);
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
 
     const urlParams = new URLSearchParams(window.location.search);
     const otherUsername = urlParams.get('with');
     const callActive = urlParams.get('call') === 'active';
     
-    // Validate URL parameter
     if (!otherUsername) {
       alert('Invalid chat link. Redirecting to home page.');
       location.href = 'home.html';
@@ -712,9 +711,8 @@ const db = getFirestore(app);
     let presenceInterval = null;
     let callInProgress = false;
     let isCaller = false;
-    let callChannel = null;
 
-    // Theme management
+    // Theme management (unchanged visually)
     function applyTheme() { 
       const t = localStorage.getItem('rx_theme') || 'light';
       if (t === 'dark') {
@@ -727,24 +725,22 @@ const db = getFirestore(app);
     }
     applyTheme();
 
-    // Generate avatar based on name
+    // Generate avatar based on name (UI preserved)
     function generateAvatar(name, size = 44) {
       const colors = [
         '#00897b', '#4ebaaa', '#005b4f', '#00796b', '#004d40',
         '#d32f2f', '#c2185b', '#7b1fa2', '#512da8', '#303f9f',
         '#1976d2', '#0288d1', '#0097a7', '#388e3c', '#689f38'
       ];
-      
-      const initials = name
+      const safe = (name || 'U').toString();
+      const initials = safe
         .split(' ')
         .map(word => word.charAt(0))
         .join('')
         .toUpperCase()
         .substring(0, 2);
-      
-      const colorIndex = Math.abs(hashCode(name)) % colors.length;
+      const colorIndex = Math.abs(hashCode(safe)) % colors.length;
       const bgColor = colors[colorIndex];
-      
       return `<div style="background: ${bgColor}; width: ${size}px; height: ${size}px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 600; color: white; font-size: ${size/2.5}px">${initials}</div>`;
     }
     
@@ -756,14 +752,15 @@ const db = getFirestore(app);
       return hash;
     }
 
-    // Format time function
-    function formatTime(timestamp) {
-      if (!timestamp || !timestamp.toDate) return '';
-      const date = timestamp.toDate();
+    // Format time function (robust to plain Date / Timestamp / null)
+    function formatTime(ts) {
+      if (!ts) return '';
+      const date = ts.toDate ? ts.toDate() : (ts instanceof Date ? ts : new Date(ts));
+      if (isNaN(date.getTime())) return '';
       return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
     }
 
-    // Show call popup with animation
+    // Call popups (unchanged visually)
     function showCallPopup(isOutgoing = false) {
       if (isOutgoing) {
         document.getElementById('outgoingCallPopup').classList.add('show');
@@ -772,118 +769,120 @@ const db = getFirestore(app);
       }
       callInProgress = true;
     }
-
-    // Hide call popup with animation
     function hideCallPopup() {
       document.getElementById('callPopup').classList.remove('show');
       document.getElementById('outgoingCallPopup').classList.remove('show');
       callInProgress = false;
     }
 
-    // Sanitize user input to prevent XSS
+    // Sanitize user input
     function sanitizeInput(text) {
       const div = document.createElement('div');
-      div.textContent = text;
+      div.textContent = text ?? '';
       return div.innerHTML;
     }
 
-    // Send a message
+    // Safe chat ID
+    function getChatId() {
+      if (!myUsername || !otherUsername) return null;
+      return [myUsername, otherUsername].sort().join('_');
+    }
+
+    // Send a message (robust)
     async function sendMessage() {
-      const messageInput = document.getElementById('messageInput');
-      const message = sanitizeInput(messageInput.value.trim());
-      
-         // Validate message
-      if (!message || message.length === 0) return;
-      if (message.length > 1000) {
-        alert('Message too long. Maximum 1000 characters allowed.');
+      const inputEl = document.getElementById('messageInput');
+      const raw = (inputEl.value || '').trim();
+      if (!raw) return;
+
+      const chatId = getChatId();
+      if (!chatId) {
+        alert('Unable to start chat. Please wait a second and try again.');
         return;
       }
-      
-      if (!otherUsername) {
-        alert('Chat partner not found. Please try again.');
+      if (!myUsername) {
+        alert('You are not authenticated. Please re-login.');
+        location.href = 'index.html';
         return;
       }
-      
+
+      const messageToStore = sanitizeInput(raw); // store sanitized; render stays identical
       try {
-        // Add message to the chat
-        await addDoc(collection(db, 'Chats', getChatId(), 'messages'), {
-          text: message,
+        await addDoc(collection(db, 'Chats', chatId, 'messages'), {
+          text: messageToStore,
           sender: myUsername,
           timestamp: serverTimestamp(),
           read: false
         });
-        
-        // Update last message in both users' chat lists
-        const chatData = {
-          lastMessage: message,
-          timestamp: serverTimestamp(),
-          unreadCount: 0 // Reset unread count for sender
+
+        const baseChatData = {
+          lastMessage: messageToStore,
+          timestamp: serverTimestamp()
         };
-        
-        await setDoc(doc(db, 'Users', myUsername, 'chats', otherUsername), chatData);
-        
-        // Increment unread count for receiver
-        const otherUserChatDoc = await getDoc(doc(db, 'Users', otherUsername, 'chats', myUsername));
-        const currentUnreadCount = otherUserChatDoc.exists() ? (otherUserChatDoc.data().unreadCount || 0) : 0;
-        
-        await setDoc(doc(db, 'Users', otherUsername, 'chats', myUsername), {
-          ...chatData,
-          unreadCount: currentUnreadCount + 1
-        });
-        
-        // Update recent chats
-        await setDoc(doc(db, 'Users', myUsername, 'recentChats', otherUsername), {
-          lastMessage: message,
-          timestamp: serverTimestamp()
-        });
-        
-        await setDoc(doc(db, 'Users', otherUsername, 'recentChats', myUsername), {
-          lastMessage: message,
-          timestamp: serverTimestamp()
-        });
-        
-        messageInput.value = '';
-      } catch (error) {
-        console.error('Error sending message:', error);
+
+        // Update my chat list + reset my unread
+        await setDoc(
+          doc(db, 'Users', myUsername, 'chats', otherUsername),
+          { ...baseChatData, unreadCount: 0 },
+          { merge: true }
+        );
+
+        // Increment receiver unread safely
+        const otherRef = doc(db, 'Users', otherUsername, 'chats', myUsername);
+        // Merge-based increment (read it visually the same, keeps logic intact)
+        await setDoc(otherRef, { ...baseChatData }, { merge: true });
+        await setDoc(otherRef, { unreadCount: (await getUnreadCountSafe(otherRef)) + 1 }, { merge: true });
+
+        // Recent chats (both sides)
+        await setDoc(doc(db, 'Users', myUsername, 'recentChats', otherUsername), baseChatData, { merge: true });
+        await setDoc(doc(db, 'Users', otherUsername, 'recentChats', myUsername), baseChatData, { merge: true });
+
+        inputEl.value = '';
+      } catch (err) {
+        console.error('Error sending message:', err);
         alert('Failed to send message. Please check your connection and try again.');
       }
     }
 
-    // Get the chat ID (combination of both usernames, sorted)
-    function getChatId() {
-      return [myUsername, otherUsername].sort().join('_');
+    // Safe unread count getter
+    async function getUnreadCountSafe(ref) {
+      try {
+        const snap = await getDoc(ref);
+        return snap.exists() ? (snap.data().unreadCount || 0) : 0;
+      } catch {
+        return 0;
+      }
     }
 
-    // Load messages
+    // Load messages with guards
     function loadMessages() {
-      if (!otherUsername) return;
-      
       const chatId = getChatId();
+      if (!chatId) return;
+
       const messagesRef = collection(db, 'Chats', chatId, 'messages');
-      
+
+      if (unsubscribeMessages) {
+        unsubscribeMessages();
+        unsubscribeMessages = null;
+      }
+
       unsubscribeMessages = onSnapshot(
-        query(messagesRef, orderBy('timestamp', 'asc')), 
+        query(messagesRef, orderBy('timestamp', 'asc')),
         (snapshot) => {
           const chatArea = document.getElementById('chatArea');
           chatArea.innerHTML = '';
-          
-          snapshot.docs.forEach((docSnap) => {
-            const message = docSnap.data();
-            const messageElement = document.createElement('div');
-            messageElement.className = `message ${message.sender === myUsername ? 'sent' : 'received'}`;
-            
-            messageElement.innerHTML = `
-              ${sanitizeInput(message.text)}
-              <div class="messageTime">${formatTime(message.timestamp)}</div>
-              ${message.sender === myUsername ? 
-                `<div class="messageStatus">${message.read ? 'Read' : 'Sent'}</div>` : ''
-              }
+
+          snapshot.forEach((docSnap) => {
+            const m = docSnap.data();
+            const wrap = document.createElement('div');
+            wrap.className = `message ${m.sender === myUsername ? 'sent' : 'received'}`;
+            wrap.innerHTML = `
+              ${sanitizeInput(m.text || '')}
+              <div class="messageTime">${formatTime(m.timestamp)}</div>
+              ${m.sender === myUsername ? `<div class="messageStatus">${m.read ? 'Read' : 'Sent'}</div>` : ''}
             `;
-            
-            chatArea.appendChild(messageElement);
+            chatArea.appendChild(wrap);
           });
-          
-          // Scroll to bottom
+
           chatArea.scrollTop = chatArea.scrollHeight;
         },
         (error) => {
@@ -897,39 +896,39 @@ const db = getFirestore(app);
       );
     }
 
-    // Update user presence
-    function updatePresence() {
+    // Presence updates: always succeed (create-if-missing via merge)
+    async function setPresence(online) {
       if (!myUsername) return;
-      
       try {
-        updateDoc(doc(db, 'Users', myUsername), { 
-          online: true, 
-          lastSeen: serverTimestamp() 
-        });
-      } catch (error) {
-        console.error('Error updating presence:', error);
+        await setDoc(
+          doc(db, 'Users', myUsername),
+          { online: !!online, lastSeen: serverTimestamp() },
+          { merge: true }
+        );
+      } catch (e) {
+        console.error('Presence update failed:', e);
       }
     }
 
-    // Initialize call functionality
+    function updatePresenceHeartbeat() {
+      setPresence(true);
+    }
+
+    // Calls (UI preserved; mock logic)
     function initCall() {
       if (!otherUsername || callInProgress) {
         alert('Cannot initiate call at this time.');
         return;
       }
-      
       isCaller = true;
       showCallPopup(true);
-      
-      // Update outgoing call UI
+
       document.getElementById('outgoingCallName').textContent = otherUserData?.name || otherUsername;
       document.getElementById('outgoingCallInitials').textContent = (otherUserData?.name || otherUsername || 'U').charAt(0).toUpperCase();
-      
       if (otherUserData?.verified) {
         document.getElementById('outgoingCallVerifiedBadge').style.display = 'inline';
       }
-      
-      // Simulate call (in a real app, this would use WebRTC)
+
       setTimeout(() => {
         if (callInProgress) {
           hideCallPopup();
@@ -938,91 +937,94 @@ const db = getFirestore(app);
       }, 30000);
     }
 
-    // Answer incoming call
     function answerCall() {
       hideCallPopup();
-      // In a real app, this would establish the WebRTC connection
       window.location.href = `chat.html?with=${otherUsername}&call=active`;
     }
 
-    // End call
-    function endCall() {
+    async function endCall() {
       hideCallPopup();
-      
       if (!isCaller) {
-        try {
-          addDoc(collection(db, 'Chats', getChatId(), 'messages'), {
-            text: `Call ended`,
-            system: true,
-            timestamp: serverTimestamp()
-          });
-        } catch (error) {
-          console.error('Error adding call ended message:', error);
+        const chatId = getChatId();
+        if (chatId) {
+          try {
+            await addDoc(collection(db, 'Chats', chatId, 'messages'), {
+              text: 'Call ended',
+              system: true,
+              timestamp: serverTimestamp()
+            });
+          } catch (e) {
+            console.error('Error adding call-ended message:', e);
+          }
         }
       }
-      
       isCaller = false;
     }
 
+    // Auth + boot
     onAuthStateChanged(auth, async (user) => {
       if (!user) { 
         location.href = 'index.html'; 
         return; 
       }
-      
-      // Get my username
-      myUsername = localStorage.getItem('rx_username');
+
+      myUsername = localStorage.getItem('rx_username') || '';
       myName = localStorage.getItem('rx_name') || myUsername;
-      
+
       if (!myUsername) { 
         location.href = 'profile.html'; 
         return; 
       }
-      
-      // Load other user's data
+
       try {
-        const otherUserDoc = await getDoc(doc(db, 'Users', otherUsername));
-        
-        if (!otherUserDoc.exists()) {
+        const otherSnap = await getDoc(doc(db, 'Users', otherUsername));
+        if (!otherSnap.exists()) {
           alert('User not found. Redirecting to home page.');
           location.href = 'home.html';
           return;
         }
-        
-        otherUserData = otherUserDoc.data();
+
+        otherUserData = otherSnap.data() || {};
         otherUserData.name = otherUserData.name || otherUsername;
-        
-        // Update chat header
+
+        // Header UI
         document.getElementById('chatName').innerHTML = sanitizeInput(otherUserData.name);
         document.getElementById('chatStatus').textContent = 'Checking status...';
-        
         if (otherUserData.verified === true || otherUsername === 'raojatin') {
           document.getElementById('verifiedBadge').style.display = 'inline';
         }
-        
-        // Set avatar
+
+        // Avatar
         const chatAvatar = document.getElementById('chatAvatar');
-        if (otherUserData.avatar && otherUserData.avatar !== '') {
+        if (otherUserData.avatar && otherUserData.avatar.trim() !== '') {
           chatAvatar.innerHTML = `<img src="${sanitizeInput(otherUserData.avatar)}" alt="${sanitizeInput(otherUserData.name)}">`;
         } else {
           chatAvatar.innerHTML = generateAvatar(otherUserData.name);
         }
-        
-        // Load messages
+
+        // Messages
         loadMessages();
-        
-        // Set up presence listener
-        unsubscribePresence = onSnapshot(doc(db, 'Users', otherUsername), (docSnap) => {
-          if (docSnap.exists()) {
-            const data = docSnap.data();
+
+        // Presence listener for other user
+        if (unsubscribePresence) {
+          unsubscribePresence();
+          unsubscribePresence = null;
+        }
+        unsubscribePresence = onSnapshot(
+          doc(db, 'Users', otherUsername),
+          (docSnap) => {
+            if (!docSnap.exists()) {
+              document.getElementById('chatStatus').textContent = 'Offline';
+              return;
+            }
+            const data = docSnap.data() || {};
             const lastSeenDate = data.lastSeen?.toDate ? data.lastSeen.toDate() : null;
-            const isOnline = data.online || (lastSeenDate && (Date.now() - lastSeenDate.getTime()) < 60000);
+            const isOnline = !!data.online || (lastSeenDate && (Date.now() - lastSeenDate.getTime()) < 60000);
 
             document.getElementById('chatStatus').textContent = isOnline 
               ? 'Online' 
               : (lastSeenDate ? `Last seen ${lastSeenDate.toLocaleString()}` : 'Offline');
-            
-            // Update avatar status
+
             if (isOnline) {
               chatAvatar.classList.add('online');
               chatAvatar.classList.remove('offline');
@@ -1030,34 +1032,28 @@ const db = getFirestore(app);
               chatAvatar.classList.add('offline');
               chatAvatar.classList.remove('online');
             }
+          },
+          (err) => {
+            console.error('Presence listener error:', err);
+            document.getElementById('chatStatus').textContent = 'Status unavailable';
           }
-        }, (error) => {
-          console.error('Error in presence listener:', error);
-          document.getElementById('chatStatus').textContent = 'Status unavailable';
-        });
-        
-        // Update my presence
+        );
+
+        // My presence now + heartbeat
+        await setPresence(true);
+        presenceInterval = setInterval(updatePresenceHeartbeat, 30000);
+
+        // Mark my thread read
         try {
-          await updateDoc(doc(db, 'Users', myUsername), { 
-            online: true, 
-            lastSeen: serverTimestamp() 
-          });
-        } catch (error) {
-          console.error('Error updating presence:', error);
+          await setDoc(
+            doc(db, 'Users', myUsername, 'chats', otherUsername),
+            { unreadCount: 0 },
+            { merge: true }
+          );
+        } catch (e) {
+          console.error('Error marking messages as read:', e);
         }
-        
-        // Set up periodic presence update
-        presenceInterval = setInterval(updatePresence, 30000);
-        
-        // Mark messages as read
-        try {
-          await setDoc(doc(db, 'Users', myUsername, 'chats', otherUsername), {
-            unreadCount: 0
-          }, { merge: true });
-        } catch (error) {
-          console.error('Error marking messages as read:', error);
-        }
-        
+
       } catch (error) {
         console.error('Error loading user data:', error);
         alert('Error loading chat. Please try again.');
@@ -1065,7 +1061,7 @@ const db = getFirestore(app);
       }
     });
 
-    // Event listeners
+    // UI Events (kept identical IDs/classes)
     document.getElementById('backBtn').onclick = () => {
       cleanupListeners();
       if (history.length > 1) {
@@ -1074,64 +1070,64 @@ const db = getFirestore(app);
         location.href = 'home.html';
       }
     };
-    
+
     document.getElementById('sendBtn').onclick = sendMessage;
-    
-    document.getElementById('messageInput').onkeypress = (e) => {
-      if (e.key === 'Enter') {
+
+    // Prevent double-send on key repeat
+    document.getElementById('messageInput').addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' && !e.isComposing) {
+        e.preventDefault();
         sendMessage();
       }
-    };
-    
+    });
+
     document.getElementById('callBtn').onclick = initCall;
     document.getElementById('voiceCallBtn').onclick = initCall;
-    
-    document.getElementById('infoBtn').onclick = async () => {
-      // Load user info for modal
+
+    document.getElementById('infoBtn').onclick = () => {
       document.getElementById('userInfoName').textContent = otherUserData?.name || otherUsername;
       document.getElementById('userInfoEmail').textContent = otherUserData?.email || 'No email available';
-      
+
       if (otherUserData?.verified) {
         document.getElementById('userInfoVerifiedBadge').style.display = 'inline';
+      } else {
+        document.getElementById('userInfoVerifiedBadge').style.display = 'none';
       }
-      
-      // Set avatar
+
       const userInfoAvatar = document.getElementById('userInfoAvatar');
-      if (otherUserData?.avatar && otherUserData.avatar !== '') {
+      if (otherUserData?.avatar && otherUserData.avatar.trim() !== '') {
         userInfoAvatar.innerHTML = `<img src="${sanitizeInput(otherUserData.avatar)}" style="width:100%;height:100%;border-radius:50%">`;
       } else {
-        userInfoAvatar.textContent = (otherUserData?.name || otherUsername).charAt(0).toUpperCase();
+        userInfoAvatar.textContent = (otherUserData?.name || otherUsername || 'U').charAt(0).toUpperCase();
       }
-      
-      // Update status
+
       const statusElement = document.getElementById('userInfoStatus');
       const lastSeenDate = otherUserData?.lastSeen?.toDate ? otherUserData.lastSeen.toDate() : null;
-      const isOnline = otherUserData?.online || (lastSeenDate && (Date.now() - lastSeenDate.getTime()) < 60000);
-      
+      const isOnline = !!otherUserData?.online || (lastSeenDate && (Date.now() - lastSeenDate.getTime()) < 60000);
+
       if (isOnline) {
         statusElement.innerHTML = '<i class="fas fa-circle status-online"></i><span>Online</span>';
       } else {
-        const lastSeenText = lastSeenDate ? `Last seen ${formatTime(otherUserData.lastSeen)}` : 'Offline';
+        const lastSeenText = lastSeenDate ? `Last seen ${lastSeenDate.toLocaleString()}` : 'Offline';
         statusElement.innerHTML = `<i class="fas fa-circle status-offline"></i><span>${lastSeenText}</span>`;
       }
-      
+
       document.getElementById('userInfoModal').classList.add('show');
     };
-    
+
     document.getElementById('closeUserInfoModal').onclick = () => {
       document.getElementById('userInfoModal').classList.remove('show');
     };
-    
+
     document.getElementById('acceptCallBtn').onclick = answerCall;
     document.getElementById('declineCallBtn').onclick = endCall;
     document.getElementById('cancelCallBtn').onclick = endCall;
-    
-    // Handle incoming calls
+
     if (callActive) {
       showCallPopup();
     }
-    
-    // Cleanup function
+
+    // Cleanup
     function cleanupListeners() {
       if (unsubscribeMessages) {
         unsubscribeMessages();
@@ -1146,21 +1142,18 @@ const db = getFirestore(app);
         presenceInterval = null;
       }
     }
-    
-    // Update presence before leaving
-    window.addEventListener('beforeunload', async () => {
+
+    // Presence update before leaving
+    window.addEventListener('beforeunload', (e) => {
       cleanupListeners();
-      
-      if (myUsername) {
-        try {
-          await updateDoc(doc(db, 'Users', myUsername), { 
-            online: false, 
-            lastSeen: serverTimestamp() 
-          });
-        } catch (error) {
-          console.error('Error updating presence on unload:', error);
-        }
-      }
+      // Fire-and-forget (navigator.sendBeacon is more reliable on unload)
+      try {
+        const payload = JSON.stringify({ online: false });
+        const url = `https://firestore.googleapis.com/v1/projects/${firebaseConfig.projectId}/databases/(default)/documents:commit`;
+        // Best-effort; if blocked, fallback below:
+        navigator.sendBeacon(url, payload);
+      } catch {}
+      setPresence(false);
     });
   </script>
 </body>
